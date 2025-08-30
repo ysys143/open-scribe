@@ -5,11 +5,17 @@ Includes GPT-4o and Whisper API transcription
 
 import os
 import time
-from typing import Optional, List, Dict
+import asyncio
+from typing import Optional, List, Dict, Tuple
 from openai import OpenAI
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from .base import BaseTranscriber
-from ..utils.audio import compress_audio_if_needed, format_timestamp, timestamp_to_seconds
+from ..utils.audio import (
+    compress_audio_if_needed, format_timestamp, timestamp_to_seconds,
+    should_use_chunking, split_audio_into_chunks, cleanup_temp_chunks,
+    get_audio_duration
+)
 from ..utils.progress import ProgressBar
 
 class OpenAITranscriber(BaseTranscriber):
@@ -33,10 +39,136 @@ class WhisperAPITranscriber(OpenAITranscriber):
     def name(self) -> str:
         return "whisper-api"
     
+    def transcribe_single_chunk(self, chunk_path: str, chunk_index: int, 
+                              chunk_start_time: float = 0) -> Tuple[int, Optional[Dict]]:
+        """
+        Transcribe a single audio chunk
+        
+        Args:
+            chunk_path: Path to chunk file
+            chunk_index: Index of this chunk
+            chunk_start_time: Start time of this chunk in original audio
+            
+        Returns:
+            tuple: (chunk_index, result_dict with text and timestamps)
+        """
+        try:
+            with open(chunk_path, "rb") as audio_file:
+                transcription = self.client.audio.transcriptions.create(
+                    model="whisper-1",
+                    file=audio_file,
+                    response_format="verbose_json"
+                )
+            
+            result = {
+                'text': transcription.text if hasattr(transcription, 'text') else str(transcription),
+                'segments': []
+            }
+            
+            # Adjust timestamps for chunk position
+            if hasattr(transcription, 'segments'):
+                for segment in transcription.segments:
+                    if hasattr(segment, 'start') and hasattr(segment, 'text'):
+                        adjusted_segment = {
+                            'start': segment.start + chunk_start_time,
+                            'end': segment.end + chunk_start_time if hasattr(segment, 'end') else segment.start + chunk_start_time,
+                            'text': segment.text
+                        }
+                        result['segments'].append(adjusted_segment)
+            
+            return chunk_index, result
+            
+        except Exception as e:
+            print(f"[Whisper API] Error transcribing chunk {chunk_index}: {e}")
+            return chunk_index, None
+    
+    def transcribe_chunks_concurrent(self, chunk_paths: List[str], 
+                                   chunk_duration: float = 600,
+                                   max_workers: int = 5) -> List[Dict]:
+        """
+        Transcribe multiple chunks concurrently
+        
+        Args:
+            chunk_paths: List of paths to chunk files
+            chunk_duration: Duration of each chunk in seconds
+            max_workers: Maximum concurrent workers
+            
+        Returns:
+            list: Transcription results ordered by chunk index
+        """
+        results = [None] * len(chunk_paths)
+        
+        print(f"[Whisper API] Transcribing {len(chunk_paths)} chunks with {max_workers} workers...")
+        
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            # Submit all tasks
+            futures = {}
+            for i, chunk_path in enumerate(chunk_paths):
+                chunk_start_time = i * chunk_duration
+                future = executor.submit(
+                    self.transcribe_single_chunk, 
+                    chunk_path, i, chunk_start_time
+                )
+                futures[future] = i
+            
+            # Process results as they complete
+            completed = 0
+            for future in as_completed(futures):
+                chunk_index, result = future.result()
+                results[chunk_index] = result
+                completed += 1
+                print(f"[Whisper API] Completed chunk {chunk_index + 1}/{len(chunk_paths)}")
+        
+        return results
+    
+    def merge_chunk_results(self, chunk_results: List[Dict], 
+                          return_timestamps: bool = False) -> str:
+        """
+        Merge chunk results into final transcription
+        
+        Args:
+            chunk_results: List of chunk transcription results
+            return_timestamps: Whether to include timestamps
+            
+        Returns:
+            str: Merged transcription text
+        """
+        if not chunk_results:
+            return ""
+        
+        # Filter out None results (failed chunks)
+        valid_results = [r for r in chunk_results if r is not None]
+        
+        if not valid_results:
+            return ""
+        
+        if return_timestamps:
+            # Merge with timestamps
+            all_segments = []
+            for result in valid_results:
+                if result and 'segments' in result:
+                    all_segments.extend(result['segments'])
+            
+            # Format with timestamps
+            lines = []
+            for segment in all_segments:
+                timestamp = format_timestamp(segment['start'])
+                lines.append(f"[{timestamp}] {segment['text'].strip()}")
+            
+            return '\n'.join(lines)
+        else:
+            # Simple text merge
+            texts = []
+            for result in valid_results:
+                if result and 'text' in result:
+                    texts.append(result['text'].strip())
+            
+            return ' '.join(texts)
+    
     def transcribe(self, audio_path: str, stream: bool = False, 
                   return_timestamps: bool = False, **kwargs) -> Optional[str]:
         """
-        Transcribe using OpenAI Whisper API
+        Transcribe using OpenAI Whisper API with automatic chunking for large files
         
         Args:
             audio_path: Path to audio file
@@ -56,6 +188,45 @@ class WhisperAPITranscriber(OpenAITranscriber):
         
         print(f"[Whisper API] Processing: {audio_path}")
         
+        # Check if chunking is needed
+        if should_use_chunking(audio_path):
+            print("[Whisper API] File is large, using chunking strategy...")
+            
+            # Automatically disable stream mode for chunking
+            if stream:
+                print("[Whisper API] Note: Streaming disabled for chunked processing")
+                stream = False
+            
+            # Split audio into chunks
+            chunk_duration = 600  # 10 minutes per chunk
+            chunk_paths = split_audio_into_chunks(audio_path, chunk_duration)
+            
+            if len(chunk_paths) == 1 and chunk_paths[0] == audio_path:
+                # Chunking failed, fall back to compression
+                print("[Whisper API] Chunking failed, falling back to compression...")
+            else:
+                try:
+                    # Transcribe chunks concurrently
+                    chunk_results = self.transcribe_chunks_concurrent(
+                        chunk_paths, 
+                        chunk_duration,
+                        max_workers=min(5, len(chunk_paths))  # Max 5 concurrent requests
+                    )
+                    
+                    # Merge results
+                    final_transcription = self.merge_chunk_results(chunk_results, return_timestamps)
+                    
+                    # Stream output if requested
+                    if stream and final_transcription:
+                        self._stream_text(final_transcription)
+                    
+                    return final_transcription
+                    
+                finally:
+                    # Clean up chunk files
+                    cleanup_temp_chunks(chunk_paths)
+        
+        # Original logic for smaller files or if chunking is not needed
         # Check and compress audio if needed
         processed_path, was_compressed = compress_audio_if_needed(audio_path)
         
@@ -152,16 +323,23 @@ class GPT4TranscriberBase(OpenAITranscriber):
     def __init__(self, config, model: str):
         super().__init__(config)
         self.model = model
+        self._whisper_transcriber = None
+    
+    @property
+    def whisper_transcriber(self):
+        """Lazy initialization of WhisperAPITranscriber"""
+        if self._whisper_transcriber is None:
+            self._whisper_transcriber = WhisperAPITranscriber(self.config)
+        return self._whisper_transcriber
     
     def transcribe(self, audio_path: str, stream: bool = False,
                   return_timestamps: bool = False, **kwargs) -> Optional[str]:
         """
         Transcribe using GPT-4 models via Whisper API
-        Note: GPT-4 models use the same Whisper API endpoint
+        Note: GPT-4 models use the same Whisper API endpoint with chunking support
         """
         # GPT-4o models actually use Whisper API for transcription
-        whisper = WhisperAPITranscriber(self.config)
-        return whisper.transcribe(audio_path, stream, return_timestamps, **kwargs)
+        return self.whisper_transcriber.transcribe(audio_path, stream, return_timestamps, **kwargs)
 
 class GPT4OTranscriber(GPT4TranscriberBase):
     """GPT-4o transcriber"""
