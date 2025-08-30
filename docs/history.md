@@ -39,151 +39,18 @@
 - 데이터베이스 통합 테스트 성공
 - 에러 처리 테스트 성공
 
----### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
+## 2025-08-30 (v2.0)
 
-타임코드
-전사 진행상황 표시 
-스트림
-요약
+### 모듈화 아키텍처 구현
+- src/ 디렉토리 구조로 완전 재설계
+- 단일 책임 원칙에 따른 모듈 분리
+- main.py를 새로운 진입점으로 변경
+- 레거시 코드를 legacy/ 폴더로 이동
 
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
-### Step: null -> null
+### 주요 기능 개선
+- 25MB 이상 오디오 파일 자동 압축 (OpenAI API 제한 대응)
+- 병렬 재생목록 처리 지원 (--parallel 옵션)
+- 환경 변수명 변경: YT_TRANS_* → OPEN_SCRIBE_*
+- Windows 호환성 개선
+- whisper.cpp 출력 파싱 강화
 ### Step: null -> null
