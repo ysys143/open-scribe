@@ -169,7 +169,7 @@ function scribe() {
     cd "$OPEN_SCRIBE_PATH"
 
     # 명령어 구성
-    local cmd="python trans.py \"$youtube_url\" --engine $engine"
+    local cmd="python main.py \"$youtube_url\" --engine $engine"
 
     # 기능 옵션들
     if [[ "$summary" == true ]]; then
