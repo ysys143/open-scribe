@@ -20,6 +20,8 @@ import time
 import sqlite3
 import threading
 import itertools
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import multiprocessing
 
 # Import transcription functions
 from transcript import (
@@ -87,13 +89,17 @@ class ProgressBar:
 
 class TranscriptionTool:
     def __init__(self, preferred_languages: Optional[List[str]] = None, translate_to: Optional[str] = None, srt: bool = False, preserve_formatting: bool = False, force: bool = False, include_timestamps: bool = False):
-        self.base_path = Path.home() / "Documents" / "GitHub" / "yt-trans"
-        self.audio_path = self.base_path / "audio"
-        self.video_path = self.base_path / "video"
-        self.transcript_path = self.base_path / "transcript"
-        self.temp_audio_path = self.base_path / "temp_audio"
-        self.downloads_path = Path.home() / "Downloads"
-        self.db_path = self.base_path / "transcription_jobs.db"
+        # Get base path from environment variable or use default
+        base_path_str = os.getenv('OPEN_SCRIBE_BASE_PATH', str(Path.home() / "Documents" / "open-scribe"))
+        self.base_path = Path(base_path_str)
+        
+        # Get individual paths from environment variables or use defaults
+        self.audio_path = Path(os.getenv('OPEN_SCRIBE_AUDIO_PATH', str(self.base_path / "audio")))
+        self.video_path = Path(os.getenv('OPEN_SCRIBE_VIDEO_PATH', str(self.base_path / "video")))
+        self.transcript_path = Path(os.getenv('OPEN_SCRIBE_TRANSCRIPT_PATH', str(self.base_path / "transcript")))
+        self.temp_audio_path = Path(os.getenv('OPEN_SCRIBE_TEMP_PATH', str(self.base_path / "temp_audio")))
+        self.downloads_path = Path(os.getenv('OPEN_SCRIBE_DOWNLOADS_PATH', str(Path.home() / "Downloads")))
+        self.db_path = Path(os.getenv('OPEN_SCRIBE_DB_PATH', str(self.base_path / "transcription_jobs.db")))
         
         # transcription preferences (used by youtube-transcript-api path)
         self.preferred_languages = preferred_languages if preferred_languages is not None else ["en"]
@@ -205,25 +211,54 @@ class TranscriptionTool:
         """Prompt user with a timeout. Returns None if timeout or 'n', 'y' for yes."""
         print(f"{message} (y/n) - Timeout in {timeout} seconds: ", end='', flush=True)
         
-        def timeout_handler(signum, frame):
-            raise TimeoutError()
-        
-        # Set up the timeout
-        signal.signal(signal.SIGALRM, timeout_handler)
-        signal.alarm(timeout)
-        
-        try:
-            response = input().strip().lower()
-            signal.alarm(0)  # Cancel the alarm
-            return response
-        except TimeoutError:
-            signal.alarm(0)
-            print("\nTimeout reached. Proceeding with default action.")
-            return None
-        except KeyboardInterrupt:
-            signal.alarm(0)
-            print("\nOperation cancelled.")
-            sys.exit(1)
+        # Platform-specific timeout implementation
+        import platform
+        if platform.system() == 'Windows':
+            # Windows doesn't support SIGALRM, use threading instead
+            import threading
+            
+            response_container = [None]
+            
+            def get_input():
+                try:
+                    response_container[0] = input().strip().lower()
+                except KeyboardInterrupt:
+                    response_container[0] = 'interrupted'
+            
+            input_thread = threading.Thread(target=get_input)
+            input_thread.daemon = True
+            input_thread.start()
+            input_thread.join(timeout)
+            
+            if input_thread.is_alive():
+                print("\nTimeout reached. Proceeding with default action.")
+                return None
+            elif response_container[0] == 'interrupted':
+                print("\nOperation cancelled.")
+                sys.exit(1)
+            else:
+                return response_container[0]
+        else:
+            # Unix-like systems (Linux, macOS)
+            def timeout_handler(signum, frame):
+                raise TimeoutError()
+            
+            # Set up the timeout
+            signal.signal(signal.SIGALRM, timeout_handler)
+            signal.alarm(timeout)
+            
+            try:
+                response = input().strip().lower()
+                signal.alarm(0)  # Cancel the alarm
+                return response
+            except TimeoutError:
+                signal.alarm(0)
+                print("\nTimeout reached. Proceeding with default action.")
+                return None
+            except KeyboardInterrupt:
+                signal.alarm(0)
+                print("\nOperation cancelled.")
+                sys.exit(1)
     
     def check_existing_file(self, file_path: Path, file_type: str = "file") -> bool:
         """Check if file exists and prompt for overwrite if not forced.
@@ -632,9 +667,12 @@ class TranscriptionTool:
             return None
     
     def generate_summary(self, text: str, verbose: bool = False) -> Optional[str]:
-        """Generate AI summary of the transcription using GPT-4o"""
+        """Generate AI summary of the transcription using configurable GPT model"""
         try:
             client = OpenAI()
+            
+            # Get model from environment variable or use default
+            summary_model = os.getenv('OPENAI_SUMMARY_MODEL', 'gpt-4o-mini')
             
             if verbose:
                 prompt = """Please provide a comprehensive summary of the following transcript in Korean:
@@ -652,7 +690,7 @@ Transcript:
 {text}"""
             
             response = client.chat.completions.create(
-                model="gpt-4o-mini",  # Using gpt-4o-mini for cost efficiency
+                model=summary_model,
                 messages=[
                     {"role": "system", "content": "You are a helpful assistant that summarizes video transcripts in Korean."},
                     {"role": "user", "content": prompt.format(text=text[:8000])}  # Limit text to avoid token limits
@@ -778,18 +816,130 @@ def validate_youtube_url(url: str) -> bool:
     ]
     return any(pattern in url.lower() for pattern in valid_patterns)
 
+def process_single_video(url, args, tool, engine, playlist_index=None, playlist_total=None):
+    """Process a single video with all the specified options
+    
+    Args:
+        url: Video URL to process
+        args: Command line arguments
+        tool: YouTubeTranscriber instance
+        engine: Selected transcription engine
+        playlist_index: Current video index in playlist (optional)
+        playlist_total: Total videos in playlist (optional)
+    
+    Returns:
+        tuple: (success, video_title, error_message)
+    """
+    try:
+        # Print header if part of playlist
+        if playlist_index:
+            print(f"\n{'='*60}")
+            print(f"Video {playlist_index}/{playlist_total}")
+            print(f"{'='*60}")
+        
+        # Handle video download if requested
+        if args.video:
+            print(f"\nDownloading video: {url}")
+            video_file = tool.download_video(url, tool.video_path)
+            if video_file:
+                print(f"Video saved to: {video_file}")
+            else:
+                print("Failed to download video")
+                if not args.force:
+                    return (False, None, "Failed to download video")
+        
+        # Get video metadata
+        print(f"\nExtracting video information...")
+        video_info = tool.get_video_info(url)
+        video_title = "Unknown"
+        if video_info:
+            video_title = video_info.get('title', 'Unknown')
+            print(f"Title: {video_title}")
+            print(f"Duration: {video_info.get('duration', 0)} seconds")
+            print(f"Uploader: {video_info.get('uploader', 'Unknown')}")
+        
+        # Check for existing job in database
+        existing_job = tool.check_existing_job(url, engine)
+        if existing_job and not args.force:
+            # In parallel mode, skip without prompting
+            if playlist_index:
+                print(f"Skipping: Transcription already exists for '{video_title}' with {engine}")
+                return (True, video_title, None)
+            else:
+                response = tool.prompt_with_timeout(
+                    f"\nTranscription already exists for this video with {engine}.\nRe-transcribe?"
+                )
+                if response != 'y':
+                    print(f"Using existing transcription from: {existing_job['transcript_path']}")
+                    return (True, video_title, None)
+        
+        # Create job in database
+        job_id = tool.create_job(url, video_title, engine)
+        
+        # Perform transcription
+        print(f"\nTranscribing: {url}")
+        print(f"Engine: {engine}")
+        print(f"Options: stream={args.stream}, downloads={args.downloads}")
+        
+        transcription = tool.transcribe(url, engine, args.stream)
+        
+        if transcription:
+            # Use sanitized video title for filename
+            video_id = tool.extract_video_id(url)
+            safe_title = sanitize_filename(video_title)
+            
+            # Save transcript (respect SRT output for YouTube transcript API path)
+            file_ext = 'srt' if args.srt and engine == 'youtube-transcript-api' else 'txt'
+            transcript_path = tool.save_transcript(transcription, safe_title, args.downloads, ext=file_ext)
+            
+            # Generate summary if requested
+            summary_text = None
+            if args.summary:
+                print("\nGenerating AI summary...")
+                summary = tool.generate_summary(transcription, args.verbose)
+                if summary:
+                    print("\n" + "="*50)
+                    print("📝 SUMMARY")
+                    print("="*50)
+                    print(summary)
+                    print("="*50)
+                    
+                    # Save summary to file
+                    summary_title = f"{safe_title}_summary"
+                    tool.save_transcript(summary, summary_title, args.downloads, ext="txt")
+                    summary_text = summary
+                else:
+                    print("Failed to generate summary")
+            
+            # Update job status to completed
+            tool.update_job_status(job_id, 'completed', str(transcript_path), summary_text)
+            
+            print(f"\n✅ Transcription completed successfully for '{video_title}'!")
+            return (True, video_title, None)
+        else:
+            # Update job status to failed
+            tool.update_job_status(job_id, 'failed')
+            error_msg = f"Transcription failed for '{video_title}'"
+            print(f"\n❌ {error_msg}")
+            return (False, video_title, error_msg)
+            
+    except Exception as e:
+        error_msg = f"Error processing video: {str(e)}"
+        print(f"\n❌ {error_msg}")
+        return (False, None, error_msg)
+
 def main():
     # Get defaults from environment variables
-    default_engine = os.getenv('YT_TRANS_ENGINE', DEFAULT_ENGINE)
-    default_stream = os.getenv('YT_TRANS_STREAM', 'true').lower() == 'true'
-    default_downloads = os.getenv('YT_TRANS_DOWNLOADS', 'true').lower() == 'true'
-    default_summary = os.getenv('YT_TRANS_SUMMARY', 'true').lower() == 'true'  # Default to True
-    default_verbose = os.getenv('YT_TRANS_VERBOSE', 'true').lower() == 'true'  # Default to True
-    default_audio = os.getenv('YT_TRANS_AUDIO', 'false').lower() == 'true'
-    default_video = os.getenv('YT_TRANS_VIDEO', 'false').lower() == 'true'
-    default_srt = os.getenv('YT_TRANS_SRT', 'false').lower() == 'true'
-    default_translate = os.getenv('YT_TRANS_TRANSLATE', 'false').lower() == 'true'
-    default_timestamp = os.getenv('YT_TRANS_TIMESTAMP', 'false').lower() == 'true'
+    default_engine = os.getenv('OPEN_SCRIBE_ENGINE', DEFAULT_ENGINE)
+    default_stream = os.getenv('OPEN_SCRIBE_STREAM', 'true').lower() == 'true'
+    default_downloads = os.getenv('OPEN_SCRIBE_DOWNLOADS', 'true').lower() == 'true'
+    default_summary = os.getenv('OPEN_SCRIBE_SUMMARY', 'true').lower() == 'true'  # Default to True
+    default_verbose = os.getenv('OPEN_SCRIBE_VERBOSE', 'true').lower() == 'true'  # Default to True
+    default_audio = os.getenv('OPEN_SCRIBE_AUDIO', 'false').lower() == 'true'
+    default_video = os.getenv('OPEN_SCRIBE_VIDEO', 'false').lower() == 'true'
+    default_srt = os.getenv('OPEN_SCRIBE_SRT', 'false').lower() == 'true'
+    default_translate = os.getenv('OPEN_SCRIBE_TRANSLATE', 'false').lower() == 'true'
+    default_timestamp = os.getenv('OPEN_SCRIBE_TIMESTAMP', 'false').lower() == 'true'
     
     parser = argparse.ArgumentParser(
         prog='open-scribe',
@@ -804,16 +954,16 @@ Available engines:
   youtube-transcript-api (alias: youtube)     - YouTube native transcripts
 
 Environment variables for defaults:
-  YT_TRANS_ENGINE     - Default transcription engine
-  YT_TRANS_STREAM     - Enable streaming (true/false)
-  YT_TRANS_DOWNLOADS  - Export to Downloads (true/false)
-  YT_TRANS_SUMMARY    - Generate summary (true/false)
-  YT_TRANS_VERBOSE    - Verbose output (true/false)
-  YT_TRANS_AUDIO      - Keep audio files (true/false)
-  YT_TRANS_VIDEO      - Download video (true/false)
-  YT_TRANS_SRT        - Generate SRT (true/false)
-  YT_TRANS_TRANSLATE  - Translate to Korean (true/false)
-  YT_TRANS_TIMESTAMP  - Include timestamps (true/false)
+  OPEN_SCRIBE_ENGINE     - Default transcription engine
+  OPEN_SCRIBE_STREAM     - Enable streaming (true/false)
+  OPEN_SCRIBE_DOWNLOADS  - Export to Downloads (true/false)
+  OPEN_SCRIBE_SUMMARY    - Generate summary (true/false)
+  OPEN_SCRIBE_VERBOSE    - Verbose output (true/false)
+  OPEN_SCRIBE_AUDIO      - Keep audio files (true/false)
+  OPEN_SCRIBE_VIDEO      - Download video (true/false)
+  OPEN_SCRIBE_SRT        - Generate SRT (true/false)
+  OPEN_SCRIBE_TRANSLATE  - Translate to Korean (true/false)
+  OPEN_SCRIBE_TIMESTAMP  - Include timestamps (true/false)
         '''
     )
     
@@ -906,6 +1056,17 @@ Environment variables for defaults:
         action='store_true',
         help='Force re-transcription even if already exists'
     )
+    parser.add_argument(
+        '--parallel', '-p',
+        type=int,
+        metavar='N',
+        help='Process playlist videos in parallel (N workers, default: sequential)'
+    )
+    parser.add_argument(
+        '--filename',
+        type=str,
+        help='Custom filename for the transcript (without extension)'
+    )
     
     args = parser.parse_args()
     
@@ -954,6 +1115,12 @@ Environment variables for defaults:
         
         if playlist_items:
             print(f"Found {len(playlist_items)} videos in playlist")
+            
+            # Determine parallel processing
+            parallel_workers = args.parallel if args.parallel else None
+            if parallel_workers:
+                print(f"Parallel processing enabled with {parallel_workers} workers")
+            
             response = tool.prompt_with_timeout(
                 f"\nProcess all {len(playlist_items)} videos in the playlist?",
                 timeout=20
@@ -964,97 +1131,97 @@ Environment variables for defaults:
                 sys.exit(0)
             
             print(f"\nProcessing {len(playlist_items)} videos...")
-            for i, item in enumerate(playlist_items, 1):
-                print(f"\n{'='*60}")
-                print(f"Video {i}/{len(playlist_items)}: {item['title']}")
-                print(f"{'='*60}")
+            
+            # Parallel processing
+            if parallel_workers:
+                # Limit workers to min(num_videos, num_cores, specified_workers)
+                max_workers = min(
+                    len(playlist_items),
+                    multiprocessing.cpu_count(),
+                    parallel_workers
+                )
+                print(f"Using {max_workers} parallel workers")
                 
-                # Process each video with the same settings
-                args.url = item['url']
-                # Continue with regular processing for each video
-                # (The rest of the code will handle individual videos)
+                successful = []
+                failed = []
+                
+                with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                    # Submit all tasks
+                    futures = {}
+                    for i, item in enumerate(playlist_items, 1):
+                        future = executor.submit(
+                            process_single_video,
+                            item['url'],
+                            args,
+                            tool,
+                            engine,
+                            i,
+                            len(playlist_items)
+                        )
+                        futures[future] = item
+                    
+                    # Process results as they complete
+                    for future in as_completed(futures):
+                        item = futures[future]
+                        try:
+                            success, title, error = future.result()
+                            if success:
+                                successful.append(title or item['title'])
+                            else:
+                                failed.append((title or item['title'], error))
+                        except Exception as e:
+                            failed.append((item['title'], str(e)))
+                
+                # Print summary
+                print("\n" + "="*60)
+                print("PLAYLIST PROCESSING COMPLETE")
+                print("="*60)
+                print(f"✅ Successful: {len(successful)} videos")
+                if successful:
+                    for title in successful[:10]:  # Show first 10
+                        print(f"  • {title}")
+                    if len(successful) > 10:
+                        print(f"  ... and {len(successful) - 10} more")
+                
+                if failed:
+                    print(f"\n❌ Failed: {len(failed)} videos")
+                    for title, error in failed[:5]:  # Show first 5 errors
+                        print(f"  • {title}: {error}")
+                    if len(failed) > 5:
+                        print(f"  ... and {len(failed) - 5} more")
+                
+                print("="*60)
+                sys.exit(0 if not failed else 1)
+            
+            # Sequential processing (existing code)
+            else:
+                for i, item in enumerate(playlist_items, 1):
+                    success, title, error = process_single_video(
+                        item['url'],
+                        args,
+                        tool,
+                        engine,
+                        i,
+                        len(playlist_items)
+                    )
+                    if not success and not args.force:
+                        print(f"Stopping playlist processing due to error: {error}")
+                        sys.exit(1)
+                
+                print("\n" + "="*60)
+                print("✅ PLAYLIST PROCESSING COMPLETE")
+                print("="*60)
+                sys.exit(0)
         else:
             print("Could not extract playlist items")
             sys.exit(1)
     
-    # Handle video download if requested
-    if args.video:
-        print(f"\nDownloading video: {args.url}")
-        video_file = tool.download_video(args.url, tool.video_path)
-        if video_file:
-            print(f"Video saved to: {video_file}")
-        else:
-            print("Failed to download video")
-            if not args.force:
-                sys.exit(1)
-    
-    # Get video metadata
-    print(f"\nExtracting video information...")
-    video_info = tool.get_video_info(args.url)
-    video_title = "Unknown"
-    if video_info:
-        video_title = video_info.get('title', 'Unknown')
-        print(f"Title: {video_title}")
-        print(f"Duration: {video_info.get('duration', 0)} seconds")
-        print(f"Uploader: {video_info.get('uploader', 'Unknown')}")
-    
-    # Check for existing job in database
-    existing_job = tool.check_existing_job(args.url, engine)
-    if existing_job and not args.force:
-        response = tool.prompt_with_timeout(
-            f"\nTranscription already exists for this video with {engine}.\nRe-transcribe?"
-        )
-        if response != 'y':
-            print(f"Using existing transcription from: {existing_job['transcript_path']}")
-            sys.exit(0)
-    
-    # Create job in database
-    job_id = tool.create_job(args.url, video_title, engine)
-    
-    # Perform transcription
-    print(f"\nTranscribing: {args.url}")
-    print(f"Engine: {engine}")
-    print(f"Options: stream={args.stream}, downloads={args.downloads}")
-    
-    transcription = tool.transcribe(args.url, engine, args.stream)
-    
-    if transcription:
-        # Use sanitized video title for filename
-        video_id = tool.extract_video_id(args.url)
-        safe_title = sanitize_filename(video_title)
-        
-        # Save transcript (respect SRT output for YouTube transcript API path)
-        file_ext = 'srt' if args.srt and engine == 'youtube-transcript-api' else 'txt'
-        transcript_path = tool.save_transcript(transcription, safe_title, args.downloads, ext=file_ext)
-        
-        # Generate summary if requested
-        summary_text = None
-        if args.summary:
-            print("\nGenerating AI summary...")
-            summary = tool.generate_summary(transcription, args.verbose)
-            if summary:
-                print("\n" + "="*50)
-                print("📝 SUMMARY")
-                print("="*50)
-                print(summary)
-                print("="*50)
-                
-                # Save summary to file
-                summary_title = f"{safe_title}_summary"
-                tool.save_transcript(summary, summary_title, args.downloads, ext="txt")
-                summary_text = summary
-            else:
-                print("Failed to generate summary")
-        
-        # Update job status to completed
-        tool.update_job_status(job_id, 'completed', str(transcript_path), summary_text)
-        
-        print("\nTranscription completed successfully!")
+    # Process single video (not a playlist)
     else:
-        # Update job status to failed
-        tool.update_job_status(job_id, 'failed')
-        print("\nTranscription failed!")
-        sys.exit(1)
+        success, title, error = process_single_video(args.url, args, tool, engine)
+        if not success:
+            sys.exit(1)
+        sys.exit(0)
 
 
 if __name__ == "__main__":

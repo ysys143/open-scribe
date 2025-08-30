@@ -32,6 +32,59 @@ def timestamp_to_seconds(timestamp_str):
         return int(hours) * 3600 + int(minutes) * 60 + secs
     return 0
 
+def compress_audio_if_needed(audio_path, max_size_mb=25):
+    """Compress audio file if it exceeds max size
+    
+    Args:
+        audio_path: Path to audio file
+        max_size_mb: Maximum file size in MB (default 25MB for OpenAI)
+    
+    Returns:
+        str: Path to compressed file or original path if under limit
+    """
+    file_size_mb = os.path.getsize(audio_path) / (1024 * 1024)
+    
+    if file_size_mb <= max_size_mb:
+        return audio_path
+    
+    print(f"[OpenAI] File size ({file_size_mb:.1f}MB) exceeds limit ({max_size_mb}MB). Compressing...")
+    
+    # Create compressed version with lower bitrate
+    compressed_path = audio_path.replace('.mp3', '_compressed.mp3')
+    
+    # Calculate target bitrate to achieve desired file size
+    # Rough estimate: target_bitrate = (max_size_mb * 8 * 1024) / (duration_seconds)
+    # For safety, use 64kbps which should work for most cases
+    compress_cmd = [
+        "ffmpeg", "-i", audio_path,
+        "-b:a", "64k",  # Lower bitrate for smaller file
+        "-ar", "16000",  # Lower sample rate
+        "-ac", "1",      # Mono
+        compressed_path,
+        "-y",
+        "-loglevel", "error"
+    ]
+    
+    result = subprocess.run(compress_cmd, capture_output=True, text=True)
+    if result.returncode != 0:
+        print(f"[OpenAI] Warning: Could not compress audio: {result.stderr}")
+        return audio_path
+    
+    compressed_size_mb = os.path.getsize(compressed_path) / (1024 * 1024)
+    print(f"[OpenAI] Compressed to {compressed_size_mb:.1f}MB")
+    
+    # If still too large, try even lower bitrate
+    if compressed_size_mb > max_size_mb:
+        print(f"[OpenAI] Still too large, trying lower quality...")
+        compress_cmd[4] = "32k"  # Even lower bitrate
+        result = subprocess.run(compress_cmd, capture_output=True, text=True)
+        
+        if result.returncode == 0:
+            compressed_size_mb = os.path.getsize(compressed_path) / (1024 * 1024)
+            print(f"[OpenAI] Compressed to {compressed_size_mb:.1f}MB")
+    
+    return compressed_path
+
 def transcribe_with_openai(audio_path, stream=False, return_timestamps=False):
     """OpenAI API를 사용한 전사 - Whisper 모델 사용
     
@@ -44,6 +97,10 @@ def transcribe_with_openai(audio_path, stream=False, return_timestamps=False):
         str or tuple: 텍스트만 반환하거나 (text, timestamps) 튜플 반환
     """
     print(f"[OpenAI] Processing: {audio_path}")
+    
+    # Check and compress audio if needed
+    processed_audio_path = compress_audio_if_needed(audio_path)
+    temp_file_created = (processed_audio_path != audio_path)
     
     # Progress indicator for non-streaming mode
     if not stream:
@@ -65,7 +122,7 @@ def transcribe_with_openai(audio_path, stream=False, return_timestamps=False):
         spinner_thread.start()
     
     try:
-        with open(audio_path, "rb") as audio_file:
+        with open(processed_audio_path, "rb") as audio_file:
             # OpenAI's transcription API uses whisper-1 model
             # Always get verbose_json for timestamps
             transcription = client.audio.transcriptions.create(
@@ -184,6 +241,14 @@ def transcribe_with_openai(audio_path, stream=False, return_timestamps=False):
                 spinner_thread.join()
         print(f"[OpenAI] Error: {e}")
         raise
+    finally:
+        # Clean up temporary compressed file if created
+        if temp_file_created and os.path.exists(processed_audio_path):
+            try:
+                os.remove(processed_audio_path)
+                print(f"[OpenAI] Cleaned up temporary compressed file")
+            except:
+                pass
 
 def transcribe_with_whisper_api(audio_path):
     """OpenAI Whisper API를 사용한 전사"""
@@ -209,26 +274,52 @@ def transcribe_with_whisper_cpp(audio_path, model_path=None, language="auto", st
     """
     # 기본 모델 경로 설정
     if model_path is None:
-        model_path = "/Users/jaesolshin/Documents/GitHub/yt-trans/whisper.cpp/models/ggml-base.bin"
+        default_model = os.getenv('WHISPER_CPP_MODEL', 
+                                  os.path.expanduser("~/whisper.cpp/models/ggml-base.bin"))
+        model_path = default_model
     
     # whisper.cpp 실행 파일 경로
-    whisper_exe = "/Users/jaesolshin/Documents/GitHub/yt-trans/whisper.cpp/build/bin/whisper-cli"
+    whisper_exe = os.getenv('WHISPER_CPP_EXECUTABLE', 
+                            os.path.expanduser("~/whisper.cpp/build/bin/whisper-cli"))
+    
+    # Check if whisper.cpp executable exists
+    if not os.path.exists(whisper_exe):
+        print(f"[whisper.cpp] Error: Executable not found at {whisper_exe}")
+        print("[whisper.cpp] Please install whisper.cpp or set WHISPER_CPP_EXECUTABLE environment variable")
+        return None
+    
+    # Check if model file exists  
+    if not os.path.exists(model_path):
+        print(f"[whisper.cpp] Error: Model file not found at {model_path}")
+        print("[whisper.cpp] Please download a model or set WHISPER_CPP_MODEL environment variable")
+        return None
     
     # MP3를 WAV로 변환 (whisper.cpp는 WAV 포맷 선호)
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_wav:
         wav_path = tmp_wav.name
         
     try:
+        # Check if ffmpeg is available
+        ffmpeg_check = subprocess.run(["ffmpeg", "-version"], capture_output=True, text=True)
+        if ffmpeg_check.returncode != 0:
+            print("[whisper.cpp] Error: ffmpeg not found. Please install ffmpeg")
+            return None
+            
         # ffmpeg로 MP3를 16kHz WAV로 변환
+        print(f"[whisper.cpp] Converting audio to WAV format...")
         convert_cmd = [
             "ffmpeg", "-i", audio_path, 
             "-ar", "16000",  # 16kHz 샘플링
             "-ac", "1",      # 모노
             "-c:a", "pcm_s16le",  # 16-bit PCM
             wav_path,
-            "-y"  # 덮어쓰기
+            "-y",  # 덮어쓰기
+            "-loglevel", "error"  # 에러만 표시
         ]
-        subprocess.run(convert_cmd, check=True, capture_output=True, text=True)
+        result = subprocess.run(convert_cmd, capture_output=True, text=True)
+        if result.returncode != 0:
+            print(f"[whisper.cpp] Error converting audio: {result.stderr}")
+            return None
         
         # whisper.cpp 명령어 구성
         cmd = [
@@ -283,31 +374,58 @@ def transcribe_with_whisper_cpp(audio_path, model_path=None, language="auto", st
                 if output:
                     line = output.strip()
                     
-                    # 시스템 메시지 필터링
-                    if any(skip in line.lower() for skip in ['ggml', 'metal', 'loading', 'model', 'system', 'whisper_', 'main:']):
+                    # 시스템 메시지 필터링 (더 포괄적인 필터링)
+                    if any(skip in line.lower() for skip in [
+                        'ggml', 'metal', 'loading', 'model', 'system', 'whisper_', 
+                        'main:', 'processing', 'compute', 'encoder', 'decoder',
+                        'mel', 'sample', 'threads', 'buffer', 'memory', 'info:'
+                    ]):
                         continue
                     
                     # 타임코드가 있는 라인 처리
                     if "[" in line and "-->" in line and "]" in line:
                         # 타임코드와 텍스트 추출
                         import re
-                        timestamp_match = re.match(r'\[(\d{2}:\d{2}:\d{2}\.\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}\.\d{3})\]\s*(.*)', line)
+                        # 더 유연한 타임스탬프 패턴 매칭
+                        timestamp_patterns = [
+                            r'\[(\d{2}:\d{2}:\d{2}\.\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}\.\d{3})\]\s*(.*)',
+                            r'\[(\d{2}:\d{2}:\d{2})\s*-->\s*(\d{2}:\d{2}:\d{2})\]\s*(.*)',
+                            r'\[(\d{2}:\d{2}\.\d{3})\s*-->\s*(\d{2}:\d{2}\.\d{3})\]\s*(.*)',
+                        ]
+                        
+                        timestamp_match = None
+                        for pattern in timestamp_patterns:
+                            timestamp_match = re.match(pattern, line)
+                            if timestamp_match:
+                                break
+                        
                         if timestamp_match:
                             start_str, end_str, text = timestamp_match.groups()
-                            # 특수 토큰 필터링
-                            text = re.sub(r'\[_EOT_\]|\[BLANK_AUDIO\]|\[Music\]|\[_BEG_\]', '', text).strip()
-                            if text and not text.startswith('['):
-                                # Convert timestamp to seconds
-                                start_seconds = timestamp_to_seconds(start_str)
-                                # Format timestamp for display
-                                timestamp_display = format_timestamp(start_seconds)
-                                print(f"[{timestamp_display}] {text}", flush=True)
-                                current_text.append(text)
-                                timestamps.append({
-                                    'start': start_seconds,
-                                    'end': timestamp_to_seconds(end_str),
-                                    'text': text
-                                })
+                            # 특수 토큰 필터링 (더 많은 토큰 추가)
+                            text = re.sub(
+                                r'\[_EOT_\]|\[BLANK_AUDIO\]|\[Music\]|\[_BEG_\]|\[MUSIC\]|\[music\]|\[♪\]|\(music\)|\(Music\)',
+                                '', text
+                            ).strip()
+                            
+                            # 빈 텍스트나 너무 짧은 텍스트 제외
+                            if text and not text.startswith('[') and len(text) > 1:
+                                try:
+                                    # Convert timestamp to seconds
+                                    start_seconds = timestamp_to_seconds(start_str)
+                                    # Format timestamp for display
+                                    timestamp_display = format_timestamp(start_seconds)
+                                    print(f"[{timestamp_display}] {text}", flush=True)
+                                    current_text.append(text)
+                                    timestamps.append({
+                                        'start': start_seconds,
+                                        'end': timestamp_to_seconds(end_str),
+                                        'text': text
+                                    })
+                                except Exception as e:
+                                    # 타임스탬프 파싱 실패 시 텍스트만 저장
+                                    if text:
+                                        print(text, flush=True)
+                                        current_text.append(text)
                     # 일반 텍스트 라인
                     elif line and not line.startswith("[") and not "progress" in line.lower():
                         # ANSI 색상 코드 및 특수 토큰 제거
@@ -354,18 +472,43 @@ def transcribe_with_whisper_cpp(audio_path, model_path=None, language="auto", st
                 formatted_transcription = transcription
                 if return_timestamps and os.path.exists(vtt_output):
                     timestamps = []
-                    with open(vtt_output, 'r', encoding='utf-8') as f:
-                        vtt_content = f.read()
-                        # Parse VTT timestamps
-                        import re
-                        pattern = r'(\d{2}:\d{2}:\d{2}\.\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}\.\d{3})\n(.+?)(?=\n\n|$)'
-                        matches = re.findall(pattern, vtt_content, re.DOTALL)
-                        for start_str, end_str, text in matches:
-                            timestamps.append({
-                                'start': timestamp_to_seconds(start_str),
-                                'end': timestamp_to_seconds(end_str),
-                                'text': text.strip()
-                            })
+                    try:
+                        with open(vtt_output, 'r', encoding='utf-8') as f:
+                            vtt_content = f.read()
+                            # Parse VTT timestamps with multiple patterns
+                            import re
+                            # Try different VTT timestamp patterns
+                            patterns = [
+                                r'(\d{2}:\d{2}:\d{2}\.\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}\.\d{3})\n(.+?)(?=\n\n|\d{2}:\d{2}|$)',
+                                r'(\d{2}:\d{2}:\d{2})\s*-->\s*(\d{2}:\d{2}:\d{2})\n(.+?)(?=\n\n|\d{2}:\d{2}|$)',
+                                r'(\d{1,2}:\d{2}:\d{2}\.\d{3})\s*-->\s*(\d{1,2}:\d{2}:\d{2}\.\d{3})\n(.+?)(?=\n\n|$)'
+                            ]
+                            
+                            matches = []
+                            for pattern in patterns:
+                                matches = re.findall(pattern, vtt_content, re.DOTALL | re.MULTILINE)
+                                if matches:
+                                    break
+                            
+                            for start_str, end_str, text in matches:
+                                # Clean up text (remove special tokens)
+                                text = re.sub(
+                                    r'\[_EOT_\]|\[BLANK_AUDIO\]|\[Music\]|\[_BEG_\]|\[MUSIC\]|\[music\]|\[♪\]|\(music\)|\(Music\)',
+                                    '', text
+                                ).strip()
+                                
+                                if text and len(text) > 1:
+                                    try:
+                                        timestamps.append({
+                                            'start': timestamp_to_seconds(start_str),
+                                            'end': timestamp_to_seconds(end_str),
+                                            'text': text
+                                        })
+                                    except Exception:
+                                        # Skip malformed timestamps
+                                        continue
+                    except Exception as e:
+                        print(f"[whisper.cpp] Warning: Could not parse VTT file: {e}")
                     
                     if timestamps:
                         # Format text with timestamps
@@ -394,7 +537,14 @@ def transcribe_with_whisper_cpp(audio_path, model_path=None, language="auto", st
     return None
 
 if __name__ == "__main__":
-    test_file = "/Users/jaesolshin/Documents/GitHub/yt-trans/temp_audio/Abstract vector spaces ｜ Chapter 16, Essence of linear algebra [TgKwz5Ikpc8].mp3"
+    # Example test - provide your own audio file path
+    import sys
+    if len(sys.argv) > 1:
+        test_file = sys.argv[1]
+    else:
+        print("Usage: python transcript.py <audio_file_path>")
+        print("Example: python transcript.py ~/Downloads/sample.mp3")
+        sys.exit(1)
 
     print("=== OpenAI GPT-4o-mini Transcription ===")
     transcribe_with_openai(test_file)
