@@ -209,3 +209,89 @@ def create_estimated_progress(message: str, estimated_duration: float = 30.0,
     if chunk_info:
         progress.set_chunk_info(chunk_info[0], chunk_info[1])
     return progress
+
+
+class ChunkedProgressBar:
+    """Progress bar for chunked processing with thread-safe updates"""
+    
+    def __init__(self, total_chunks: int, estimated_per_chunk: float = 30.0):
+        """
+        Initialize chunked progress bar
+        
+        Args:
+            total_chunks: Total number of chunks to process
+            estimated_per_chunk: Estimated time per chunk in seconds
+        """
+        self.total_chunks = total_chunks
+        self.completed_chunks = 0
+        self.estimated_per_chunk = estimated_per_chunk
+        self.estimated_total = total_chunks * estimated_per_chunk
+        self.start_time = None
+        self.stop_event = threading.Event()
+        self.thread = None
+        self.lock = threading.Lock()  # Thread lock for safe updates
+        self.active_workers = 0
+        self.max_workers = 5
+        
+    def start(self):
+        """Start the progress bar animation"""
+        self.start_time = time.time()
+        self.thread = threading.Thread(target=self._animate)
+        self.thread.daemon = True
+        self.thread.start()
+        
+    def _animate(self):
+        """Animation loop for progress bar"""
+        bar_length = 40  # Longer bar for better visibility
+        
+        while not self.stop_event.is_set():
+            with self.lock:
+                elapsed = time.time() - self.start_time
+                
+                # Calculate overall progress
+                progress_pct = (self.completed_chunks / self.total_chunks) * 100
+                
+                # Calculate ETA
+                if self.completed_chunks > 0:
+                    avg_time_per_chunk = elapsed / self.completed_chunks
+                    remaining_chunks = self.total_chunks - self.completed_chunks
+                    eta = remaining_chunks * avg_time_per_chunk
+                    eta_str = f"ETA: {int(eta)}s"
+                else:
+                    eta_str = f"ETA: {int(self.estimated_total)}s"
+                
+                # Create progress bar
+                filled = int(bar_length * progress_pct / 100)
+                bar = '█' * filled + '░' * (bar_length - filled)
+                
+                # Build status message
+                status = f"\r[Whisper API] Processing chunks: [{bar}] {self.completed_chunks}/{self.total_chunks} ({progress_pct:.1f}%) | {eta_str}"
+                
+                # Clear line and write status
+                sys.stdout.write('\r' + ' ' * 100 + '\r')  # Clear entire line
+                sys.stdout.write(status)
+                sys.stdout.flush()
+            
+            time.sleep(0.1)
+        
+        # Final update
+        with self.lock:
+            if self.completed_chunks == self.total_chunks:
+                elapsed = time.time() - self.start_time
+                filled = bar_length
+                bar = '█' * filled
+                status = f"\r[Whisper API] Processing chunks: [{bar}] {self.total_chunks}/{self.total_chunks} (100.0%) | Completed in {int(elapsed)}s"
+                sys.stdout.write('\r' + ' ' * 100 + '\r')  # Clear entire line
+                sys.stdout.write(status + '\n')
+                sys.stdout.flush()
+    
+    def complete_chunk(self, chunk_number: int):
+        """Mark a chunk as completed (thread-safe)"""
+        with self.lock:
+            self.completed_chunks += 1
+    
+    def finish(self):
+        """Stop the progress bar"""
+        self.stop_event.set()
+        if self.thread:
+            self.thread.join(timeout=0.5)
