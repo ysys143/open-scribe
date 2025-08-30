@@ -21,9 +21,11 @@ from ..utils.progress import ProgressBar, EstimatedProgressBar, create_estimated
 class OpenAITranscriber(BaseTranscriber):
     """Base class for OpenAI transcribers"""
     
-    def __init__(self, config):
+    def __init__(self, config, model_name: str = "whisper-1", display_name: str = "Whisper API"):
         super().__init__(config)
         self.client = OpenAI(api_key=config.OPENAI_API_KEY) if config.OPENAI_API_KEY else None
+        self.model_name = model_name
+        self.display_name = display_name
     
     def is_available(self) -> bool:
         return self.client is not None
@@ -34,6 +36,9 @@ class OpenAITranscriber(BaseTranscriber):
 
 class WhisperAPITranscriber(OpenAITranscriber):
     """OpenAI Whisper API transcriber"""
+    
+    def __init__(self, config):
+        super().__init__(config, model_name="whisper-1", display_name="Whisper API")
     
     @property
     def name(self) -> str:
@@ -55,7 +60,7 @@ class WhisperAPITranscriber(OpenAITranscriber):
         try:
             with open(chunk_path, "rb") as audio_file:
                 transcription = self.client.audio.transcriptions.create(
-                    model="whisper-1",
+                    model=self.model_name,
                     file=audio_file,
                     response_format="verbose_json"
                 )
@@ -79,7 +84,7 @@ class WhisperAPITranscriber(OpenAITranscriber):
             return chunk_index, result
             
         except Exception as e:
-            print(f"[Whisper API] Error transcribing chunk {chunk_index}: {e}")
+            print(f"[{self.display_name}] Error transcribing chunk {chunk_index}: {e}")
             return chunk_index, None
     
     def transcribe_chunks_concurrent(self, chunk_paths: List[str], 
@@ -98,13 +103,14 @@ class WhisperAPITranscriber(OpenAITranscriber):
         """
         results = [None] * len(chunk_paths)
         
-        print(f"[Whisper API] Transcribing {len(chunk_paths)} chunks with {max_workers} workers...")
+        print(f"[{self.display_name}] Transcribing {len(chunk_paths)} chunks with {max_workers} workers...")
         
         # Use a single consolidated progress bar for all chunks
         from ..utils.progress import ChunkedProgressBar
         progress = ChunkedProgressBar(
             total_chunks=len(chunk_paths),
-            estimated_per_chunk=30.0  # 30 seconds per chunk
+            estimated_per_chunk=30.0,  # 30 seconds per chunk
+            display_name=self.display_name
         )
         progress.start()
         
@@ -126,7 +132,7 @@ class WhisperAPITranscriber(OpenAITranscriber):
                 progress.complete_chunk(chunk_index + 1)
         
         progress.finish()
-        print(f"[Whisper API] All {len(chunk_paths)} chunks completed successfully")
+        print(f"[{self.display_name}] All {len(chunk_paths)} chunks completed successfully")
         
         return results
     
@@ -188,22 +194,22 @@ class WhisperAPITranscriber(OpenAITranscriber):
             str: Transcribed text or None if failed
         """
         if not self.is_available():
-            print("[Whisper API] Error: OpenAI API key not configured")
+            print(f"[{self.display_name}] Error: OpenAI API key not configured")
             return None
         
         if not self.validate_audio_file(audio_path):
-            print(f"[Whisper API] Error: Audio file not found: {audio_path}")
+            print(f"[{self.display_name}] Error: Audio file not found: {audio_path}")
             return None
         
-        print(f"[Whisper API] Processing: {audio_path}")
+        print(f"[{self.display_name}] Processing: {audio_path}")
         
         # Check if chunking is needed
         if should_use_chunking(audio_path):
-            print("[Whisper API] File is large, using chunking strategy...")
+            print(f"[{self.display_name}] File is large, using chunking strategy...")
             
             # Automatically disable stream mode for chunking
             if stream:
-                print("[Whisper API] Note: Streaming disabled for chunked processing")
+                print(f"[{self.display_name}] Note: Streaming disabled for chunked processing")
                 stream = False
             
             # Split audio into chunks
@@ -212,7 +218,7 @@ class WhisperAPITranscriber(OpenAITranscriber):
             
             if len(chunk_paths) == 1 and chunk_paths[0] == audio_path:
                 # Chunking failed, fall back to compression
-                print("[Whisper API] Chunking failed, falling back to compression...")
+                print(f"[{self.display_name}] Chunking failed, falling back to compression...")
             else:
                 try:
                     # Transcribe chunks concurrently
@@ -245,13 +251,13 @@ class WhisperAPITranscriber(OpenAITranscriber):
             # Estimate based on file size: roughly 30 seconds per 10MB
             file_size_mb = os.path.getsize(processed_path) / (1024 * 1024)
             estimated_duration = max(10, min(60, file_size_mb * 3))  # 10-60 seconds range
-            progress = create_estimated_progress("[Whisper API] Transcribing", estimated_duration)
+            progress = create_estimated_progress(f"[{self.display_name}] Transcribing", estimated_duration)
             progress.start()
         
         try:
             with open(processed_path, "rb") as audio_file:
                 transcription = self.client.audio.transcriptions.create(
-                    model="whisper-1",
+                    model=self.model_name,
                     file=audio_file,
                     response_format="verbose_json" if return_timestamps else "text"
                 )
@@ -272,7 +278,7 @@ class WhisperAPITranscriber(OpenAITranscriber):
         except Exception as e:
             if progress:
                 progress.stop()
-            print(f"[Whisper API] Error: {e}")
+            print(f"[{self.display_name}] Error: {e}")
             return None
         finally:
             # Clean up compressed file if created
@@ -287,7 +293,7 @@ class WhisperAPITranscriber(OpenAITranscriber):
         formatted_lines = []
         
         if stream:
-            print("[Whisper API] Streaming transcription...")
+            print(f"[{self.display_name}] Streaming transcription...")
             print("-" * 60)
         
         for segment in segments:
@@ -308,7 +314,7 @@ class WhisperAPITranscriber(OpenAITranscriber):
     
     def _stream_text(self, text: str):
         """Stream text output word by word"""
-        print("[Whisper API] Streaming transcription...")
+        print(f"[{self.display_name}] Streaming transcription...")
         print("-" * 60)
         
         words = text.split()
@@ -329,45 +335,27 @@ class WhisperAPITranscriber(OpenAITranscriber):
         
         print("-" * 60)
 
-class GPT4TranscriberBase(OpenAITranscriber):
-    """Base class for GPT-4 based transcribers"""
-    
-    def __init__(self, config, model: str):
-        super().__init__(config)
-        self.model = model
-        self._whisper_transcriber = None
-    
-    @property
-    def whisper_transcriber(self):
-        """Lazy initialization of WhisperAPITranscriber"""
-        if self._whisper_transcriber is None:
-            self._whisper_transcriber = WhisperAPITranscriber(self.config)
-        return self._whisper_transcriber
-    
-    def transcribe(self, audio_path: str, stream: bool = False,
-                  return_timestamps: bool = False, **kwargs) -> Optional[str]:
-        """
-        Transcribe using GPT-4 models via Whisper API
-        Note: GPT-4 models use the same Whisper API endpoint with chunking support
-        """
-        # GPT-4o models actually use Whisper API for transcription
-        return self.whisper_transcriber.transcribe(audio_path, stream, return_timestamps, **kwargs)
-
-class GPT4OTranscriber(GPT4TranscriberBase):
-    """GPT-4o transcriber"""
+class GPT4OTranscriber(WhisperAPITranscriber):
+    """GPT-4o transcriber using the new GPT-4o-transcribe model"""
     
     def __init__(self, config):
-        super().__init__(config, "gpt-4o")
+        # Initialize with GPT-4o-transcribe model
+        super().__init__(config)
+        self.model_name = "gpt-4o-transcribe"
+        self.display_name = "GPT-4o"
     
     @property
     def name(self) -> str:
         return "gpt-4o-transcribe"
 
-class GPT4OMiniTranscriber(GPT4TranscriberBase):
-    """GPT-4o-mini transcriber"""
+class GPT4OMiniTranscriber(WhisperAPITranscriber):
+    """GPT-4o-mini transcriber using the new GPT-4o-mini-transcribe model"""
     
     def __init__(self, config):
-        super().__init__(config, "gpt-4o-mini")
+        # Initialize with GPT-4o-mini-transcribe model
+        super().__init__(config)
+        self.model_name = "gpt-4o-mini-transcribe"
+        self.display_name = "GPT-4o-mini"
     
     @property
     def name(self) -> str:

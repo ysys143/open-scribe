@@ -214,18 +214,20 @@ def create_estimated_progress(message: str, estimated_duration: float = 30.0,
 class ChunkedProgressBar:
     """Progress bar for chunked processing with thread-safe updates"""
     
-    def __init__(self, total_chunks: int, estimated_per_chunk: float = 30.0):
+    def __init__(self, total_chunks: int, estimated_per_chunk: float = 30.0, display_name: str = "Whisper API"):
         """
         Initialize chunked progress bar
         
         Args:
             total_chunks: Total number of chunks to process
             estimated_per_chunk: Estimated time per chunk in seconds
+            display_name: Name to display in progress messages
         """
         self.total_chunks = total_chunks
         self.completed_chunks = 0
         self.estimated_per_chunk = estimated_per_chunk
         self.estimated_total = total_chunks * estimated_per_chunk
+        self.display_name = display_name
         self.start_time = None
         self.stop_event = threading.Event()
         self.thread = None
@@ -265,7 +267,7 @@ class ChunkedProgressBar:
                 bar = '█' * filled + '░' * (bar_length - filled)
                 
                 # Build status message
-                status = f"\r[Whisper API] Processing chunks: [{bar}] {self.completed_chunks}/{self.total_chunks} ({progress_pct:.1f}%) | {eta_str}"
+                status = f"\r[{self.display_name}] Processing chunks: [{bar}] {self.completed_chunks}/{self.total_chunks} ({progress_pct:.1f}%) | {eta_str}"
                 
                 # Clear line and write status
                 sys.stdout.write('\r' + ' ' * 100 + '\r')  # Clear entire line
@@ -280,7 +282,7 @@ class ChunkedProgressBar:
                 elapsed = time.time() - self.start_time
                 filled = bar_length
                 bar = '█' * filled
-                status = f"\r[Whisper API] Processing chunks: [{bar}] {self.total_chunks}/{self.total_chunks} (100.0%) | Completed in {int(elapsed)}s"
+                status = f"\r[{self.display_name}] Processing chunks: [{bar}] {self.total_chunks}/{self.total_chunks} (100.0%) | Completed in {int(elapsed)}s"
                 sys.stdout.write('\r' + ' ' * 100 + '\r')  # Clear entire line
                 sys.stdout.write(status + '\n')
                 sys.stdout.flush()
