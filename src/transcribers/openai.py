@@ -16,7 +16,7 @@ from ..utils.audio import (
     should_use_chunking, split_audio_into_chunks, cleanup_temp_chunks,
     get_audio_duration
 )
-from ..utils.progress import ProgressBar
+from ..utils.progress import ProgressBar, EstimatedProgressBar, create_estimated_progress
 
 class OpenAITranscriber(BaseTranscriber):
     """Base class for OpenAI transcribers"""
@@ -100,9 +100,20 @@ class WhisperAPITranscriber(OpenAITranscriber):
         
         print(f"[Whisper API] Transcribing {len(chunk_paths)} chunks with {max_workers} workers...")
         
+        # Create progress bars for each chunk
+        progress_bars = []
+        for i in range(min(max_workers, len(chunk_paths))):
+            # Estimate 30 seconds per 10-minute chunk
+            progress = create_estimated_progress(
+                f"[Whisper API] Worker {i+1}",
+                estimated_duration=30.0
+            )
+            progress_bars.append(progress)
+        
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             # Submit all tasks
             futures = {}
+            worker_assignments = {}
             for i, chunk_path in enumerate(chunk_paths):
                 chunk_start_time = i * chunk_duration
                 future = executor.submit(
@@ -110,6 +121,14 @@ class WhisperAPITranscriber(OpenAITranscriber):
                     chunk_path, i, chunk_start_time
                 )
                 futures[future] = i
+                # Assign to a worker (round-robin)
+                worker_id = i % min(max_workers, len(chunk_paths))
+                worker_assignments[future] = worker_id
+                
+                # Start progress bar for this worker
+                if i < min(max_workers, len(chunk_paths)):
+                    progress_bars[worker_id].set_chunk_info(i + 1, len(chunk_paths))
+                    progress_bars[worker_id].start()
             
             # Process results as they complete
             completed = 0
@@ -117,7 +136,28 @@ class WhisperAPITranscriber(OpenAITranscriber):
                 chunk_index, result = future.result()
                 results[chunk_index] = result
                 completed += 1
+                
+                # Update progress bar
+                worker_id = worker_assignments[future]
+                if worker_id < len(progress_bars):
+                    progress_bars[worker_id].complete()
+                    
+                    # If there are more chunks, reuse this worker's progress bar
+                    next_chunk = completed + min(max_workers, len(chunk_paths)) - 1
+                    if next_chunk < len(chunk_paths):
+                        progress_bars[worker_id] = create_estimated_progress(
+                            f"[Whisper API] Worker {worker_id+1}",
+                            estimated_duration=30.0
+                        )
+                        progress_bars[worker_id].set_chunk_info(next_chunk + 1, len(chunk_paths))
+                        progress_bars[worker_id].start()
+                
                 print(f"[Whisper API] Completed chunk {chunk_index + 1}/{len(chunk_paths)}")
+        
+        # Stop any remaining progress bars
+        for progress in progress_bars:
+            if progress.thread and progress.thread.is_alive():
+                progress.stop()
         
         return results
     
@@ -233,7 +273,10 @@ class WhisperAPITranscriber(OpenAITranscriber):
         # Show progress for non-streaming mode
         progress = None
         if not stream:
-            progress = ProgressBar("[Whisper API] Transcribing")
+            # Estimate based on file size: roughly 30 seconds per 10MB
+            file_size_mb = os.path.getsize(processed_path) / (1024 * 1024)
+            estimated_duration = max(10, min(60, file_size_mb * 3))  # 10-60 seconds range
+            progress = create_estimated_progress("[Whisper API] Transcribing", estimated_duration)
             progress.start()
         
         try:
@@ -245,7 +288,7 @@ class WhisperAPITranscriber(OpenAITranscriber):
                 )
             
             if progress:
-                progress.stop()
+                progress.complete()
             
             # Handle response based on format
             if return_timestamps and hasattr(transcription, 'segments'):
