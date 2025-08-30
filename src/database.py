@@ -28,7 +28,7 @@ class TranscriptionDatabase:
         conn = sqlite3.connect(str(self.db_path))
         cursor = conn.cursor()
         
-        # Create jobs table
+        # Create jobs table with detailed progress tracking
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS transcription_jobs (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,13 +37,46 @@ class TranscriptionDatabase:
                 title TEXT,
                 engine TEXT NOT NULL,
                 status TEXT NOT NULL,
+                download_completed BOOLEAN DEFAULT 0,
+                download_path TEXT,
+                transcription_completed BOOLEAN DEFAULT 0,
                 transcript_path TEXT,
+                summary_completed BOOLEAN DEFAULT 0,
                 summary TEXT,
+                srt_completed BOOLEAN DEFAULT 0,
+                srt_path TEXT,
+                translation_completed BOOLEAN DEFAULT 0,
+                translation_path TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 completed_at TIMESTAMP,
                 UNIQUE(video_id, engine)
             )
         ''')
+        
+        # Migrate existing database if needed
+        cursor.execute("PRAGMA table_info(transcription_jobs)")
+        columns = [col[1] for col in cursor.fetchall()]
+        
+        # Add new columns if they don't exist (for migration)
+        new_columns = [
+            ("download_completed", "BOOLEAN DEFAULT 0"),
+            ("download_path", "TEXT"),
+            ("transcription_completed", "BOOLEAN DEFAULT 0"),
+            ("summary_completed", "BOOLEAN DEFAULT 0"),
+            ("srt_completed", "BOOLEAN DEFAULT 0"),
+            ("srt_path", "TEXT"),
+            ("translation_completed", "BOOLEAN DEFAULT 0"),
+            ("translation_path", "TEXT"),
+            ("updated_at", "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+        ]
+        
+        for col_name, col_type in new_columns:
+            if col_name not in columns:
+                try:
+                    cursor.execute(f"ALTER TABLE transcription_jobs ADD COLUMN {col_name} {col_type}")
+                except sqlite3.OperationalError:
+                    pass  # Column might already exist
         
         conn.commit()
         conn.close()
@@ -161,3 +194,100 @@ class TranscriptionDatabase:
             'failed': failed,
             'processing': total - completed - failed
         }
+    
+    def update_download_status(self, job_id: int, completed: bool, path: Optional[str] = None):
+        """Update download completion status"""
+        conn = sqlite3.connect(str(self.db_path))
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            UPDATE transcription_jobs 
+            SET download_completed = ?, download_path = ?, updated_at = ?
+            WHERE id = ?
+        ''', (completed, path, datetime.now(), job_id))
+        
+        conn.commit()
+        conn.close()
+    
+    def update_transcription_status(self, job_id: int, completed: bool, path: Optional[str] = None):
+        """Update transcription completion status"""
+        conn = sqlite3.connect(str(self.db_path))
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            UPDATE transcription_jobs 
+            SET transcription_completed = ?, transcript_path = ?, updated_at = ?
+            WHERE id = ?
+        ''', (completed, path, datetime.now(), job_id))
+        
+        conn.commit()
+        conn.close()
+    
+    def update_summary_status(self, job_id: int, completed: bool, text: Optional[str] = None):
+        """Update summary completion status"""
+        conn = sqlite3.connect(str(self.db_path))
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            UPDATE transcription_jobs 
+            SET summary_completed = ?, summary = ?, updated_at = ?
+            WHERE id = ?
+        ''', (completed, text, datetime.now(), job_id))
+        
+        conn.commit()
+        conn.close()
+    
+    def update_srt_status(self, job_id: int, completed: bool, path: Optional[str] = None):
+        """Update SRT generation status"""
+        conn = sqlite3.connect(str(self.db_path))
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            UPDATE transcription_jobs 
+            SET srt_completed = ?, srt_path = ?, updated_at = ?
+            WHERE id = ?
+        ''', (completed, path, datetime.now(), job_id))
+        
+        conn.commit()
+        conn.close()
+    
+    def update_translation_status(self, job_id: int, completed: bool, path: Optional[str] = None):
+        """Update translation completion status"""
+        conn = sqlite3.connect(str(self.db_path))
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            UPDATE transcription_jobs 
+            SET translation_completed = ?, translation_path = ?, updated_at = ?
+            WHERE id = ?
+        ''', (completed, path, datetime.now(), job_id))
+        
+        conn.commit()
+        conn.close()
+    
+    def get_job_progress(self, video_id: str, engine: str) -> Optional[Dict[str, Any]]:
+        """
+        Get detailed progress for a job
+        
+        Args:
+            video_id: YouTube video ID
+            engine: Transcription engine
+            
+        Returns:
+            dict: Job progress details if exists, None otherwise
+        """
+        conn = sqlite3.connect(str(self.db_path))
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT * FROM transcription_jobs 
+            WHERE video_id = ? AND engine = ?
+        ''', (video_id, engine))
+        
+        row = cursor.fetchone()
+        conn.close()
+        
+        if row:
+            return dict(row)
+        return None

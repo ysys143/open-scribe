@@ -176,12 +176,23 @@ def process_single_video(url: str, args, config: Config) -> bool:
     print(f"Duration: {video_info['duration']} seconds")
     print(f"Uploader: {video_info['uploader']}")
     
-    # Check for existing transcription
-    if not args.force:
-        existing = db.check_existing_job(video_id, args.engine)
-        if existing:
-            print(f"\nTranscription already exists: {existing['transcript_path']}")
-            return True
+    # Check for existing job and progress
+    existing_job = db.get_job_progress(video_id, args.engine)
+    job_id = None
+    
+    if existing_job:
+        job_id = existing_job['id']
+        if not args.force:
+            print("\n[DB] Checking existing progress...")
+            # If fully completed, just return
+            if existing_job['status'] == 'completed' and existing_job['transcription_completed']:
+                print(f"✓ Transcription already completed: {existing_job['transcript_path']}")
+                if not args.summary or existing_job['summary_completed']:
+                    print("✓ All requested tasks already completed")
+                    return True
+    else:
+        # Create new job
+        job_id = db.create_job(video_id, url, video_title, args.engine)
     
     # Download video if requested
     if args.video:
@@ -190,41 +201,65 @@ def process_single_video(url: str, args, config: Config) -> bool:
         if video_file:
             print(f"Video saved: {video_file}")
     
-    # Download audio
-    print("\nDownloading audio...")
-    audio_file = downloader.download_audio(url, keep_original=args.audio)
+    # Download audio (check if already downloaded)
+    audio_file = None
+    if existing_job and existing_job.get('download_completed') and not args.force:
+        if existing_job.get('download_path') and Path(existing_job['download_path']).exists():
+            print("\n✓ Download already completed (using cached file)")
+            audio_file = existing_job['download_path']
+        else:
+            print("\n⚠ Previous download missing, re-downloading...")
+    
     if not audio_file:
-        print("Error: Failed to download audio")
-        return False
+        print("\nDownloading audio...")
+        audio_file = downloader.download_audio(url, keep_original=args.audio)
+        if not audio_file:
+            print("Error: Failed to download audio")
+            db.update_job_status(job_id, 'failed')
+            return False
+        # Update download status
+        db.update_download_status(job_id, True, audio_file)
     
-    # Create job in database
-    job_id = db.create_job(video_id, url, video_title, args.engine)
+    # Transcribe (check if already transcribed)
+    transcription = None
+    transcript_path = None
+    safe_title = sanitize_filename(video_title)
     
-    # Transcribe
-    print(f"\nTranscribing with {args.engine}...")
-    transcriber = get_transcriber(args.engine, config)
-    
-    if not transcriber.is_available():
-        print(f"Error: {args.engine} is not available. Check configuration.")
-        db.update_job_status(job_id, 'failed')
-        return False
-    
-    transcription = transcriber.transcribe(
-        audio_file, 
-        stream=args.stream,
-        return_timestamps=args.timestamp
-    )
+    if existing_job and existing_job.get('transcription_completed') and not args.force:
+        if existing_job.get('transcript_path') and Path(existing_job['transcript_path']).exists():
+            print("\n✓ Transcription already completed (using cached result)")
+            transcript_path = Path(existing_job['transcript_path'])
+            transcription = transcript_path.read_text(encoding='utf-8')
+        else:
+            print("\n⚠ Previous transcription missing, re-transcribing...")
     
     if not transcription:
-        print("Error: Transcription failed")
-        db.update_job_status(job_id, 'failed')
-        return False
-    
-    # Save transcription
-    safe_title = sanitize_filename(video_title)
-    transcript_path = config.TRANSCRIPT_PATH / f"{safe_title}.txt"
-    save_text_file(transcription, transcript_path)
-    print(f"\nTranscript saved: {transcript_path}")
+        print(f"\nTranscribing with {args.engine}...")
+        transcriber = get_transcriber(args.engine, config)
+        
+        if not transcriber.is_available():
+            print(f"Error: {args.engine} is not available. Check configuration.")
+            db.update_job_status(job_id, 'failed')
+            return False
+        
+        transcription = transcriber.transcribe(
+            audio_file, 
+            stream=args.stream,
+            return_timestamps=args.timestamp
+        )
+        
+        if not transcription:
+            print("Error: Transcription failed")
+            db.update_job_status(job_id, 'failed')
+            return False
+        
+        # Save transcription
+        transcript_path = config.TRANSCRIPT_PATH / f"{safe_title}.txt"
+        save_text_file(transcription, transcript_path)
+        print(f"\nTranscript saved: {transcript_path}")
+        
+        # Update transcription status
+        db.update_transcription_status(job_id, True, str(transcript_path))
     
     # Copy to downloads if requested
     if args.downloads:
@@ -235,12 +270,18 @@ def process_single_video(url: str, args, config: Config) -> bool:
     # Generate summary if requested
     summary_text = None
     if args.summary:
-        print("\nGenerating summary...")
-        # TODO: Implement summary generation
-        summary_text = "Summary generation not yet implemented in modular version"
+        if existing_job and existing_job.get('summary_completed') and not args.force:
+            print("\n✓ Summary already generated")
+            summary_text = existing_job.get('summary')
+        else:
+            print("\n⚡ Generating summary...")
+            # TODO: Implement summary generation
+            summary_text = "Summary generation not yet implemented in modular version"
+            db.update_summary_status(job_id, True, summary_text)
     
-    # Update job status
-    db.update_job_status(job_id, 'completed', str(transcript_path), summary_text)
+    # Update overall job status
+    if transcription:
+        db.update_job_status(job_id, 'completed', str(transcript_path), summary_text)
     
     # Clean up temp audio if not keeping
     if not args.audio and audio_file and Path(audio_file).exists():
