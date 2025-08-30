@@ -54,3 +54,6 @@
 - Windows 호환성 개선
 - whisper.cpp 출력 파싱 강화
 ### Step: null -> null
+### Step: null -> null
+### Step: null -> null
+### Step: null -> null
