@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-YouTube Video Transcription CLI Tool
+Open-Scribe: YouTube Video Transcription CLI Tool
+MIT License - https://github.com/open-scribe/open-scribe
 """
 
 import argparse
@@ -791,7 +792,8 @@ def main():
     default_timestamp = os.getenv('YT_TRANS_TIMESTAMP', 'false').lower() == 'true'
     
     parser = argparse.ArgumentParser(
-        description='YouTube Video Transcription Tool',
+        prog='open-scribe',
+        description='Open-Scribe: YouTube Video Transcription Tool',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog='''
 Available engines:

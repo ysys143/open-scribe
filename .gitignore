@@ -1,2 +1,58 @@
+# Environment variables
 .env
-.env
+.env.local
+.venv
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Project specific
+audio/
+video/
+transcript/
+temp_audio/
+*.mp3
+*.mp4
+*.webm
+*.wav
+*.srt
+*.vtt
+transcription_jobs.db
+whisper.cpp/
+
+# MCP
+.mcp.json
+
+# Claude
+.claude/
+CLAUDE.md
