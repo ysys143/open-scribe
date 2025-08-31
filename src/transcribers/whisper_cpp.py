@@ -218,7 +218,7 @@ class WhisperCppTranscriber(BaseTranscriber):
                     # Plain text format, return as is
                     return transcription
             else:
-                print(f"Error: Output file not found: {output_file}")
+                print(f"Error: Output file not found: {actual_output_file}")
                 return None
                 
         except subprocess.TimeoutExpired:
