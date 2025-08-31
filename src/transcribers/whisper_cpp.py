@@ -102,18 +102,19 @@ class WhisperCppTranscriber(BaseTranscriber):
                 '-m', self.model_path,
                 '-f', audio_to_use,
                 '-of', output_file[:-4],  # Remove .txt extension as whisper.cpp adds it
-                '--output-txt',  # Explicitly request text output
                 '--print-progress',  # Show progress
                 '--threads', '4'
             ]
             
-            # Add timestamp flag if requested
+            # Choose output format based on timestamp preference
             if return_timestamps:
-                # Keep timestamps (default behavior)
-                pass
+                # Use SRT format for timestamps
+                cmd.append('--output-srt')
+                output_extension = '.srt'
             else:
-                # Remove timestamps only when not needed
-                cmd.append('--no-timestamps')
+                # Use plain text format without timestamps
+                cmd.append('--output-txt')
+                output_extension = '.txt'
             
             # Add language hint if available
             cmd.extend(['-l', 'auto'])
