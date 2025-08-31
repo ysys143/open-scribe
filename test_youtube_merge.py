@@ -140,7 +140,12 @@ def test_merge_in_transcriber(url):
     print(f"\n1. Original segments: {len(raw_segments)}")
     print("First 5 segments:")
     for i, seg in enumerate(raw_segments[:5]):
-        print(f"  [{format_timestamp(seg['start'])}] {seg['text']}")
+        # Convert to dict if it's an object
+        if hasattr(seg, '__dict__'):
+            seg_dict = {'text': seg.text, 'start': seg.start, 'duration': seg.duration}
+        else:
+            seg_dict = seg
+        print(f"  [{format_timestamp(seg_dict['start'])}] {seg_dict['text']}")
     
     # Test merging
     print("\n2. Testing smart merge:")
