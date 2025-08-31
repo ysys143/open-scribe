@@ -211,10 +211,16 @@ class WhisperAPITranscriber(OpenAITranscriber):
         
         try:
             with open(processed_path, "rb") as audio_file:
+                # Choose response format based on model capabilities
+                if return_timestamps and self.model_name == "whisper-1":
+                    response_format = "verbose_json"
+                else:
+                    response_format = "text"
+                
                 transcription = self.client.audio.transcriptions.create(
                     model=self.model_name,
                     file=audio_file,
-                    response_format="text"  # Always use text format
+                    response_format=response_format
                 )
             
             if progress:
