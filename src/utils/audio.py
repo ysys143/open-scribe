@@ -204,13 +204,14 @@ def should_use_chunking(audio_path: str, max_size_mb: float = 25) -> bool:
     
     return False
 
-def split_audio_into_chunks(audio_path: str, chunk_duration_seconds: int = 600) -> List[str]:
+def split_audio_into_chunks(audio_path: str, chunk_duration_seconds: int = 600, use_project_temp: bool = True) -> List[str]:
     """
     Split audio file into chunks of specified duration
     
     Args:
         audio_path: Path to audio file
         chunk_duration_seconds: Duration of each chunk in seconds (default 10 minutes)
+        use_project_temp: Use project temp_audio directory instead of system temp
         
     Returns:
         list: Paths to chunk files
@@ -221,7 +222,17 @@ def split_audio_into_chunks(audio_path: str, chunk_duration_seconds: int = 600) 
         return [audio_path]
     
     chunk_paths = []
-    temp_dir = tempfile.mkdtemp(prefix="audio_chunks_")
+    
+    # Use project temp_audio directory for easier debugging
+    if use_project_temp:
+        from pathlib import Path
+        project_root = Path(audio_path).parent.parent  # Go up from audio/ to project root
+        temp_dir = project_root / "temp_audio"
+        temp_dir.mkdir(exist_ok=True)
+        temp_dir = str(temp_dir)
+        print(f"[Audio] Using project temp directory: {temp_dir}")
+    else:
+        temp_dir = tempfile.mkdtemp(prefix="audio_chunks_")
     
     # Calculate number of chunks needed
     num_chunks = int(duration / chunk_duration_seconds) + (1 if duration % chunk_duration_seconds > 0 else 0)
@@ -264,13 +275,20 @@ def split_audio_into_chunks(audio_path: str, chunk_duration_seconds: int = 600) 
     
     return chunk_paths
 
-def cleanup_temp_chunks(chunk_paths: List[str]):
+def cleanup_temp_chunks(chunk_paths: List[str], keep_for_debug: bool = False):
     """
     Clean up temporary chunk files
     
     Args:
         chunk_paths: List of paths to chunk files
+        keep_for_debug: If True, preserve chunks for debugging
     """
+    if keep_for_debug:
+        print(f"[Audio] Keeping {len(chunk_paths)} chunk files for debugging")
+        if chunk_paths:
+            print(f"[Audio] Chunks location: {os.path.dirname(chunk_paths[0])}")
+        return
+    
     for path in chunk_paths:
         try:
             if os.path.exists(path):
@@ -278,7 +296,7 @@ def cleanup_temp_chunks(chunk_paths: List[str]):
         except Exception:
             pass
     
-    # Also try to remove the temp directory
+    # Also try to remove the temp directory (but not if it's temp_audio)
     if chunk_paths:
         temp_dir = os.path.dirname(chunk_paths[0])
         if "audio_chunks_" in temp_dir:
