@@ -122,11 +122,14 @@ class YouTubeTranscriptAPITranscriber(BaseTranscriber):
             
             # Format the output
             if return_timestamps:
-                # Include timestamps
+                # Merge segments for better readability
+                merged_segments = self._merge_segments_smart(transcript_data)
+                
+                # Format with timestamps
                 lines = []
-                for entry in transcript_data:
-                    timestamp = self._format_timestamp(entry.start)
-                    text = entry.text.replace('\n', ' ')
+                for seg in merged_segments:
+                    timestamp = self._format_timestamp(seg['start'])
+                    text = seg['text'].replace('\n', ' ')
                     lines.append(f"[{timestamp}] {text}")
                 return '\n'.join(lines)
             else:
@@ -152,6 +155,92 @@ class YouTubeTranscriptAPITranscriber(BaseTranscriber):
         except Exception as e:
             print(f"Error fetching transcript: {e}")
             return None
+    
+    def _merge_segments_smart(self, transcript_data, min_duration=2.0, max_chars=150):
+        """
+        Smart merge segments from YouTube Transcript API
+        
+        Args:
+            transcript_data: List of segment objects from transcript.fetch()
+            min_duration: Minimum duration for a merged segment (seconds)
+            max_chars: Maximum character length for merged segment
+        
+        Returns:
+            List of merged segments with text, start, duration
+        """
+        merged = []
+        current = {
+            'text': '',
+            'start': None,
+            'duration': 0,
+            'parts': 0
+        }
+        
+        for seg in transcript_data:
+            # Handle segment object attributes
+            text = seg.text.strip() if hasattr(seg, 'text') else seg['text'].strip()
+            start = seg.start if hasattr(seg, 'start') else seg['start']
+            duration = seg.duration if hasattr(seg, 'duration') else seg.get('duration', 0)
+            
+            if not text:
+                continue
+            
+            # Initialize start time
+            if current['start'] is None:
+                current['start'] = start
+            
+            # Calculate new duration and length
+            new_duration = (start + duration) - current['start']
+            new_text_length = len(current['text']) + len(text) + (1 if current['text'] else 0)
+            
+            # Decide whether to split
+            should_split = False
+            
+            if current['text']:  # If we have existing content
+                # Split if sentence ends AND has minimum duration
+                if current['text'].endswith(('.', '!', '?', '。', '！', '？')) and current['duration'] >= min_duration:
+                    should_split = True
+                # Or if adding this would exceed max length
+                elif new_text_length > max_chars:
+                    should_split = True
+                # Or if duration is getting too long (>15 seconds)
+                elif new_duration > 15:
+                    should_split = True
+            
+            if should_split and current['text']:
+                # Save current segment
+                merged.append({
+                    'text': current['text'],
+                    'start': current['start'],
+                    'duration': current['duration'],
+                    'parts': current['parts']
+                })
+                # Start new segment
+                current = {
+                    'text': text,
+                    'start': start,
+                    'duration': duration,
+                    'parts': 1
+                }
+            else:
+                # Add to current segment
+                if current['text']:
+                    current['text'] += ' ' + text
+                else:
+                    current['text'] = text
+                current['duration'] = new_duration
+                current['parts'] += 1
+        
+        # Don't forget the last segment
+        if current['text']:
+            merged.append({
+                'text': current['text'],
+                'start': current['start'],
+                'duration': current['duration'],
+                'parts': current['parts']
+            })
+        
+        return merged
     
     def _format_timestamp(self, seconds: float) -> str:
         """Format seconds to HH:MM:SS or MM:SS format"""
