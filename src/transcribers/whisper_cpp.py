@@ -101,6 +101,7 @@ class WhisperCppTranscriber(BaseTranscriber):
                 '-m', self.model_path,
                 '-f', audio_to_use,
                 '-of', output_file[:-4],  # Remove .txt extension as whisper.cpp adds it
+                '--output-txt',  # Explicitly request text output
                 '--no-prints',
                 '--threads', '4'
             ]
