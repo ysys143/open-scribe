@@ -228,10 +228,12 @@ class WhisperCppTranscriber(BaseTranscriber):
             print(f"Error running whisper.cpp: {e}")
             return None
         finally:
-            # Clean up temp files
+            # Clean up temp files (check for both .txt and .srt extensions)
             try:
-                if Path(output_file).exists():
-                    Path(output_file).unlink()
+                for ext in ['.txt', '.srt']:
+                    temp_file = output_file[:-4] + ext
+                    if Path(temp_file).exists():
+                        Path(temp_file).unlink()
             except:
                 pass
             
