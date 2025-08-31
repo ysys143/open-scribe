@@ -32,16 +32,25 @@ def merge_segments_smart(transcript_data, min_duration=2.0, max_chars=150):
     }
     
     for seg in transcript_data:
-        text = seg['text'].strip()
+        # Handle both dict and object formats
+        if hasattr(seg, '__dict__'):
+            text = seg.text.strip()
+            start = seg.start
+            duration = seg.duration
+        else:
+            text = seg['text'].strip()
+            start = seg['start']
+            duration = seg.get('duration', 0)
+        
         if not text:
             continue
         
         # Initialize start time
         if current['start'] is None:
-            current['start'] = seg['start']
+            current['start'] = start
         
         # Calculate new duration and length
-        new_duration = (seg['start'] + seg.get('duration', 0)) - current['start']
+        new_duration = (start + duration) - current['start']
         new_text_length = len(current['text']) + len(text) + (1 if current['text'] else 0)
         
         # Decide whether to split
