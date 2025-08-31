@@ -151,6 +151,7 @@ class WhisperCppTranscriber(BaseTranscriber):
                 
                 # Wait for process to complete
                 process.wait(timeout=1800)  # 30 minute timeout
+                print()  # Add newline after progress bar
                 result_returncode = process.returncode
                 result_output = ''.join(output_lines)
                 
