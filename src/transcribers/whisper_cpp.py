@@ -178,15 +178,16 @@ class WhisperCppTranscriber(BaseTranscriber):
                     print(f"Error output: {result_output[:500]}")  # Show first 500 chars
                 return None
             
-            # Read the output file
-            if Path(output_file).exists():
+            # Read the output file with correct extension
+            actual_output_file = output_file[:-4] + output_extension
+            if Path(actual_output_file).exists():
                 # Try reading with UTF-8, fallback to other encodings
                 try:
-                    with open(output_file, 'r', encoding='utf-8') as f:
+                    with open(actual_output_file, 'r', encoding='utf-8') as f:
                         transcription = f.read().strip()
                 except UnicodeDecodeError:
                     # Try with errors='replace' to handle invalid UTF-8
-                    with open(output_file, 'r', encoding='utf-8', errors='replace') as f:
+                    with open(actual_output_file, 'r', encoding='utf-8', errors='replace') as f:
                         transcription = f.read().strip()
                 
                 # Format output based on timestamp preference
