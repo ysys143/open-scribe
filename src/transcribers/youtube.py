@@ -35,8 +35,8 @@ class YouTubeTranscriptAPITranscriber(BaseTranscriber):
         except ImportError:
             return False
     
-    def transcribe(self, audio_file: str, stream: bool = False, 
-                  return_timestamps: bool = False) -> Optional[str]:
+    def transcribe(self, audio_path: str, stream: bool = False, 
+                  return_timestamps: bool = False, **kwargs) -> Optional[str]:
         """
         Get transcript using YouTube Transcript API
         
