@@ -12,7 +12,7 @@ def analyze_segments(video_id):
     print("=" * 60)
     
     # Get transcript
-    transcript_data = YouTubeTranscriptApi.get_transcript(video_id)
+    transcript_data = YouTubeTranscriptApi.get_transcripts([video_id], languages=['ko', 'en'])[video_id]
     
     # Show first 10 segments
     print("\n1. First 10 segments (raw):")
