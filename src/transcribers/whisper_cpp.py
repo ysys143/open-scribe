@@ -140,7 +140,7 @@ class WhisperCppTranscriber(BaseTranscriber):
                 # Try reading with UTF-8, fallback to other encodings
                 try:
                     with open(output_file, 'r', encoding='utf-8') as f:
-                        transcription = f.read()
+                        transcription = f.read().strip()
                 except UnicodeDecodeError:
                     # Try with errors='replace' to handle invalid UTF-8
                     with open(output_file, 'r', encoding='utf-8', errors='replace') as f:
