@@ -64,8 +64,8 @@ Please structure the summary with:
         
         # Use appropriate parameter based on model
         if model.startswith('gpt-5'):
-            completion_params["max_completion_tokens"] = 1000
             # gpt-5 models only support default temperature
+            pass
         else:
             completion_params["max_tokens"] = 1000
             completion_params["temperature"] = 0.3  # Lower temperature for more focused summaries
