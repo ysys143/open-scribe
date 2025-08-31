@@ -1,184 +1,224 @@
 #!/usr/bin/env python
 """
 Test script to improve YouTube transcript segment merging
+Focus on post-processing the output from existing module
 """
 
 import sys
+import re
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from src.transcribers.youtube import YouTubeTranscriptAPITranscriber
 from src.config import Config
 
-def format_timestamp(seconds):
-    """Format seconds to MM:SS or HH:MM:SS"""
-    hours = int(seconds // 3600)
-    minutes = int((seconds % 3600) // 60)
-    secs = int(seconds % 60)
-    
-    if hours > 0:
-        return f"{hours:02d}:{minutes:02d}:{secs:02d}"
-    else:
-        return f"{minutes:02d}:{secs:02d}"
 
-
-def merge_segments_by_sentence(segments, min_duration=2.0):
+def merge_timestamp_lines_by_sentence(transcript_with_timestamps):
     """
-    Merge short segments into complete sentences based on punctuation
+    Merge timestamp lines that are too short into sentence-based chunks
     
-    Args:
-        segments: List of segment dictionaries with 'text', 'start', 'duration'
-        min_duration: Minimum duration for a segment (seconds)
+    Input format: 
+    [00:00] text1
+    [00:02] text2
+    [00:04] text3.
+    [00:06] text4
+    
+    Output format:
+    [00:00] text1 text2 text3.
+    [00:06] text4
     """
-    merged = []
-    current = {
-        'text': '',
-        'start': None,
-        'duration': 0,
-        'parts': []
+    if not transcript_with_timestamps:
+        return None
+    
+    lines = transcript_with_timestamps.strip().split('\n')
+    merged_lines = []
+    current_segment = {
+        'timestamp': None,
+        'text': ''
     }
     
-    for seg in segments:
-        text = seg['text'].strip()
+    for line in lines:
+        # Parse timestamp and text
+        match = re.match(r'\[([^\]]+)\]\s*(.*)', line)
+        if not match:
+            continue
+        
+        timestamp, text = match.groups()
+        text = text.strip()
+        
         if not text:
             continue
         
-        # Initialize start time
-        if current['start'] is None:
-            current['start'] = seg['start']
-        
-        # Add text
-        if current['text']:
-            current['text'] += ' ' + text
+        # If this is the first segment
+        if current_segment['timestamp'] is None:
+            current_segment['timestamp'] = timestamp
+            current_segment['text'] = text
         else:
-            current['text'] = text
+            # Add to current segment
+            current_segment['text'] += ' ' + text
         
-        # Update duration
-        current['duration'] = (seg['start'] + seg.get('duration', 0)) - current['start']
-        current['parts'].append(seg)
-        
-        # Check if we should split here
-        should_split = False
-        
-        # Split on sentence endings
+        # Check if we should split here (sentence ending)
         if text.endswith(('.', '!', '?', '。', '！', '？')):
-            # But only if we've accumulated enough duration
-            if current['duration'] >= min_duration:
-                should_split = True
-        # Or split if duration is getting too long (>15 seconds)
-        elif current['duration'] > 15:
-            should_split = True
-        
-        if should_split:
-            merged.append({
-                'text': current['text'],
-                'start': current['start'],
-                'duration': current['duration'],
-                'part_count': len(current['parts'])
-            })
-            current = {
-                'text': '',
-                'start': None,
-                'duration': 0,
-                'parts': []
+            # Save the completed sentence
+            merged_lines.append(f"[{current_segment['timestamp']}] {current_segment['text']}")
+            current_segment = {
+                'timestamp': None,
+                'text': ''
             }
     
     # Don't forget the last segment
-    if current['text']:
-        merged.append({
-            'text': current['text'],
-            'start': current['start'],
-            'duration': current['duration'],
-            'part_count': len(current['parts'])
-        })
+    if current_segment['text']:
+        merged_lines.append(f"[{current_segment['timestamp']}] {current_segment['text']}")
     
-    return merged
+    return '\n'.join(merged_lines)
 
 
-def test_transcriber_with_timestamps(url):
-    """Test the existing transcriber with timestamp output"""
+def merge_timestamp_lines_smart(transcript_with_timestamps, max_chars=200):
+    """
+    Smart merge: combine until sentence end OR character limit
+    """
+    if not transcript_with_timestamps:
+        return None
+    
+    lines = transcript_with_timestamps.strip().split('\n')
+    merged_lines = []
+    current_segment = {
+        'timestamp': None,
+        'text': '',
+        'parts': 0
+    }
+    
+    for line in lines:
+        # Parse timestamp and text
+        match = re.match(r'\[([^\]]+)\]\s*(.*)', line)
+        if not match:
+            continue
+        
+        timestamp, text = match.groups()
+        text = text.strip()
+        
+        if not text:
+            continue
+        
+        # Check if adding this would exceed limits
+        potential_length = len(current_segment['text']) + len(text) + 1
+        
+        # Decide whether to start new segment
+        should_split = False
+        
+        if current_segment['text']:  # If we have existing content
+            # Split if sentence ends
+            if current_segment['text'].endswith(('.', '!', '?', '。', '！', '？')):
+                should_split = True
+            # Or if adding this would make it too long
+            elif potential_length > max_chars:
+                should_split = True
+        
+        if should_split and current_segment['text']:
+            # Save current segment
+            merged_lines.append(f"[{current_segment['timestamp']}] {current_segment['text']} ({current_segment['parts']} parts)")
+            # Start new segment
+            current_segment = {
+                'timestamp': timestamp,
+                'text': text,
+                'parts': 1
+            }
+        else:
+            # Add to current segment
+            if current_segment['timestamp'] is None:
+                current_segment['timestamp'] = timestamp
+                current_segment['text'] = text
+            else:
+                current_segment['text'] += ' ' + text
+            current_segment['parts'] += 1
+    
+    # Don't forget the last segment
+    if current_segment['text']:
+        merged_lines.append(f"[{current_segment['timestamp']}] {current_segment['text']} ({current_segment['parts']} parts)")
+    
+    return '\n'.join(merged_lines)
+
+
+def test_merge_methods(url):
+    """Test different merging methods on existing transcriber output"""
     print("=" * 60)
-    print("Testing YouTube Transcript API with timestamps")
+    print("Testing YouTube Transcript Segment Merging")
     print("=" * 60)
     
     config = Config()
     transcriber = YouTubeTranscriptAPITranscriber(config)
     
-    # Test 1: Get raw segments (internal method)
-    print("\n1. Getting raw segments from YouTube API...")
+    # Get transcript with timestamps using existing module
+    print("\n1. Getting transcript with timestamps (current implementation):")
+    print("-" * 40)
     
-    from youtube_transcript_api import YouTubeTranscriptApi
-    from src.utils.validators import extract_video_id
+    result_with_timestamps = transcriber.transcribe(url, return_timestamps=True)
     
-    video_id = extract_video_id(url)
-    print(f"Video ID: {video_id}")
+    if not result_with_timestamps:
+        print("Failed to get transcript")
+        return
     
-    # Get transcript directly
-    api = YouTubeTranscriptApi()
-    transcript_list = api.list(video_id)
+    # Show sample of original output
+    lines = result_with_timestamps.split('\n')
+    print(f"Total lines: {len(lines)}")
+    print("\nFirst 20 lines (original):")
+    for line in lines[:20]:
+        print(line)
     
-    # Try to find a transcript
-    transcript = None
-    for t in transcript_list:
-        transcript = t
-        print(f"Found transcript: {t.language} ({t.language_code}), Generated: {t.is_generated}")
-        break
+    # Test merging method 1: By sentence
+    print("\n2. Merged by sentence endings:")
+    print("-" * 40)
     
-    if transcript:
-        raw_segments = transcript.fetch()
-        
-        print(f"\nTotal segments: {len(raw_segments)}")
-        print("\nFirst 10 raw segments:")
-        print("-" * 40)
-        for i, seg in enumerate(raw_segments[:10]):
-            print(f"[{i:2d}] {seg['start']:6.2f}s ({seg.get('duration', 0):4.2f}s): {seg['text']}")
-        
-        # Test 2: Current timestamp implementation
-        print("\n2. Current implementation (with timestamps):")
-        print("-" * 40)
-        result_with_ts = transcriber.transcribe(url, return_timestamps=True)
-        if result_with_ts:
-            lines = result_with_ts.split('\n')[:10]
-            for line in lines:
-                print(line)
-        
-        # Test 3: Improved merging
-        print("\n3. Improved sentence-based merging:")
-        print("-" * 40)
-        merged_segments = merge_segments_by_sentence(raw_segments)
-        
-        print(f"Merged from {len(raw_segments)} to {len(merged_segments)} segments")
-        print("\nFirst 10 merged segments:")
-        for i, seg in enumerate(merged_segments[:10]):
-            timestamp = format_timestamp(seg['start'])
-            print(f"[{timestamp}] ({seg['part_count']} parts, {seg['duration']:.1f}s): {seg['text'][:100]}...")
-        
-        # Statistics
-        print("\n4. Statistics:")
-        print("-" * 40)
-        
-        # Original segments
-        orig_durations = [s.get('duration', 0) for s in raw_segments]
-        avg_orig_duration = sum(orig_durations) / len(orig_durations) if orig_durations else 0
-        
-        # Merged segments
-        merged_durations = [s['duration'] for s in merged_segments]
-        avg_merged_duration = sum(merged_durations) / len(merged_durations) if merged_durations else 0
-        
-        print(f"Original segments: {len(raw_segments)}")
-        print(f"  Average duration: {avg_orig_duration:.2f}s")
-        print(f"  Min duration: {min(orig_durations):.2f}s")
-        print(f"  Max duration: {max(orig_durations):.2f}s")
-        
-        print(f"\nMerged segments: {len(merged_segments)}")
-        print(f"  Average duration: {avg_merged_duration:.2f}s")
-        print(f"  Min duration: {min(merged_durations):.2f}s")
-        print(f"  Max duration: {max(merged_durations):.2f}s")
-        print(f"  Reduction ratio: {len(raw_segments)/len(merged_segments):.1f}x")
+    merged_by_sentence = merge_timestamp_lines_by_sentence(result_with_timestamps)
+    merged_lines = merged_by_sentence.split('\n')
+    
+    print(f"Merged to {len(merged_lines)} lines (from {len(lines)})")
+    print(f"Reduction: {len(lines)/len(merged_lines):.1f}x")
+    print("\nFirst 10 merged lines:")
+    for line in merged_lines[:10]:
+        # Truncate long lines for display
+        if len(line) > 120:
+            print(line[:117] + "...")
+        else:
+            print(line)
+    
+    # Test merging method 2: Smart merge
+    print("\n3. Smart merge (sentence + length limit):")
+    print("-" * 40)
+    
+    smart_merged = merge_timestamp_lines_smart(result_with_timestamps, max_chars=150)
+    smart_lines = smart_merged.split('\n')
+    
+    print(f"Smart merged to {len(smart_lines)} lines (from {len(lines)})")
+    print(f"Reduction: {len(lines)/len(smart_lines):.1f}x")
+    print("\nFirst 10 smart-merged lines:")
+    for line in smart_lines[:10]:
+        # Truncate long lines for display
+        if len(line) > 120:
+            print(line[:117] + "...")
+        else:
+            print(line)
+    
+    # Statistics
+    print("\n4. Comparison:")
+    print("-" * 40)
+    print(f"Original lines: {len(lines)}")
+    print(f"Sentence-merged: {len(merged_lines)} (reduction: {len(lines)/len(merged_lines):.1f}x)")
+    print(f"Smart-merged: {len(smart_lines)} (reduction: {len(lines)/len(smart_lines):.1f}x)")
+    
+    # Calculate average line lengths
+    orig_avg_len = sum(len(line) for line in lines) / len(lines) if lines else 0
+    sentence_avg_len = sum(len(line) for line in merged_lines) / len(merged_lines) if merged_lines else 0
+    smart_avg_len = sum(len(line) for line in smart_lines) / len(smart_lines) if smart_lines else 0
+    
+    print(f"\nAverage line length:")
+    print(f"  Original: {orig_avg_len:.1f} chars")
+    print(f"  Sentence-merged: {sentence_avg_len:.1f} chars")
+    print(f"  Smart-merged: {smart_avg_len:.1f} chars")
 
 
 if __name__ == "__main__":
     # Test URL
     test_url = "https://youtu.be/3kAeA0pwoaQ"
     
-    test_transcriber_with_timestamps(test_url)
+    test_merge_methods(test_url)
