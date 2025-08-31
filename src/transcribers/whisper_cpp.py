@@ -69,12 +69,37 @@ class WhisperCppTranscriber(BaseTranscriber):
         with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as tmp:
             output_file = tmp.name
         
+        # Create a temp symlink with a simple name if the file has special characters
+        temp_audio_link = None
+        audio_to_use = audio_file
+        
+        # Check if filename contains problematic characters
+        if any(c in audio_file for c in ["'", "'", "'", """, """, "？", "｜", " "]):
+            try:
+                # Create temp symlink with simple name
+                import hashlib
+                file_hash = hashlib.md5(audio_file.encode()).hexdigest()[:8]
+                ext = Path(audio_file).suffix
+                temp_audio_link = f"/tmp/whisper_temp_{file_hash}{ext}"
+                
+                # Remove existing symlink if present
+                if Path(temp_audio_link).exists():
+                    Path(temp_audio_link).unlink()
+                
+                # Create symlink
+                Path(temp_audio_link).symlink_to(Path(audio_file).absolute())
+                audio_to_use = temp_audio_link
+                print(f"Using temporary file for whisper.cpp processing...")
+            except Exception as e:
+                print(f"Warning: Could not create temp symlink: {e}")
+                # Continue with original path
+        
         try:
             # Build whisper.cpp command
             cmd = [
                 self.executable_path,
                 '-m', self.model_path,
-                '-f', audio_file,
+                '-f', audio_to_use,
                 '-of', output_file[:-4],  # Remove .txt extension as whisper.cpp adds it
                 '--no-prints',
                 '--threads', '4'
