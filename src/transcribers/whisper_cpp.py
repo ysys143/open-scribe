@@ -159,15 +159,9 @@ class WhisperCppTranscriber(BaseTranscriber):
             # )
             
             if result.returncode != 0:
-                print(f"Error: whisper.cpp failed with code {result.returncode}")
-                if result.stderr:
-                    # Decode stderr with error handling
-                    stderr_text = result.stderr.decode('utf-8', errors='replace')
-                    print(f"Error output: {stderr_text[:500]}")  # Show first 500 chars
-                if result.stdout:
-                    stdout_text = result.stdout.decode('utf-8', errors='replace')
-                    if stdout_text.strip():
-                        print(f"Output: {stdout_text[:500]}")
+                print(f"\nError: whisper.cpp failed with code {result.returncode}")
+                if result_output:
+                    print(f"Error output: {result_output[:500]}")  # Show first 500 chars
                 return None
             
             # Read the output file
