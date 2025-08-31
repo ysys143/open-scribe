@@ -49,24 +49,39 @@ class WhisperAPITranscriber(OpenAITranscriber):
     def name(self) -> str:
         return "whisper-api"
     
-    def transcribe_single_chunk(self, chunk_path: str, chunk_index: int) -> tuple[int, Optional[str]]:
+    def transcribe_single_chunk(self, chunk_path: str, chunk_index: int, 
+                               return_timestamps: bool = False) -> tuple[int, Optional[str]]:
         """
         Transcribe a single audio chunk
         
+        Args:
+            chunk_path: Path to chunk file
+            chunk_index: Index of this chunk
+            return_timestamps: Whether to include timestamps
+            
         Returns:
             tuple: (chunk_index, transcribed_text)
         """
         try:
             with open(chunk_path, "rb") as audio_file:
-                # Use text format for simplicity - timestamps handled separately if needed
+                # Use verbose_json for timestamps, text otherwise
+                response_format = "verbose_json" if return_timestamps else "text"
+                
                 transcription = self.client.audio.transcriptions.create(
                     model=self.model_name,
                     file=audio_file,
-                    response_format="text"
+                    response_format=response_format
                 )
             
-            # Return the text directly
-            if isinstance(transcription, str):
+            # Handle response based on format
+            if return_timestamps and hasattr(transcription, 'segments'):
+                # Format with timestamps
+                lines = []
+                for segment in transcription.segments:
+                    timestamp = format_timestamp(segment.start)
+                    lines.append(f"[{timestamp}] {segment.text.strip()}")
+                return chunk_index, '\n'.join(lines)
+            elif isinstance(transcription, str):
                 return chunk_index, transcription
             elif hasattr(transcription, 'text'):
                 return chunk_index, transcription.text
@@ -77,7 +92,8 @@ class WhisperAPITranscriber(OpenAITranscriber):
             print(f"[{self.display_name}] Error transcribing chunk {chunk_index + 1}: {e}")
             return chunk_index, None
     
-    def transcribe_chunks_concurrent(self, chunk_paths: List[str], max_workers: int = 5) -> List[str]:
+    def transcribe_chunks_concurrent(self, chunk_paths: List[str], max_workers: int = 5,
+                                    return_timestamps: bool = False) -> List[str]:
         """
         Transcribe multiple chunks concurrently
         
@@ -100,7 +116,7 @@ class WhisperAPITranscriber(OpenAITranscriber):
             # Submit all tasks
             futures = {}
             for i, chunk_path in enumerate(chunk_paths):
-                future = executor.submit(self.transcribe_single_chunk, chunk_path, i)
+                future = executor.submit(self.transcribe_single_chunk, chunk_path, i, return_timestamps)
                 futures[future] = i
             
             # Process results as they complete
@@ -146,11 +162,17 @@ class WhisperAPITranscriber(OpenAITranscriber):
                 # Transcribe chunks concurrently
                 chunk_texts = self.transcribe_chunks_concurrent(
                     chunk_paths,
-                    max_workers=min(5, len(chunk_paths))
+                    max_workers=min(5, len(chunk_paths)),
+                    return_timestamps=return_timestamps
                 )
                 
-                # Simple merge - just join the texts
-                final_transcription = ' '.join(chunk_texts) if chunk_texts else ""
+                # Merge based on timestamp preference
+                if return_timestamps:
+                    # For timestamps, join with newlines
+                    final_transcription = '\n'.join(chunk_texts) if chunk_texts else ""
+                else:
+                    # For plain text, join with spaces
+                    final_transcription = ' '.join(chunk_texts) if chunk_texts else ""
                 
                 if not final_transcription:
                     print(f"[{self.display_name}] Failed to transcribe")
@@ -180,17 +202,32 @@ class WhisperAPITranscriber(OpenAITranscriber):
         
         try:
             with open(processed_path, "rb") as audio_file:
+                # Use verbose_json for timestamps, text otherwise
+                response_format = "verbose_json" if return_timestamps else "text"
+                
                 transcription = self.client.audio.transcriptions.create(
                     model=self.model_name,
                     file=audio_file,
-                    response_format="text"  # Simple text format
+                    response_format=response_format
                 )
             
             if progress:
                 progress.complete()
             
-            # Get text from response
-            if isinstance(transcription, str):
+            # Handle response based on format
+            if return_timestamps and hasattr(transcription, 'segments'):
+                # Format with timestamps
+                lines = []
+                for segment in transcription.segments:
+                    timestamp = format_timestamp(segment.start)
+                    text = segment.text.strip()
+                    lines.append(f"[{timestamp}] {text}")
+                
+                result = '\n'.join(lines)
+                if stream:
+                    self._stream_text(result)
+                return result
+            elif isinstance(transcription, str):
                 text = transcription
             elif hasattr(transcription, 'text'):
                 text = transcription.text
