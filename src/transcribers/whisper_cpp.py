@@ -137,8 +137,14 @@ class WhisperCppTranscriber(BaseTranscriber):
             
             # Read the output file
             if Path(output_file).exists():
-                with open(output_file, 'r', encoding='utf-8') as f:
-                    transcription = f.read().strip()
+                # Try reading with UTF-8, fallback to other encodings
+                try:
+                    with open(output_file, 'r', encoding='utf-8') as f:
+                        transcription = f.read()
+                except UnicodeDecodeError:
+                    # Try with errors='replace' to handle invalid UTF-8
+                    with open(output_file, 'r', encoding='utf-8', errors='replace') as f:
+                        transcription = f.read().strip()
                 
                 # Format output based on timestamp preference
                 if return_timestamps:
