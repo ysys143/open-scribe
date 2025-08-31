@@ -93,14 +93,16 @@ class WhisperCppTranscriber(BaseTranscriber):
             result = subprocess.run(
                 cmd,
                 capture_output=True,
-                text=True,
+                text=False,  # Use binary to avoid encoding issues
                 timeout=1800  # 30 minute timeout
             )
             
             if result.returncode != 0:
                 print(f"Error: whisper.cpp failed with code {result.returncode}")
                 if result.stderr:
-                    print(f"Error output: {result.stderr}")
+                    # Decode stderr with error handling
+                    stderr_text = result.stderr.decode('utf-8', errors='replace')
+                    print(f"Error output: {stderr_text}")
                 return None
             
             # Read the output file
