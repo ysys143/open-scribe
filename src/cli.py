@@ -11,9 +11,12 @@ from .config import Config
 from .database import TranscriptionDatabase
 from .downloader import YouTubeDownloader
 from .transcribers.openai import WhisperAPITranscriber, GPT4OTranscriber, GPT4OMiniTranscriber
+from .transcribers.youtube import YouTubeTranscriptAPITranscriber
+from .transcribers.whisper_cpp import WhisperCppTranscriber
 from .utils.validators import validate_youtube_url, extract_video_id
 from .utils.file import sanitize_filename, save_text_file, copy_to_downloads
 from .utils.progress import ProgressBar
+from .utils.summary import generate_summary, format_summary_output
 
 def create_argument_parser():
     """Create and configure argument parser"""
@@ -134,6 +137,8 @@ def get_transcriber(engine: str, config: Config):
         'whisper-api': WhisperAPITranscriber,
         'gpt-4o-transcribe': GPT4OTranscriber,
         'gpt-4o-mini-transcribe': GPT4OMiniTranscriber,
+        'youtube-transcript-api': YouTubeTranscriptAPITranscriber,
+        'whisper-cpp': WhisperCppTranscriber,
     }
     
     transcriber_class = transcribers.get(engine)
@@ -201,24 +206,27 @@ def process_single_video(url: str, args, config: Config) -> bool:
         if video_file:
             print(f"Video saved: {video_file}")
     
-    # Download audio (check if already downloaded)
+    # Download audio (skip for YouTube Transcript API)
     audio_file = None
-    if existing_job and existing_job.get('download_completed') and not args.force:
-        if existing_job.get('download_path') and Path(existing_job['download_path']).exists():
-            print("\n✓ Download already completed (using cached file)")
-            audio_file = existing_job['download_path']
-        else:
-            print("\n⚠ Previous download missing, re-downloading...")
-    
-    if not audio_file:
-        print("\nDownloading audio...")
-        audio_file = downloader.download_audio(url, keep_original=args.audio)
+    if args.engine != 'youtube-transcript-api':
+        if existing_job and existing_job.get('download_completed') and not args.force:
+            if existing_job.get('download_path') and Path(existing_job['download_path']).exists():
+                print("\n✓ Download already completed (using cached file)")
+                audio_file = existing_job['download_path']
+            else:
+                print("\n⚠ Previous download missing, re-downloading...")
+        
         if not audio_file:
-            print("Error: Failed to download audio")
-            db.update_job_status(job_id, 'failed')
-            return False
-        # Update download status
-        db.update_download_status(job_id, True, audio_file)
+            print("\nDownloading audio...")
+            audio_file = downloader.download_audio(url, keep_original=args.audio)
+            if not audio_file:
+                print("Error: Failed to download audio")
+                db.update_job_status(job_id, 'failed')
+                return False
+            # Update download status
+            db.update_download_status(job_id, True, audio_file)
+    else:
+        print("\n✓ Skipping audio download (using YouTube Transcript API)")
     
     # Transcribe (check if already transcribed)
     transcription = None
@@ -242,13 +250,21 @@ def process_single_video(url: str, args, config: Config) -> bool:
             db.update_job_status(job_id, 'failed')
             return False
         
-        transcription = transcriber.transcribe(
-            audio_file, 
-            stream=args.stream,
-            return_timestamps=args.timestamp
-        )
+        # YouTube Transcript API uses URL directly, not audio file
+        if args.engine == 'youtube-transcript-api':
+            transcription = transcriber.transcribe(
+                url,  # Pass URL directly for YouTube API
+                stream=args.stream,
+                return_timestamps=args.timestamp
+            )
+        else:
+            transcription = transcriber.transcribe(
+                audio_file, 
+                stream=args.stream,
+                return_timestamps=args.timestamp
+            )
         
-        if not transcription:
+        if not transcription or not transcription.strip():  # Check for empty transcription
             print("Error: Transcription failed")
             db.update_job_status(job_id, 'failed')
             return False
@@ -261,12 +277,6 @@ def process_single_video(url: str, args, config: Config) -> bool:
         # Update transcription status
         db.update_transcription_status(job_id, True, str(transcript_path))
     
-    # Copy to downloads if requested
-    if args.downloads:
-        download_path = copy_to_downloads(transcript_path, config.DOWNLOADS_PATH)
-        if download_path:
-            print(f"Copied to: {download_path}")
-    
     # Generate summary if requested
     summary_text = None
     if args.summary:
@@ -275,12 +285,33 @@ def process_single_video(url: str, args, config: Config) -> bool:
             summary_text = existing_job.get('summary')
         else:
             print("\n⚡ Generating summary...")
-            # TODO: Implement summary generation
-            summary_text = "Summary generation not yet implemented in modular version"
-            db.update_summary_status(job_id, True, summary_text)
+            summary_text = generate_summary(transcription, verbose=args.verbose)
+            if summary_text:
+                # Save summary to file
+                summary_path = config.TRANSCRIPT_PATH / f"{safe_title}_summary.txt"
+                formatted_summary = format_summary_output(summary_text, video_title)
+                save_text_file(formatted_summary, summary_path)
+                print(f"Summary saved: {summary_path}")
+                
+                # Copy to downloads if requested
+                if args.downloads:
+                    summary_download = copy_to_downloads(summary_path, config.DOWNLOADS_PATH)
+                    if summary_download:
+                        print(f"Summary copied to: {summary_download}")
+                
+                db.update_summary_status(job_id, True, summary_text)
+            else:
+                print("Warning: Summary generation failed")
+                db.update_summary_status(job_id, False, None)
+    
+    # Copy transcript to downloads if requested (after summary so both files are together)
+    if args.downloads and transcript_path:
+        download_path = copy_to_downloads(transcript_path, config.DOWNLOADS_PATH)
+        if download_path:
+            print(f"\nTranscript copied to: {download_path}")
     
     # Update overall job status
-    if transcription:
+    if transcription and transcription.strip():  # Check for non-empty transcription
         db.update_job_status(job_id, 'completed', str(transcript_path), summary_text)
     
     # Clean up temp audio if not keeping
@@ -290,8 +321,13 @@ def process_single_video(url: str, args, config: Config) -> bool:
         except:
             pass
     
-    print("\n✅ Transcription completed successfully!")
-    return True
+    # Only show success message if transcription actually succeeded
+    if transcription and transcription.strip():  # Check for non-empty transcription
+        print("\n✅ Transcription completed successfully!")
+        return True
+    else:
+        print("\n❌ Transcription failed!")
+        return False
 
 def main():
     """Main entry point"""

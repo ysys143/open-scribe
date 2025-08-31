@@ -59,16 +59,31 @@ class WhisperAPITranscriber(OpenAITranscriber):
         """
         try:
             with open(chunk_path, "rb") as audio_file:
+                # GPT-4o models don't support verbose_json, use text instead
+                if self.model_name.startswith('gpt-4o'):
+                    response_format = "text"
+                else:
+                    response_format = "verbose_json"
+                    
                 transcription = self.client.audio.transcriptions.create(
                     model=self.model_name,
                     file=audio_file,
-                    response_format="verbose_json"
+                    response_format=response_format
                 )
             
-            result = {
-                'text': transcription.text if hasattr(transcription, 'text') else str(transcription),
-                'segments': []
-            }
+            # Handle different response types based on model
+            if isinstance(transcription, str):
+                # GPT-4o models with text format return a string directly
+                result = {
+                    'text': transcription,
+                    'segments': []
+                }
+            else:
+                # Whisper models return an object with text attribute
+                result = {
+                    'text': transcription.text if hasattr(transcription, 'text') else str(transcription),
+                    'segments': []
+                }
             
             # Adjust timestamps for chunk position
             if hasattr(transcription, 'segments'):
@@ -84,7 +99,10 @@ class WhisperAPITranscriber(OpenAITranscriber):
             return chunk_index, result
             
         except Exception as e:
-            print(f"[{self.display_name}] Error transcribing chunk {chunk_index}: {e}")
+            print(f"[{self.display_name}] ❌ Error transcribing chunk {chunk_index + 1}: {e}")
+            import traceback
+            if os.getenv('OPEN_SCRIBE_VERBOSE') == 'true':
+                traceback.print_exc()
             return chunk_index, None
     
     def transcribe_chunks_concurrent(self, chunk_paths: List[str], 
@@ -153,8 +171,13 @@ class WhisperAPITranscriber(OpenAITranscriber):
         
         # Filter out None results (failed chunks)
         valid_results = [r for r in chunk_results if r is not None]
+        failed_chunks = len(chunk_results) - len(valid_results)
+        
+        if failed_chunks > 0:
+            print(f"[{self.display_name}] ⚠️  {failed_chunks} chunk(s) failed to transcribe")
         
         if not valid_results:
+            print(f"[{self.display_name}] ❌ All chunks failed - no transcription available")
             return ""
         
         if return_timestamps:
@@ -178,7 +201,12 @@ class WhisperAPITranscriber(OpenAITranscriber):
                 if result and 'text' in result:
                     texts.append(result['text'].strip())
             
-            return ' '.join(texts)
+            merged = ' '.join(texts)
+            if not merged and valid_results:
+                print(f"[{self.display_name}] Debug: Valid results exist but no text found")
+                print(f"[{self.display_name}] Debug: Result sample: {str(valid_results[0])[:200] if valid_results else 'None'}")
+                print(f"[{self.display_name}] Debug: Result keys: {valid_results[0].keys() if valid_results and isinstance(valid_results[0], dict) else 'Not a dict'}")
+            return merged
     
     def transcribe(self, audio_path: str, stream: bool = False, 
                   return_timestamps: bool = False, **kwargs) -> Optional[str]:
@@ -231,6 +259,9 @@ class WhisperAPITranscriber(OpenAITranscriber):
                     # Merge results
                     final_transcription = self.merge_chunk_results(chunk_results, return_timestamps)
                     
+                    if not final_transcription:
+                        print(f"[{self.display_name}] ❌ Failed to merge chunk results")
+                    
                     # Stream output if requested
                     if stream and final_transcription:
                         self._stream_text(final_transcription)
@@ -256,10 +287,16 @@ class WhisperAPITranscriber(OpenAITranscriber):
         
         try:
             with open(processed_path, "rb") as audio_file:
+                # GPT-4o models don't support verbose_json
+                if self.model_name.startswith('gpt-4o'):
+                    response_format = "text"
+                else:
+                    response_format = "verbose_json" if return_timestamps else "text"
+                    
                 transcription = self.client.audio.transcriptions.create(
                     model=self.model_name,
                     file=audio_file,
-                    response_format="verbose_json" if return_timestamps else "text"
+                    response_format=response_format
                 )
             
             if progress:

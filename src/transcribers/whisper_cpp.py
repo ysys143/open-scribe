@@ -1,0 +1,157 @@
+"""
+Whisper.cpp local transcriber
+"""
+
+import os
+import subprocess
+import tempfile
+from pathlib import Path
+from typing import Optional
+
+from .base import BaseTranscriber
+
+
+class WhisperCppTranscriber(BaseTranscriber):
+    """Transcriber using local whisper.cpp"""
+    
+    def __init__(self, config):
+        super().__init__(config)
+        self.model_path = os.getenv('WHISPER_CPP_MODEL')
+        self.executable_path = os.getenv('WHISPER_CPP_EXECUTABLE', 'whisper')
+    
+    @property
+    def name(self) -> str:
+        """Get the name of this transcriber"""
+        return "Whisper.cpp"
+    
+    @property
+    def requires_api_key(self) -> bool:
+        """Whisper.cpp is local and doesn't require an API key"""
+        return False
+        
+    def is_available(self) -> bool:
+        """Check if whisper.cpp is available"""
+        if not self.model_path or not Path(self.model_path).exists():
+            return False
+            
+        # Check if executable exists
+        try:
+            result = subprocess.run(
+                [self.executable_path, '--help'],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            return result.returncode == 0
+        except (subprocess.SubprocessError, FileNotFoundError):
+            return False
+    
+    def transcribe(self, audio_file: str, stream: bool = False,
+                  return_timestamps: bool = False) -> Optional[str]:
+        """
+        Transcribe using whisper.cpp
+        
+        Args:
+            audio_file: Path to audio file
+            stream: Streaming mode (not supported for whisper.cpp)
+            return_timestamps: Whether to include timestamps
+            
+        Returns:
+            str: Transcription text or None if failed
+        """
+        if not self.is_available():
+            print("Error: whisper.cpp is not configured properly")
+            print(f"Model path: {self.model_path}")
+            print(f"Executable: {self.executable_path}")
+            return None
+        
+        # Create temp output file
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as tmp:
+            output_file = tmp.name
+        
+        try:
+            # Build whisper.cpp command
+            cmd = [
+                self.executable_path,
+                '-m', self.model_path,
+                '-f', audio_file,
+                '-of', output_file[:-4],  # Remove .txt extension as whisper.cpp adds it
+                '--no-prints',
+                '--threads', '4'
+            ]
+            
+            # Add timestamp flag if requested
+            if not return_timestamps:
+                cmd.append('--no-timestamps')
+            
+            # Add language hint if available
+            cmd.extend(['-l', 'auto'])
+            
+            print("Running whisper.cpp (this may take a while)...")
+            
+            # Run whisper.cpp
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=1800  # 30 minute timeout
+            )
+            
+            if result.returncode != 0:
+                print(f"Error: whisper.cpp failed with code {result.returncode}")
+                if result.stderr:
+                    print(f"Error output: {result.stderr}")
+                return None
+            
+            # Read the output file
+            if Path(output_file).exists():
+                with open(output_file, 'r', encoding='utf-8') as f:
+                    transcription = f.read().strip()
+                
+                # Format output based on timestamp preference
+                if return_timestamps:
+                    # whisper.cpp includes timestamps by default in format [00:00:00.000 --> 00:00:05.000]
+                    # Convert to simpler format
+                    import re
+                    lines = transcription.split('\n')
+                    formatted_lines = []
+                    for line in lines:
+                        # Match whisper.cpp timestamp format
+                        match = re.match(r'\[(\d{2}:\d{2}:\d{2})\.\d{3} --> \d{2}:\d{2}:\d{2}\.\d{3}\]\s*(.*)', line)
+                        if match:
+                            timestamp = match.group(1)
+                            text = match.group(2)
+                            # Remove leading zeros from hours if 00
+                            if timestamp.startswith('00:'):
+                                timestamp = timestamp[3:]
+                            formatted_lines.append(f"[{timestamp}] {text}")
+                        else:
+                            # Keep non-timestamp lines as is
+                            if line.strip():
+                                formatted_lines.append(line)
+                    return '\n'.join(formatted_lines)
+                else:
+                    # Remove timestamps if present
+                    import re
+                    # Remove whisper.cpp style timestamps
+                    transcription = re.sub(r'\[\d{2}:\d{2}:\d{2}\.\d{3} --> \d{2}:\d{2}:\d{2}\.\d{3}\]\s*', '', transcription)
+                    # Clean up multiple newlines
+                    transcription = re.sub(r'\n\n+', '\n\n', transcription)
+                    return transcription
+            else:
+                print(f"Error: Output file not found: {output_file}")
+                return None
+                
+        except subprocess.TimeoutExpired:
+            print("Error: whisper.cpp timed out (exceeded 30 minutes)")
+            return None
+        except Exception as e:
+            print(f"Error running whisper.cpp: {e}")
+            return None
+        finally:
+            # Clean up temp file
+            try:
+                if Path(output_file).exists():
+                    Path(output_file).unlink()
+            except:
+                pass
