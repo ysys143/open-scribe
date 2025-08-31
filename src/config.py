@@ -51,7 +51,7 @@ class Config:
     DEFAULT_VIDEO = os.getenv('OPEN_SCRIBE_VIDEO', 'false').lower() == 'true'
     DEFAULT_SRT = os.getenv('OPEN_SCRIBE_SRT', 'false').lower() == 'true'
     DEFAULT_TRANSLATE = os.getenv('OPEN_SCRIBE_TRANSLATE', 'false').lower() == 'true'
-    DEFAULT_TIMESTAMP = os.getenv('OPEN_SCRIBE_TIMESTAMP', 'false').lower() == 'true'
+    DEFAULT_TIMESTAMP = os.getenv('OPEN_SCRIBE_TIMESTAMP', 'true').lower() == 'true'
     
     # Engine Aliases
     ENGINE_ALIASES = {
