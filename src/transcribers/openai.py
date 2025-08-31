@@ -133,7 +133,10 @@ class WhisperAPITranscriber(OpenAITranscriber):
             # Submit all tasks
             futures = {}
             for i, chunk_path in enumerate(chunk_paths):
-                future = executor.submit(self.transcribe_single_chunk, chunk_path, i, return_timestamps)
+                # Calculate chunk start time for GPT-4o models
+                chunk_start_time = i * chunk_duration
+                future = executor.submit(self.transcribe_single_chunk, chunk_path, i, 
+                                        return_timestamps, chunk_start_time)
                 futures[future] = i
             
             # Process results as they complete
