@@ -323,8 +323,9 @@ class WhisperAPITranscriber(OpenAITranscriber):
                     return final_transcription
                     
                 finally:
-                    # Clean up chunk files
-                    cleanup_temp_chunks(chunk_paths)
+                    # Clean up chunk files (keep for debugging if verbose mode)
+                    keep_chunks = os.getenv('OPEN_SCRIBE_VERBOSE') == 'true'
+                    cleanup_temp_chunks(chunk_paths, keep_for_debug=keep_chunks)
         
         # Original logic for smaller files or if chunking is not needed
         # Check and compress audio if needed
