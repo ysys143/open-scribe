@@ -78,10 +78,17 @@ class WhisperAPITranscriber(OpenAITranscriber):
                     'text': transcription,
                     'segments': []
                 }
-            else:
+            elif hasattr(transcription, 'text'):
                 # Whisper models return an object with text attribute
                 result = {
-                    'text': transcription.text if hasattr(transcription, 'text') else str(transcription),
+                    'text': transcription.text,
+                    'segments': []
+                }
+            else:
+                # Handle unexpected response format
+                text = str(transcription)
+                result = {
+                    'text': text,
                     'segments': []
                 }
             
@@ -206,6 +213,17 @@ class WhisperAPITranscriber(OpenAITranscriber):
                 print(f"[{self.display_name}] Debug: Valid results exist but no text found")
                 print(f"[{self.display_name}] Debug: Result sample: {str(valid_results[0])[:200] if valid_results else 'None'}")
                 print(f"[{self.display_name}] Debug: Result keys: {valid_results[0].keys() if valid_results and isinstance(valid_results[0], dict) else 'Not a dict'}")
+                # Try to extract text from raw results if standard extraction failed
+                for i, result in enumerate(valid_results):
+                    if result:
+                        print(f"[{self.display_name}] Debug: Chunk {i+1} type: {type(result)}")
+                        if isinstance(result, str):
+                            texts.append(result.strip())
+                        elif hasattr(result, '__str__'):
+                            raw_text = str(result).strip()
+                            if raw_text and raw_text != 'None':
+                                texts.append(raw_text)
+                merged = ' '.join(texts)
             return merged
     
     def transcribe(self, audio_path: str, stream: bool = False, 
@@ -259,8 +277,9 @@ class WhisperAPITranscriber(OpenAITranscriber):
                     # Merge results
                     final_transcription = self.merge_chunk_results(chunk_results, return_timestamps)
                     
-                    if not final_transcription:
+                    if not final_transcription or not final_transcription.strip():
                         print(f"[{self.display_name}] ❌ Failed to merge chunk results")
+                        return None
                     
                     # Stream output if requested
                     if stream and final_transcription:
