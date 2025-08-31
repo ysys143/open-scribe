@@ -127,14 +127,26 @@ class WhisperCppTranscriber(BaseTranscriber):
                 universal_newlines=False
             )
             
-            # Stream output in real-time
+            # Stream output in real-time with progress bar
             output_lines = []
             try:
                 for line in process.stdout:
                     decoded_line = line.decode('utf-8', errors='replace')
-                    # Print progress lines
+                    # Parse and display progress bar
                     if 'progress' in decoded_line.lower() or '%' in decoded_line:
-                        print(f"\r{decoded_line.strip()}", end='', flush=True)
+                        # Extract percentage from lines like "progress = 90%"
+                        import re
+                        percent_match = re.search(r'(\d+)%', decoded_line)
+                        if percent_match:
+                            percent = int(percent_match.group(1))
+                            # Create progress bar
+                            bar_length = 50
+                            filled = int(bar_length * percent / 100)
+                            bar = '█' * filled + '░' * (bar_length - filled)
+                            print(f"\rTranscribing: [{bar}] {percent:3d}%", end='', flush=True)
+                        else:
+                            # If we can't parse percentage, show the raw line
+                            print(f"\r{decoded_line.strip()}", end='', flush=True)
                     output_lines.append(decoded_line)
                 
                 # Wait for process to complete
