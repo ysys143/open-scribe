@@ -192,7 +192,6 @@ class WhisperCppTranscriber(BaseTranscriber):
                 if return_timestamps:
                     # whisper.cpp includes timestamps by default in format [00:00:00.000 --> 00:00:05.000]
                     # Convert to simpler format
-                    import re
                     lines = transcription.split('\n')
                     formatted_lines = []
                     for line in lines:
