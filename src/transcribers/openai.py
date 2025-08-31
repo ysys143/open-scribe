@@ -156,7 +156,7 @@ class WhisperAPITranscriber(OpenAITranscriber):
             print(f"[{self.display_name}] File is large, using chunking strategy...")
             
             # Split audio into chunks
-            chunk_paths = split_audio_into_chunks(audio_path, chunk_duration=600)
+            chunk_paths = split_audio_into_chunks(audio_path, chunk_duration_seconds=600)
             
             try:
                 # Transcribe chunks concurrently
