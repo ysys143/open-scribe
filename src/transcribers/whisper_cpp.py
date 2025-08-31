@@ -211,7 +211,6 @@ class WhisperCppTranscriber(BaseTranscriber):
                     return '\n'.join(formatted_lines)
                 else:
                     # Remove timestamps if present
-                    import re
                     # Remove whisper.cpp style timestamps
                     transcription = re.sub(r'\[\d{2}:\d{2}:\d{2}\.\d{3} --> \d{2}:\d{2}:\d{2}\.\d{3}\]\s*', '', transcription)
                     # Clean up multiple newlines
