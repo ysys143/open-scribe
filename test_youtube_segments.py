@@ -114,7 +114,8 @@ def test_transcriber_with_timestamps(url):
     print(f"Video ID: {video_id}")
     
     # Get transcript directly
-    transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
+    api = YouTubeTranscriptApi()
+    transcript_list = api.list(video_id)
     
     # Try to find a transcript
     transcript = None
