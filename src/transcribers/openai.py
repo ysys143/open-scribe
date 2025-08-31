@@ -59,6 +59,7 @@ class WhisperAPITranscriber(OpenAITranscriber):
             chunk_path: Path to chunk file
             chunk_index: Index of this chunk
             return_timestamps: Whether to include timestamps
+            chunk_start_time: Start time of this chunk in seconds (for GPT-4o models)
             
         Returns:
             tuple: (chunk_index, transcribed_text)
