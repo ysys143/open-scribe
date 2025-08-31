@@ -226,8 +226,15 @@ class WhisperAPITranscriber(OpenAITranscriber):
             if progress:
                 progress.complete()
             
-            # Get text from response
-            if isinstance(transcription, str):
+            # Handle response based on format
+            if return_timestamps and self.model_name == "whisper-1" and hasattr(transcription, 'segments'):
+                # Format with timestamps for whisper-1
+                lines = []
+                for segment in transcription.segments:
+                    timestamp = format_timestamp(segment.start)
+                    lines.append(f"[{timestamp}] {segment.text.strip()}")
+                text = '\n'.join(lines)
+            elif isinstance(transcription, str):
                 text = transcription
             elif hasattr(transcription, 'text'):
                 text = transcription.text
