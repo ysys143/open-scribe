@@ -189,14 +189,16 @@ class WhisperAPITranscriber(OpenAITranscriber):
                 print(f"[{self.display_name}] File is large, using chunking strategy...")
             
             # Split audio into chunks
-            chunk_paths = split_audio_into_chunks(audio_path, chunk_duration_seconds=600)
+            chunk_duration_seconds = 30 if force_chunking else 600  # Use shorter chunks for timestamps
+            chunk_paths = split_audio_into_chunks(audio_path, chunk_duration_seconds=chunk_duration_seconds)
             
             try:
                 # Transcribe chunks concurrently
                 chunk_texts = self.transcribe_chunks_concurrent(
                     chunk_paths,
                     max_workers=min(5, len(chunk_paths)),
-                    return_timestamps=return_timestamps
+                    return_timestamps=return_timestamps,
+                    chunk_duration=chunk_duration_seconds
                 )
                 
                 # Merge based on timestamp preference
