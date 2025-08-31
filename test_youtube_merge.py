@@ -188,13 +188,23 @@ def test_merge_in_transcriber(url):
     print("\n4. Statistics:")
     print("-" * 40)
     
-    orig_durations = [s.get('duration', 0) for s in raw_segments]
+    # Handle both dict and object formats for raw_segments
+    orig_durations = []
+    orig_text_lengths = []
+    for s in raw_segments:
+        if hasattr(s, '__dict__'):
+            orig_durations.append(s.duration)
+            orig_text_lengths.append(len(s.text))
+        else:
+            orig_durations.append(s.get('duration', 0))
+            orig_text_lengths.append(len(s['text']))
+    
     merged_durations = [s['duration'] for s in merged_segments]
     
     print(f"Original:")
     print(f"  Count: {len(raw_segments)}")
     print(f"  Avg duration: {sum(orig_durations)/len(orig_durations):.1f}s")
-    print(f"  Avg text length: {sum(len(s['text']) for s in raw_segments)/len(raw_segments):.1f} chars")
+    print(f"  Avg text length: {sum(orig_text_lengths)/len(orig_text_lengths):.1f} chars")
     
     print(f"\nMerged:")
     print(f"  Count: {len(merged_segments)}")
