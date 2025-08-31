@@ -103,7 +103,8 @@ class WhisperAPITranscriber(OpenAITranscriber):
             return chunk_index, None
     
     def transcribe_chunks_concurrent(self, chunk_paths: List[str], max_workers: int = 5,
-                                    return_timestamps: bool = False) -> List[str]:
+                                    return_timestamps: bool = False,
+                                    chunk_duration: int = 600) -> List[str]:
         """
         Transcribe multiple chunks concurrently
         
