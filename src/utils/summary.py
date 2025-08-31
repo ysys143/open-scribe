@@ -43,16 +43,14 @@ Your summaries should:
 5. Use bullet points for lists when appropriate"""
 
         # Add language instruction based on preference
-        if summary_lang == 'ko':
-            system_prompt += "\n\n반드시 한국어로 요약을 작성해주세요."
-            lang_instruction = "한국어로 "
-        elif summary_lang == 'en':
-            system_prompt += "\n\nPlease provide the summary in English."
-            lang_instruction = "in English "
-        else:
+        if summary_lang.lower() == 'auto':
             # auto - use source language
             system_prompt += "\n\nProvide the summary in the same language as the source transcript."
             lang_instruction = ""
+        else:
+            # Use any language specified by user
+            system_prompt += f"\n\nPlease provide the summary in {summary_lang}."
+            lang_instruction = f"in {summary_lang} "
 
         user_prompt = f"""Please provide {lang_instruction}a comprehensive summary of the following video transcript:
 
