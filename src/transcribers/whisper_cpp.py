@@ -136,7 +136,6 @@ class WhisperCppTranscriber(BaseTranscriber):
                     # Parse and display progress bar
                     if 'progress' in decoded_line.lower() or '%' in decoded_line:
                         # Extract percentage from lines like "progress = 90%"
-                        import re
                         percent_match = re.search(r'(\d+)%', decoded_line)
                         if percent_match:
                             percent = int(percent_match.group(1))
