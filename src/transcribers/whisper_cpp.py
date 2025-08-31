@@ -192,31 +192,30 @@ class WhisperCppTranscriber(BaseTranscriber):
                 
                 # Format output based on timestamp preference
                 if return_timestamps:
-                    # whisper.cpp includes timestamps by default in format [00:00:00.000 --> 00:00:05.000]
-                    # Convert to simpler format
-                    lines = transcription.split('\n')
+                    # Parse SRT format and convert to simpler format
+                    # SRT format:
+                    # 1
+                    # 00:00:00,000 --> 00:00:05,000
+                    # Text content
+                    parts = transcription.split('\n\n')
                     formatted_lines = []
-                    for line in lines:
-                        # Match whisper.cpp timestamp format
-                        match = re.match(r'\[(\d{2}:\d{2}:\d{2})\.\d{3} --> \d{2}:\d{2}:\d{2}\.\d{3}\]\s*(.*)', line)
-                        if match:
-                            timestamp = match.group(1)
-                            text = match.group(2)
-                            # Remove leading zeros from hours if 00
-                            if timestamp.startswith('00:'):
-                                timestamp = timestamp[3:]
-                            formatted_lines.append(f"[{timestamp}] {text}")
-                        else:
-                            # Keep non-timestamp lines as is
-                            if line.strip():
-                                formatted_lines.append(line)
+                    for part in parts:
+                        lines = part.strip().split('\n')
+                        if len(lines) >= 3:
+                            # lines[0] is the sequence number
+                            # lines[1] is the timestamp
+                            # lines[2:] is the text
+                            timestamp_match = re.match(r'(\d{2}:\d{2}:\d{2}),\d{3} --> \d{2}:\d{2}:\d{2},\d{3}', lines[1])
+                            if timestamp_match:
+                                timestamp = timestamp_match.group(1)
+                                # Remove leading zeros from hours if 00
+                                if timestamp.startswith('00:'):
+                                    timestamp = timestamp[3:]
+                                text = ' '.join(lines[2:])
+                                formatted_lines.append(f"[{timestamp}] {text}")
                     return '\n'.join(formatted_lines)
                 else:
-                    # Remove timestamps if present
-                    # Remove whisper.cpp style timestamps
-                    transcription = re.sub(r'\[\d{2}:\d{2}:\d{2}\.\d{3} --> \d{2}:\d{2}:\d{2}\.\d{3}\]\s*', '', transcription)
-                    # Clean up multiple newlines
-                    transcription = re.sub(r'\n\n+', '\n\n', transcription)
+                    # Plain text format, return as is
                     return transcription
             else:
                 print(f"Error: Output file not found: {output_file}")
