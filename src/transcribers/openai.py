@@ -86,6 +86,11 @@ class WhisperAPITranscriber(OpenAITranscriber):
                     timestamp = format_timestamp(segment.start)
                     lines.append(f"[{timestamp}] {segment.text.strip()}")
                 return chunk_index, '\n'.join(lines)
+            elif return_timestamps and self.model_name in ["gpt-4o-transcribe", "gpt-4o-mini-transcribe"]:
+                # For GPT-4o models, add chunk timestamp
+                text = transcription.text if hasattr(transcription, 'text') else str(transcription)
+                timestamp = format_timestamp(chunk_start_time)
+                return chunk_index, f"[{timestamp}] {text}"
             elif isinstance(transcription, str):
                 return chunk_index, transcription
             elif hasattr(transcription, 'text'):
