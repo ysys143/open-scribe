@@ -54,7 +54,7 @@ class YouTubeTranscriptAPITranscriber(BaseTranscriber):
         if not video_id:
             # Try to extract from the filename if it's a path
             import os
-            filename = os.path.basename(audio_file)
+            filename = os.path.basename(audio_path)
             # Remove extension and try to extract ID
             video_id_match = re.search(r'([a-zA-Z0-9_-]{11})', filename)
             if video_id_match:
