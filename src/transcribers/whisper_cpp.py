@@ -73,6 +73,7 @@ class WhisperCppTranscriber(BaseTranscriber):
         # Create a temp symlink with a simple name if the file has special characters
         temp_audio_link = None
         audio_to_use = audio_file
+        output_extension = '.txt'  # Default extension
         
         # Check if filename contains problematic characters
         if any(c in audio_file for c in ["'", "'", "'", """, """, "？", "｜", " "]):
