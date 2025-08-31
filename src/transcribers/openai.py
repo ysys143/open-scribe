@@ -172,10 +172,12 @@ class WhisperAPITranscriber(OpenAITranscriber):
         print(f"[{self.display_name}] Processing: {audio_path}")
         
         # Check timestamp support for the model
-        if return_timestamps and self.model_name != "whisper-1":
+        if return_timestamps and self.model_name not in ["whisper-1", "gpt-4o-transcribe", "gpt-4o-mini-transcribe"]:
             print(f"[{self.display_name}] ⚠️  Warning: {self.model_name} does not support timestamps")
             print(f"[{self.display_name}] Proceeding without timestamps...")
             return_timestamps = False
+        elif return_timestamps and self.model_name in ["gpt-4o-transcribe", "gpt-4o-mini-transcribe"]:
+            print(f"[{self.display_name}] ℹ️  Using chunked timestamps for {self.model_name}")
         
         # Check if chunking is needed
         if should_use_chunking(audio_path):
