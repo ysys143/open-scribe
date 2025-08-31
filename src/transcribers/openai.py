@@ -108,6 +108,12 @@ class WhisperAPITranscriber(OpenAITranscriber):
         """
         Transcribe multiple chunks concurrently
         
+        Args:
+            chunk_paths: List of paths to audio chunks
+            max_workers: Maximum number of concurrent workers
+            return_timestamps: Whether to include timestamps
+            chunk_duration: Duration of each chunk in seconds (for timestamp calculation)
+        
         Returns:
             list: Transcribed texts ordered by chunk index
         """
