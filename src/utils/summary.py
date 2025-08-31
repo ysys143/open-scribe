@@ -30,6 +30,9 @@ def generate_summary(transcript: str, verbose: bool = False) -> Optional[str]:
         # Get model from environment or use default
         model = os.getenv('OPENAI_SUMMARY_MODEL', 'gpt-4o-mini')
         
+        # Get language preference from environment
+        summary_lang = os.getenv('OPENAI_SUMMARY_LANGUAGE', 'auto')
+        
         # Prepare the prompt
         system_prompt = """You are a helpful assistant that creates concise, well-structured summaries of video transcripts.
 Your summaries should:
@@ -39,7 +42,19 @@ Your summaries should:
 4. Be written in clear, professional language
 5. Use bullet points for lists when appropriate"""
 
-        user_prompt = f"""Please provide a comprehensive summary of the following video transcript:
+        # Add language instruction based on preference
+        if summary_lang == 'ko':
+            system_prompt += "\n\n반드시 한국어로 요약을 작성해주세요."
+            lang_instruction = "한국어로 "
+        elif summary_lang == 'en':
+            system_prompt += "\n\nPlease provide the summary in English."
+            lang_instruction = "in English "
+        else:
+            # auto - use source language
+            system_prompt += "\n\nProvide the summary in the same language as the source transcript."
+            lang_instruction = ""
+
+        user_prompt = f"""Please provide {lang_instruction}a comprehensive summary of the following video transcript:
 
 {transcript[:15000]}  # Limit to ~15k chars to stay within token limits
 
