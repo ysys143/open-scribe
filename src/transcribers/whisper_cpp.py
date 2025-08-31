@@ -176,9 +176,16 @@ class WhisperCppTranscriber(BaseTranscriber):
             print(f"Error running whisper.cpp: {e}")
             return None
         finally:
-            # Clean up temp file
+            # Clean up temp files
             try:
                 if Path(output_file).exists():
                     Path(output_file).unlink()
             except:
                 pass
+            
+            # Clean up temp symlink if created
+            if temp_audio_link and Path(temp_audio_link).exists():
+                try:
+                    Path(temp_audio_link).unlink()
+                except:
+                    pass
