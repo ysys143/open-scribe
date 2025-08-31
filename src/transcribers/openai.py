@@ -179,9 +179,14 @@ class WhisperAPITranscriber(OpenAITranscriber):
         elif return_timestamps and self.model_name in ["gpt-4o-transcribe", "gpt-4o-mini-transcribe"]:
             print(f"[{self.display_name}] ℹ️  Using chunked timestamps for {self.model_name}")
         
-        # Check if chunking is needed
-        if should_use_chunking(audio_path):
-            print(f"[{self.display_name}] File is large, using chunking strategy...")
+        # Check if chunking is needed or forced for GPT-4o timestamps
+        force_chunking = return_timestamps and self.model_name in ["gpt-4o-transcribe", "gpt-4o-mini-transcribe"]
+        
+        if should_use_chunking(audio_path) or force_chunking:
+            if force_chunking and not should_use_chunking(audio_path):
+                print(f"[{self.display_name}] Using chunking for timestamp support...")
+            else:
+                print(f"[{self.display_name}] File is large, using chunking strategy...")
             
             # Split audio into chunks
             chunk_paths = split_audio_into_chunks(audio_path, chunk_duration_seconds=600)
