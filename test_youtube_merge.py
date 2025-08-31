@@ -79,8 +79,8 @@ def merge_segments_smart(transcript_data, min_duration=2.0, max_chars=150):
             # Start new segment
             current = {
                 'text': text,
-                'start': seg['start'],
-                'duration': seg.get('duration', 0),
+                'start': start,
+                'duration': duration,
                 'parts': 1
             }
         else:
