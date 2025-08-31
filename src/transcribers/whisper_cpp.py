@@ -102,12 +102,16 @@ class WhisperCppTranscriber(BaseTranscriber):
                 '-f', audio_to_use,
                 '-of', output_file[:-4],  # Remove .txt extension as whisper.cpp adds it
                 '--output-txt',  # Explicitly request text output
-                '--no-prints',
+                '--print-progress',  # Show progress
                 '--threads', '4'
             ]
             
             # Add timestamp flag if requested
-            if not return_timestamps:
+            if return_timestamps:
+                # Keep timestamps (default behavior)
+                pass
+            else:
+                # Remove timestamps only when not needed
                 cmd.append('--no-timestamps')
             
             # Add language hint if available
@@ -115,13 +119,44 @@ class WhisperCppTranscriber(BaseTranscriber):
             
             print("Running whisper.cpp (this may take a while)...")
             
-            # Run whisper.cpp
-            result = subprocess.run(
+            # Run whisper.cpp with real-time output
+            process = subprocess.Popen(
                 cmd,
-                capture_output=True,
-                text=False,  # Use binary to avoid encoding issues
-                timeout=1800  # 30 minute timeout
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                universal_newlines=False
             )
+            
+            # Stream output in real-time
+            output_lines = []
+            try:
+                for line in process.stdout:
+                    decoded_line = line.decode('utf-8', errors='replace')
+                    # Print progress lines
+                    if 'progress' in decoded_line.lower() or '%' in decoded_line:
+                        print(f"\r{decoded_line.strip()}", end='', flush=True)
+                    output_lines.append(decoded_line)
+                
+                # Wait for process to complete
+                process.wait(timeout=1800)  # 30 minute timeout
+                result_returncode = process.returncode
+                result_output = ''.join(output_lines)
+                
+            except subprocess.TimeoutExpired:
+                process.kill()
+                print("\nError: whisper.cpp timed out (exceeded 30 minutes)")
+                return None
+            
+            # Check result
+            result = type('Result', (), {'returncode': result_returncode, 'stdout': result_output.encode('utf-8')})()
+            
+            # Run whisper.cpp
+            # result = subprocess.run(
+            #     cmd,
+            #     capture_output=True,
+            #     text=False,  # Use binary to avoid encoding issues
+            #     timeout=1800  # 30 minute timeout
+            # )
             
             if result.returncode != 0:
                 print(f"Error: whisper.cpp failed with code {result.returncode}")
