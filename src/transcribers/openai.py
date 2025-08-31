@@ -70,6 +70,12 @@ class WhisperAPITranscriber(OpenAITranscriber):
                     file=audio_file,
                     response_format=response_format
                 )
+                
+                # Debug: Log the response type and content
+                if os.getenv('OPEN_SCRIBE_VERBOSE') == 'true':
+                    print(f"[{self.display_name}] Chunk {chunk_index + 1} response type: {type(transcription)}")
+                    if hasattr(transcription, '__dict__'):
+                        print(f"[{self.display_name}] Chunk {chunk_index + 1} attributes: {transcription.__dict__.keys() if hasattr(transcription.__dict__, 'keys') else transcription.__dict__}")
             
             # Handle different response types based on model
             if isinstance(transcription, str):
@@ -78,15 +84,33 @@ class WhisperAPITranscriber(OpenAITranscriber):
                     'text': transcription,
                     'segments': []
                 }
+                print(f"[{self.display_name}] Chunk {chunk_index + 1}: Received string response, length: {len(transcription)}")
             elif hasattr(transcription, 'text'):
                 # Whisper models return an object with text attribute
                 result = {
                     'text': transcription.text,
                     'segments': []
                 }
+                print(f"[{self.display_name}] Chunk {chunk_index + 1}: Received object with text, length: {len(transcription.text)}")
             else:
-                # Handle unexpected response format
-                text = str(transcription)
+                # Handle unexpected response format - this might be a direct response object
+                # Try to access the text directly from the response
+                text = ""
+                if hasattr(transcription, 'model_dump'):
+                    # Pydantic model response
+                    data = transcription.model_dump()
+                    text = data.get('text', '')
+                    print(f"[{self.display_name}] Chunk {chunk_index + 1}: Pydantic model response, text length: {len(text)}")
+                elif hasattr(transcription, 'to_dict'):
+                    # Dictionary-like response
+                    data = transcription.to_dict()
+                    text = data.get('text', '')
+                    print(f"[{self.display_name}] Chunk {chunk_index + 1}: Dict response, text length: {len(text)}")
+                else:
+                    # Last resort: convert to string
+                    text = str(transcription)
+                    print(f"[{self.display_name}] Chunk {chunk_index + 1}: Fallback to str(), length: {len(text)}")
+                
                 result = {
                     'text': text,
                     'segments': []
@@ -157,7 +181,9 @@ class WhisperAPITranscriber(OpenAITranscriber):
                 progress.complete_chunk(chunk_index + 1)
         
         progress.finish()
-        print(f"[{self.display_name}] All {len(chunk_paths)} chunks completed successfully")
+        # Check how many chunks actually have content
+        chunks_with_content = sum(1 for r in results if r and r.get('text'))
+        print(f"[{self.display_name}] Completed: {chunks_with_content}/{len(chunk_paths)} chunks have content")
         
         return results
     
@@ -186,6 +212,15 @@ class WhisperAPITranscriber(OpenAITranscriber):
         if not valid_results:
             print(f"[{self.display_name}] ❌ All chunks failed - no transcription available")
             return ""
+        
+        # Debug: Show what we got from each chunk
+        print(f"[{self.display_name}] Processing {len(valid_results)} valid chunks:")
+        for i, result in enumerate(valid_results):
+            if result and 'text' in result:
+                text_preview = result['text'][:100] if result['text'] else "(empty)"
+                print(f"  Chunk {i+1}: {len(result['text'])} chars - Preview: {text_preview}...")
+            else:
+                print(f"  Chunk {i+1}: No 'text' field found")
         
         if return_timestamps:
             # Merge with timestamps
