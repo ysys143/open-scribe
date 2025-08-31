@@ -64,13 +64,11 @@ class WhisperAPITranscriber(OpenAITranscriber):
         """
         try:
             with open(chunk_path, "rb") as audio_file:
-                # Use verbose_json for timestamps, text otherwise
-                response_format = "verbose_json" if return_timestamps else "text"
-                
+                # GPT-4o models don't support verbose_json, only text
                 transcription = self.client.audio.transcriptions.create(
                     model=self.model_name,
                     file=audio_file,
-                    response_format=response_format
+                    response_format="text"
                 )
             
             # Handle response based on format
