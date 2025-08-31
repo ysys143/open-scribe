@@ -41,15 +41,16 @@ class YouTubeTranscriptAPITranscriber(BaseTranscriber):
         Get transcript using YouTube Transcript API
         
         Args:
-            audio_file: YouTube URL or video ID (audio_file param used for consistency)
+            audio_path: YouTube URL or video ID
             stream: Streaming mode (not applicable for this transcriber)
             return_timestamps: Whether to include timestamps
+            **kwargs: Additional parameters (ignored)
             
         Returns:
             str: Transcription text or None if failed
         """
         # Extract video ID from the URL/path
-        video_id = extract_video_id(audio_file)
+        video_id = extract_video_id(audio_path)
         if not video_id:
             # Try to extract from the filename if it's a path
             import os
