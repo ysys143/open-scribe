@@ -50,7 +50,8 @@ class WhisperAPITranscriber(OpenAITranscriber):
         return "whisper-api"
     
     def transcribe_single_chunk(self, chunk_path: str, chunk_index: int, 
-                               return_timestamps: bool = False) -> tuple[int, Optional[str]]:
+                               return_timestamps: bool = False,
+                               chunk_start_time: float = 0) -> tuple[int, Optional[str]]:
         """
         Transcribe a single audio chunk
         
