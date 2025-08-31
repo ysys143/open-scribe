@@ -3,6 +3,7 @@ Whisper.cpp local transcriber
 """
 
 import os
+import re
 import subprocess
 import tempfile
 from pathlib import Path
