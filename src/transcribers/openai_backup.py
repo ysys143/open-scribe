@@ -72,7 +72,7 @@ class WhisperAPITranscriber(OpenAITranscriber):
                 )
                 
                 # Debug: Log the response type and content
-                if self.config.DEFAULT_VERBOSE:
+                if self.config.VERBOSE:
                     print(f"[{self.display_name}] Chunk {chunk_index + 1} response type: {type(transcription)}")
                     if hasattr(transcription, '__dict__'):
                         print(f"[{self.display_name}] Chunk {chunk_index + 1} attributes: {transcription.__dict__.keys() if hasattr(transcription.__dict__, 'keys') else transcription.__dict__}")
@@ -132,7 +132,7 @@ class WhisperAPITranscriber(OpenAITranscriber):
         except Exception as e:
             print(f"[{self.display_name}] ❌ Error transcribing chunk {chunk_index + 1}: {e}")
             import traceback
-            if self.config.DEFAULT_VERBOSE:
+            if self.config.VERBOSE:
                 traceback.print_exc()
             return chunk_index, None
     
@@ -324,7 +324,7 @@ class WhisperAPITranscriber(OpenAITranscriber):
                     
                 finally:
                     # Clean up chunk files (keep for debugging if verbose mode)
-                    keep_chunks = self.config.DEFAULT_VERBOSE
+                    keep_chunks = self.config.VERBOSE
                     cleanup_temp_chunks(chunk_paths, keep_for_debug=keep_chunks)
         
         # Original logic for smaller files or if chunking is not needed
