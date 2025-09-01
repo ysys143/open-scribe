@@ -194,9 +194,13 @@ class WhisperAPITranscriber(OpenAITranscriber):
             
             try:
                 # Transcribe chunks concurrently
+                # Use worker configuration from config
+                max_workers = min(self.config.MAX_WORKER, len(chunk_paths))
+                max_workers = max(self.config.MIN_WORKER, max_workers)
+                
                 chunk_texts = self.transcribe_chunks_concurrent(
                     chunk_paths,
-                    max_workers=min(5, len(chunk_paths)),
+                    max_workers=max_workers,
                     return_timestamps=return_timestamps,
                     chunk_duration=chunk_duration_seconds
                 )
