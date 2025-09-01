@@ -3,3 +3,4 @@ python-dotenv
 youtube-transcript-api
 yt-dlp
 simple-term-menu
+psutil
