@@ -48,15 +48,15 @@ class Config:
     
     # Options Configuration
     ENGINE = os.getenv('OPEN_SCRIBE_ENGINE', 'gpt-4o-mini-transcribe')
-    STREAM = os.getenv('OPEN_SCRIBE_STREAM', 'true').lower() == 'true'
-    DOWNLOADS = os.getenv('OPEN_SCRIBE_DOWNLOADS', 'true').lower() == 'true'
-    SUMMARY = os.getenv('OPEN_SCRIBE_SUMMARY', 'true').lower() == 'true'
+    ENABLE_STREAM = os.getenv('OPEN_SCRIBE_STREAM', 'true').lower() == 'true'
+    COPY_TO_DOWNLOADS = os.getenv('OPEN_SCRIBE_DOWNLOADS', 'true').lower() == 'true'
+    ENABLE_SUMMARY = os.getenv('OPEN_SCRIBE_SUMMARY', 'true').lower() == 'true'
     VERBOSE = os.getenv('OPEN_SCRIBE_VERBOSE', 'true').lower() == 'true'
-    AUDIO = os.getenv('OPEN_SCRIBE_AUDIO', 'false').lower() == 'true'
-    VIDEO = os.getenv('OPEN_SCRIBE_VIDEO', 'false').lower() == 'true'
-    SRT = os.getenv('OPEN_SCRIBE_SRT', 'false').lower() == 'true'
-    TRANSLATE = os.getenv('OPEN_SCRIBE_TRANSLATE', 'false').lower() == 'true'
-    TIMESTAMP = os.getenv('OPEN_SCRIBE_TIMESTAMP', 'false').lower() == 'true'
+    KEEP_AUDIO = os.getenv('OPEN_SCRIBE_AUDIO', 'false').lower() == 'true'
+    DOWNLOAD_VIDEO = os.getenv('OPEN_SCRIBE_VIDEO', 'false').lower() == 'true'
+    GENERATE_SRT = os.getenv('OPEN_SCRIBE_SRT', 'false').lower() == 'true'
+    ENABLE_TRANSLATE = os.getenv('OPEN_SCRIBE_TRANSLATE', 'false').lower() == 'true'
+    INCLUDE_TIMESTAMP = os.getenv('OPEN_SCRIBE_TIMESTAMP', 'false').lower() == 'true'
     
     # Engine Aliases
     ENGINE_ALIASES = {
