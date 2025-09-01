@@ -153,14 +153,19 @@ class WhisperCppTranscriber(BaseTranscriber):
                         percent_match = re.search(r'(\d+)%', decoded_line)
                         if percent_match:
                             percent = int(percent_match.group(1))
-                            # Create progress bar
-                            bar_length = 50
-                            filled = int(bar_length * percent / 100)
-                            bar = '█' * filled + '░' * (bar_length - filled)
-                            print(f"\rTranscribing: [{bar}] {percent:3d}%", end='', flush=True)
+                            # Create progress bar (only in non-parallel mode)
+                            if use_parallel:
+                                # In parallel mode, don't print, just track
+                                pass
+                            else:
+                                bar_length = 50
+                                filled = int(bar_length * percent / 100)
+                                bar = '█' * filled + '░' * (bar_length - filled)
+                                print(f"\rTranscribing: [{bar}] {percent:3d}%", end='', flush=True)
                         else:
-                            # If we can't parse percentage, show the raw line
-                            print(f"\r{decoded_line.strip()}", end='', flush=True)
+                            # If we can't parse percentage, show the raw line (only in non-parallel)
+                            if not use_parallel:
+                                print(f"\r{decoded_line.strip()}", end='', flush=True)
                     output_lines.append(decoded_line)
                 
                 # Wait for process to complete
