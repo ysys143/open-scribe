@@ -86,8 +86,8 @@ class Config:
     @classmethod
     def validate(cls):
         """Validate configuration and raise errors if critical settings are missing"""
-        if not cls.OPENAI_API_KEY and cls.DEFAULT_ENGINE in ['gpt-4o-transcribe', 
-                                                               'gpt-4o-mini-transcribe', 
-                                                               'whisper-api']:
+        if not cls.OPENAI_API_KEY and cls.ENGINE in ['gpt-4o-transcribe', 
+                                                       'gpt-4o-mini-transcribe', 
+                                                       'whisper-api']:
             raise ValueError("OPENAI_API_KEY is required for selected engine. "
                            "Please set it in your .env file")
