@@ -100,8 +100,8 @@ Environment variables for defaults:
     parser.add_argument(
         '--video',
         action='store_true',
-        default=Config.DEFAULT_VIDEO,
-        help=f'Download video (default: {Config.DEFAULT_VIDEO})'
+        default=Config.DOWNLOAD_VIDEO,
+        help=f'Download video (default: {Config.DOWNLOAD_VIDEO})'
     )
     
     parser.add_argument(
