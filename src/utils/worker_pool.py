@@ -189,13 +189,23 @@ class ParallelProgressMonitor:
             self._display_progress()
     
     def _display_progress(self):
-        """Display current progress"""
+        """Display current progress with two-level detail"""
         elapsed = time.time() - self.start_time
         
-        # Calculate speed
-        if self.completed > 0:
-            speed = self.completed / elapsed  # chunks per second
-            eta_seconds = (self.total_chunks - self.completed) / speed if speed > 0 else 0
+        # Calculate total progress including partial chunks
+        total_progress = self.completed
+        for chunk_idx, progress in self.chunk_progress.items():
+            if progress < 100:  # Only add partial progress for incomplete chunks
+                total_progress += progress / 100.0
+        
+        # Calculate overall percentage
+        overall_pct = (total_progress / self.total_chunks * 100) if self.total_chunks > 0 else 0
+        
+        # Calculate speed and ETA
+        if total_progress > 0:
+            speed = total_progress / elapsed  # chunks per second
+            remaining = self.total_chunks - total_progress
+            eta_seconds = remaining / speed if speed > 0 else 0
         else:
             speed = 0
             eta_seconds = 0
@@ -208,18 +218,41 @@ class ParallelProgressMonitor:
         else:
             eta_str = "calculating..."
         
-        # Progress bar
-        progress_pct = (self.completed / self.total_chunks) * 100 if self.total_chunks > 0 else 0
+        # Build display lines
+        lines = []
+        
+        # Overall progress bar
         bar_length = 40
-        filled = int(bar_length * self.completed / self.total_chunks) if self.total_chunks > 0 else 0
+        filled = int(bar_length * overall_pct / 100)
         bar = '█' * filled + '░' * (bar_length - filled)
         
-        # Display
-        print(f"\r[{bar}] {progress_pct:.1f}% | "
-              f"{self.completed}/{self.total_chunks} chunks | "
-              f"Workers: {self.num_workers} | "
-              f"Speed: {speed:.1f} chunks/s | "
-              f"ETA: {eta_str}", end='', flush=True)
+        # Main status line
+        main_line = (f"Overall: [{bar}] {overall_pct:.1f}% ({total_progress:.1f}/{self.total_chunks} chunks) | "
+                    f"Speed: {speed:.2f} chunks/min | ETA: {eta_str}")
+        
+        # Worker details (only show active workers)
+        worker_lines = []
+        for worker_id, info in self.in_progress.items():
+            chunk_idx = info['chunk']
+            chunk_pct = self.chunk_progress.get(chunk_idx, 0)
+            # Mini progress bar for each worker
+            mini_bar_length = 10
+            mini_filled = int(mini_bar_length * chunk_pct / 100)
+            mini_bar = '█' * mini_filled + '░' * (mini_bar_length - mini_filled)
+            worker_lines.append(f"  Worker {worker_id % 1000:02d}: Chunk {chunk_idx + 1:3d} [{mini_bar}] {chunk_pct:3.0f}%")
+        
+        # Clear previous lines and print new ones
+        # Use \r to return to start of line, then clear with spaces
+        clear_line = ' ' * 100
+        
+        # Print main line
+        print(f"\r{clear_line}\r{main_line}", end='', flush=True)
+        
+        # If we have active workers and verbose mode, show them on next lines
+        if worker_lines and len(self.in_progress) > 0:
+            # Note: Multi-line progress is tricky in terminal, keeping single line for now
+            # Could be enhanced with terminal control codes later
+            pass
     
     def finish(self):
         """Finalize progress display"""
