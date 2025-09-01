@@ -141,9 +141,12 @@ class ParallelProgressMonitor:
         self.num_workers = num_workers
         self.completed = 0
         self.in_progress = {}
+        self.chunk_progress = {}  # Track progress within each chunk
         self.start_time = time.time()
         self.lock = threading.Lock()
         self.worker_times = {}
+        self.last_display_time = 0
+        self.display_interval = 0.1  # Update display every 100ms max
     
     def start_chunk(self, worker_id: int, chunk_index: int):
         """Mark a chunk as started by a worker"""
