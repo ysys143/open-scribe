@@ -19,14 +19,11 @@ def test_parallel_progress():
     # Create transcriber
     transcriber = GPT4OMiniTranscriber(config)
     
-    # Test URL (short video for testing)
-    test_url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-    
     print("Testing 2-level progress display with parallel processing...")
     print("=" * 60)
     
-    # Create a test audio file path (would normally be downloaded)
-    test_audio = "/Users/jaesolshin/Documents/GitHub/yt-trans/audio/test.mp3"
+    # Use an existing audio file for testing
+    test_audio = "/Users/jaesolshin/Documents/GitHub/yt-trans/audio/A quick trick for computing eigenvalues ｜ Chapter 15, Essence of linear algebra [e50Bj7jn9IQ].mp3"
     
     if not Path(test_audio).exists():
         print(f"Test audio file not found: {test_audio}")
