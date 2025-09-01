@@ -150,6 +150,30 @@ class WhisperCppTranscriber(BaseTranscriber):
             # Stream output in real-time with progress bar
             output_lines = []
             has_progress = False
+            start_time = time.time()
+            
+            # Use threading for time-based progress fallback
+            import threading
+            import select
+            
+            def show_time_progress():
+                """Show time-based progress if whisper doesn't provide it"""
+                while process.poll() is None:
+                    elapsed = time.time() - start_time
+                    if not has_progress and elapsed > 1:  # Only show after 1 second if no real progress
+                        progress_pct = min(99, int((elapsed / estimated_time) * 100))
+                        bar_length = 50
+                        filled = int(bar_length * progress_pct / 100)
+                        bar = '█' * filled + '░' * (bar_length - filled)
+                        print(f"\r[Whisper.cpp] Processing: [{bar}] {progress_pct:3d}% (estimated)", end='', flush=True)
+                    time.sleep(0.5)
+            
+            # Start fallback progress thread
+            if not use_parallel:
+                progress_thread = threading.Thread(target=show_time_progress)
+                progress_thread.daemon = True
+                progress_thread.start()
+            
             try:
                 for line in process.stdout:
                     decoded_line = line.decode('utf-8', errors='replace')
@@ -162,6 +186,7 @@ class WhisperCppTranscriber(BaseTranscriber):
                         # Extract percentage from lines like "progress = 90%"
                         percent_match = re.search(r'(\d+)%', decoded_line)
                         if percent_match:
+                            has_progress = True  # Real progress detected
                             percent = int(percent_match.group(1))
                             # Create progress bar (only in non-parallel mode)
                             if use_parallel:
@@ -171,11 +196,11 @@ class WhisperCppTranscriber(BaseTranscriber):
                                 bar_length = 50
                                 filled = int(bar_length * percent / 100)
                                 bar = '█' * filled + '░' * (bar_length - filled)
-                                print(f"\rTranscribing: [{bar}] {percent:3d}%", end='', flush=True)
+                                print(f"\r[Whisper.cpp] Transcribing: [{bar}] {percent:3d}%", end='', flush=True)
                         else:
                             # If we can't parse percentage, show the raw line (only in non-parallel)
-                            if not use_parallel:
-                                print(f"\r{decoded_line.strip()}", end='', flush=True)
+                            if not use_parallel and self.config.VERBOSE:
+                                print(f"\r{decoded_line.strip()[:80]}", end='', flush=True)
                     output_lines.append(decoded_line)
                 
                 # Wait for process to complete
