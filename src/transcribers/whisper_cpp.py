@@ -17,8 +17,8 @@ class WhisperCppTranscriber(BaseTranscriber):
     
     def __init__(self, config):
         super().__init__(config)
-        self.model_path = os.getenv('WHISPER_CPP_MODEL')
-        self.executable_path = os.getenv('WHISPER_CPP_EXECUTABLE', 'whisper')
+        self.model_path = config.WHISPER_CPP_MODEL
+        self.executable_path = config.WHISPER_CPP_EXECUTABLE
     
     @property
     def name(self) -> str:
