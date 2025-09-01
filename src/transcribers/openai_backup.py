@@ -132,7 +132,7 @@ class WhisperAPITranscriber(OpenAITranscriber):
         except Exception as e:
             print(f"[{self.display_name}] ❌ Error transcribing chunk {chunk_index + 1}: {e}")
             import traceback
-            if os.getenv('OPEN_SCRIBE_VERBOSE') == 'true':
+            if self.config.DEFAULT_VERBOSE:
                 traceback.print_exc()
             return chunk_index, None
     
