@@ -127,7 +127,7 @@ class BaseTranscriber(ABC):
             
         finally:
             # Clean up chunks
-            keep_chunks = self.config.DEFAULT_VERBOSE
+            keep_chunks = self.config.VERBOSE
             cleanup_temp_chunks(chunk_paths, keep_for_debug=keep_chunks)
     
     def _stream_text(self, text: str):
