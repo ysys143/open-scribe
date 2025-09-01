@@ -139,7 +139,8 @@ class WhisperCppTranscriber(BaseTranscriber):
                 cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
-                universal_newlines=False
+                universal_newlines=False,
+                bufsize=1  # Line buffered
             )
             
             # Stream output in real-time with progress bar
