@@ -72,8 +72,8 @@ Environment variables for defaults:
     parser.add_argument(
         '--summary',
         action='store_true',
-        default=Config.DEFAULT_SUMMARY,
-        help=f'Generate AI summary (default: {Config.DEFAULT_SUMMARY})'
+        default=Config.ENABLE_SUMMARY,
+        help=f'Generate AI summary (default: {Config.ENABLE_SUMMARY})'
     )
     
     parser.add_argument(
