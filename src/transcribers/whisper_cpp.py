@@ -141,10 +141,11 @@ class WhisperCppTranscriber(BaseTranscriber):
             estimated_time = max(20, min(300, duration * 0.4))
             
             # Run whisper.cpp with real-time output
+            # Separate stderr to suppress debug output
             process = subprocess.Popen(
                 cmd,
                 stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
+                stderr=subprocess.PIPE,  # Separate stderr to avoid debug output
                 universal_newlines=False,
                 bufsize=1  # Line buffered
             )
