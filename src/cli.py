@@ -93,8 +93,8 @@ Environment variables for defaults:
     parser.add_argument(
         '--audio',
         action='store_true',
-        default=Config.DEFAULT_AUDIO,
-        help=f'Keep audio file (default: {Config.DEFAULT_AUDIO})'
+        default=Config.KEEP_AUDIO,
+        help=f'Keep audio file (default: {Config.KEEP_AUDIO})'
     )
     
     parser.add_argument(
