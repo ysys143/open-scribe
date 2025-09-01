@@ -46,17 +46,17 @@ class Config:
     WHISPER_CPP_EXECUTABLE = os.getenv('WHISPER_CPP_EXECUTABLE', 
                                        os.path.expanduser('~/whisper.cpp/build/bin/whisper-cli'))
     
-    # Default Options
-    DEFAULT_ENGINE = os.getenv('OPEN_SCRIBE_ENGINE', 'gpt-4o-mini-transcribe')
-    DEFAULT_STREAM = os.getenv('OPEN_SCRIBE_STREAM', 'true').lower() == 'true'
-    DEFAULT_DOWNLOADS = os.getenv('OPEN_SCRIBE_DOWNLOADS', 'true').lower() == 'true'
-    DEFAULT_SUMMARY = os.getenv('OPEN_SCRIBE_SUMMARY', 'true').lower() == 'true'
-    DEFAULT_VERBOSE = os.getenv('OPEN_SCRIBE_VERBOSE', 'true').lower() == 'true'
-    DEFAULT_AUDIO = os.getenv('OPEN_SCRIBE_AUDIO', 'false').lower() == 'true'
-    DEFAULT_VIDEO = os.getenv('OPEN_SCRIBE_VIDEO', 'false').lower() == 'true'
-    DEFAULT_SRT = os.getenv('OPEN_SCRIBE_SRT', 'false').lower() == 'true'
-    DEFAULT_TRANSLATE = os.getenv('OPEN_SCRIBE_TRANSLATE', 'false').lower() == 'true'
-    DEFAULT_TIMESTAMP = os.getenv('OPEN_SCRIBE_TIMESTAMP', 'false').lower() == 'true'
+    # Options Configuration
+    ENGINE = os.getenv('OPEN_SCRIBE_ENGINE', 'gpt-4o-mini-transcribe')
+    STREAM = os.getenv('OPEN_SCRIBE_STREAM', 'true').lower() == 'true'
+    DOWNLOADS = os.getenv('OPEN_SCRIBE_DOWNLOADS', 'true').lower() == 'true'
+    SUMMARY = os.getenv('OPEN_SCRIBE_SUMMARY', 'true').lower() == 'true'
+    VERBOSE = os.getenv('OPEN_SCRIBE_VERBOSE', 'true').lower() == 'true'
+    AUDIO = os.getenv('OPEN_SCRIBE_AUDIO', 'false').lower() == 'true'
+    VIDEO = os.getenv('OPEN_SCRIBE_VIDEO', 'false').lower() == 'true'
+    SRT = os.getenv('OPEN_SCRIBE_SRT', 'false').lower() == 'true'
+    TRANSLATE = os.getenv('OPEN_SCRIBE_TRANSLATE', 'false').lower() == 'true'
+    TIMESTAMP = os.getenv('OPEN_SCRIBE_TIMESTAMP', 'false').lower() == 'true'
     
     # Engine Aliases
     ENGINE_ALIASES = {
