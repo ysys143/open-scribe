@@ -226,9 +226,10 @@ class ParallelProgressMonitor:
         filled = int(bar_length * overall_pct / 100)
         bar = '█' * filled + '░' * (bar_length - filled)
         
-        # Main status line
+        # Main status line (convert speed to per minute for readability)
+        speed_per_min = speed * 60 if speed > 0 else 0
         main_line = (f"Overall: [{bar}] {overall_pct:.1f}% ({total_progress:.1f}/{self.total_chunks} chunks) | "
-                    f"Speed: {speed:.2f} chunks/min | ETA: {eta_str}")
+                    f"Speed: {speed_per_min:.2f} chunks/min | ETA: {eta_str}")
         
         # Worker details (only show active workers)
         worker_lines = []
