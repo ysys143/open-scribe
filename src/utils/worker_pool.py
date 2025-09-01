@@ -155,6 +155,7 @@ class ParallelProgressMonitor:
                 'chunk': chunk_index,
                 'start_time': time.time()
             }
+            self.chunk_progress[chunk_index] = 0  # Initialize chunk progress at 0%
     
     def complete_chunk(self, worker_id: int, chunk_index: int):
         """Mark a chunk as completed"""
