@@ -15,7 +15,7 @@ from ..utils.audio import (
     should_use_chunking, split_audio_into_chunks, cleanup_temp_chunks,
     get_audio_duration
 )
-from ..utils.progress import create_estimated_progress, ChunkedProgressBar
+from ..utils.progress import create_estimated_progress
 from ..utils.worker_pool import ParallelProgressMonitor
 
 
@@ -49,6 +49,49 @@ class WhisperAPITranscriber(OpenAITranscriber):
     @property
     def name(self) -> str:
         return "whisper-api"
+    
+    def _transcribe_single_chunk_with_progress(self, chunk_path: str, chunk_index: int,
+                                               return_timestamps: bool, chunk_start_time: float,
+                                               progress: ParallelProgressMonitor) -> Optional[str]:
+        """
+        Transcribe a single chunk with progress monitoring
+        
+        Args:
+            chunk_path: Path to chunk file
+            chunk_index: Index of this chunk
+            return_timestamps: Whether to include timestamps
+            chunk_start_time: Start time of this chunk in seconds
+            progress: Progress monitor instance
+            
+        Returns:
+            str: Transcribed text or None
+        """
+        import threading
+        worker_id = threading.get_ident()
+        
+        # Start chunk processing
+        progress.start_chunk(worker_id, chunk_index)
+        
+        try:
+            # Simulate progress updates during transcription
+            # Since OpenAI API doesn't provide real-time progress, we'll estimate
+            progress.update_chunk_progress(chunk_index, 10)  # Starting
+            
+            # Do the actual transcription
+            _, text = self.transcribe_single_chunk(chunk_path, chunk_index, 
+                                                   return_timestamps, chunk_start_time)
+            
+            # Mark as complete
+            progress.complete_chunk(worker_id, chunk_index)
+            
+            if text:
+                print(f"\n[{self.display_name}] Chunk {chunk_index + 1}: {len(text)} chars")
+            
+            return text
+            
+        except Exception as e:
+            progress.complete_chunk(worker_id, chunk_index)
+            raise e
     
     def transcribe_single_chunk(self, chunk_path: str, chunk_index: int, 
                                return_timestamps: bool = False,
@@ -122,13 +165,11 @@ class WhisperAPITranscriber(OpenAITranscriber):
         
         print(f"[{self.display_name}] Transcribing {len(chunk_paths)} chunks...")
         
-        # Progress bar
-        progress = ChunkedProgressBar(
+        # 2-level progress monitor
+        progress = ParallelProgressMonitor(
             total_chunks=len(chunk_paths),
-            estimated_per_chunk=30.0,
-            display_name=self.display_name
+            num_workers=max_workers
         )
-        progress.start()
         
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             # Submit all tasks
@@ -136,18 +177,19 @@ class WhisperAPITranscriber(OpenAITranscriber):
             for i, chunk_path in enumerate(chunk_paths):
                 # Calculate chunk start time for GPT-4o models
                 chunk_start_time = i * chunk_duration
-                future = executor.submit(self.transcribe_single_chunk, chunk_path, i, 
-                                        return_timestamps, chunk_start_time)
+                future = executor.submit(self._transcribe_single_chunk_with_progress, 
+                                        chunk_path, i, return_timestamps, chunk_start_time, progress)
                 futures[future] = i
             
             # Process results as they complete
             for future in as_completed(futures):
-                chunk_index, text = future.result()
-                results[chunk_index] = text
-                progress.complete_chunk(chunk_index + 1)
-                
-                if text:
-                    print(f"[{self.display_name}] Chunk {chunk_index + 1}: {len(text)} chars")
+                chunk_index = futures[future]
+                try:
+                    text = future.result()
+                    results[chunk_index] = text
+                except Exception as e:
+                    print(f"\n[{self.display_name}] Error processing chunk {chunk_index}: {e}")
+                    results[chunk_index] = None
         
         progress.finish()
         
