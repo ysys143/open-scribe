@@ -151,62 +151,44 @@ class WhisperCppTranscriber(BaseTranscriber):
             
             # Stream output in real-time with progress bar
             output_lines = []
-            has_progress = False
+            last_timestamp = 0
             start_time = time.time()
-            
-            # Use threading for time-based progress fallback
-            import threading
-            import select
-            
-            def show_time_progress():
-                """Show time-based progress if whisper doesn't provide it"""
-                while process.poll() is None:
-                    elapsed = time.time() - start_time
-                    if not has_progress and elapsed > 2:  # Only show after 2 seconds if no real progress
-                        # Conservative progress: max 90% until actually done
-                        progress_pct = min(90, int((elapsed / estimated_time) * 80))
-                        bar_length = 50
-                        filled = int(bar_length * progress_pct / 100)
-                        bar = '█' * filled + '░' * (bar_length - filled)
-                        # Show elapsed time for transparency
-                        elapsed_str = f"{int(elapsed)}s"
-                        print(f"\r[Whisper.cpp] Processing: [{bar}] {progress_pct:3d}% (est. {elapsed_str})", end='', flush=True)
-                    time.sleep(1.0)  # Update less frequently
-            
-            # Start fallback progress thread
-            if not use_parallel:
-                progress_thread = threading.Thread(target=show_time_progress)
-                progress_thread.daemon = True
-                progress_thread.start()
             
             try:
                 for line in process.stdout:
                     decoded_line = line.decode('utf-8', errors='replace')
-                    # Debug: show any line with numbers that might be progress
-                    if any(char.isdigit() for char in decoded_line) and self.config.VERBOSE:
-                        print(f"\n[DEBUG] Whisper output: {decoded_line.strip()[:100]}")
-                    
-                    # Parse and display progress bar
-                    if 'progress' in decoded_line.lower() or '%' in decoded_line:
-                        # Extract percentage from lines like "progress = 90%"
-                        percent_match = re.search(r'(\d+)%', decoded_line)
-                        if percent_match:
-                            has_progress = True  # Real progress detected
-                            percent = int(percent_match.group(1))
-                            # Create progress bar (only in non-parallel mode)
-                            if use_parallel:
-                                # In parallel mode, don't print, just track
-                                pass
-                            else:
-                                bar_length = 50
-                                filled = int(bar_length * percent / 100)
-                                bar = '█' * filled + '░' * (bar_length - filled)
-                                print(f"\r[Whisper.cpp] Transcribing: [{bar}] {percent:3d}%", end='', flush=True)
-                        else:
-                            # If we can't parse percentage, show the raw line (only in non-parallel)
-                            if not use_parallel and self.config.VERBOSE:
-                                print(f"\r{decoded_line.strip()[:80]}", end='', flush=True)
                     output_lines.append(decoded_line)
+                    
+                    # Parse timestamp from output like "[00:00]" or "[01:23:45]"
+                    timestamp_match = re.match(r'\[(\d{1,2}):(\d{2})(?::(\d{2}))?\]', decoded_line)
+                    if timestamp_match and not use_parallel:
+                        # Extract timestamp in seconds
+                        if timestamp_match.group(3):  # HH:MM:SS format
+                            hours = int(timestamp_match.group(1))
+                            minutes = int(timestamp_match.group(2))
+                            seconds = int(timestamp_match.group(3))
+                            current_time = hours * 3600 + minutes * 60 + seconds
+                        else:  # MM:SS format
+                            minutes = int(timestamp_match.group(1))
+                            seconds = int(timestamp_match.group(2))
+                            current_time = minutes * 60 + seconds
+                        
+                        # Update progress based on actual timestamp
+                        if current_time > last_timestamp:
+                            last_timestamp = current_time
+                            # Calculate progress based on audio duration
+                            if duration > 0:
+                                progress_pct = min(99, int((current_time / duration) * 100))
+                                bar_length = 50
+                                filled = int(bar_length * progress_pct / 100)
+                                bar = '█' * filled + '░' * (bar_length - filled)
+                                # Show both timestamp and percentage
+                                time_str = f"{current_time//60:02d}:{current_time%60:02d}/{int(duration)//60:02d}:{int(duration)%60:02d}"
+                                print(f"\r[Whisper.cpp] Transcribing: [{bar}] {progress_pct:3d}% ({time_str})", end='', flush=True)
+                    
+                    # Debug output if verbose
+                    elif self.config.VERBOSE and any(char.isdigit() for char in decoded_line):
+                        print(f"\n[DEBUG] Whisper output: {decoded_line.strip()[:100]}")
                 
                 # Wait for process to complete
                 process.wait(timeout=1800)  # 30 minute timeout
