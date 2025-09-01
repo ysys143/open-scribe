@@ -86,8 +86,8 @@ Environment variables for defaults:
     parser.add_argument(
         '--timestamp', '-t',
         action='store_true',
-        default=Config.DEFAULT_TIMESTAMP,
-        help=f'Include timestamps (default: {Config.DEFAULT_TIMESTAMP})'
+        default=Config.INCLUDE_TIMESTAMP,
+        help=f'Include timestamps (default: {Config.INCLUDE_TIMESTAMP})'
     )
     
     parser.add_argument(
