@@ -18,6 +18,8 @@ class Config:
     OPENAI_SUMMARY_MODEL = os.getenv('OPENAI_SUMMARY_MODEL', 'gpt-5-mini')
     OPENAI_SUMMARY_LANGUAGE = os.getenv('OPENAI_SUMMARY_LANGUAGE', 'auto')
     OPENAI_CORRECT_MODEL = os.getenv('OPENAI_CORRECT_MODEL', 'gpt-4o-mini')
+    OPENAI_TRANSLATE_MODEL = os.getenv('OPENAI_TRANSLATE_MODEL', 'gpt-4o-mini')
+    OPENAI_TRANSLATE_LANGUAGE = os.getenv('OPENAI_TRANSLATE_LANGUAGE', 'Korean')
     
     # Worker Configuration
     MIN_WORKER = int(os.getenv('MIN_WORKER', '1'))
