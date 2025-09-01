@@ -134,6 +134,10 @@ class WhisperCppTranscriber(BaseTranscriber):
             
             print("Running whisper.cpp (this may take a while)...")
             
+            # Estimate processing time for fallback progress
+            duration = get_audio_duration(audio_to_use)
+            estimated_time = max(10, min(120, duration * 0.2))  # Estimate 20% of duration, 10-120s range
+            
             # Run whisper.cpp with real-time output
             process = subprocess.Popen(
                 cmd,
