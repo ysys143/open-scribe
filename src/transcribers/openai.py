@@ -171,16 +171,41 @@ class WhisperAPITranscriber(OpenAITranscriber):
         
         print(f"[{self.display_name}] Processing: {audio_path}")
         
+        # Check if hybrid mode is requested for GPT-4o models with timestamps
+        use_hybrid = (return_timestamps and 
+                     self.model_name in ["gpt-4o-transcribe", "gpt-4o-mini-transcribe"] and
+                     kwargs.get('hybrid', True))  # Default to hybrid mode for GPT-4o + timestamps
+        
+        if use_hybrid:
+            # Use hybrid approach: YouTube timestamps + GPT-4o quality
+            print(f"[{self.display_name}] Using hybrid mode for accurate timestamps...")
+            from ..utils.subtitle_corrector import HybridTranscriber
+            
+            hybrid = HybridTranscriber(self.config)
+            result = hybrid.transcribe_hybrid(
+                audio_path,  # Should be YouTube URL for hybrid mode
+                gpt_engine=self.model_name,
+                verbose=self.config.VERBOSE
+            )
+            
+            if result:
+                if stream:
+                    self._stream_text(result)
+                return result
+            else:
+                print(f"[{self.display_name}] Hybrid mode failed, falling back to standard mode")
+                return_timestamps = False  # Disable timestamps for fallback
+        
         # Check timestamp support for the model
         if return_timestamps and self.model_name not in ["whisper-1", "gpt-4o-transcribe", "gpt-4o-mini-transcribe"]:
             print(f"[{self.display_name}] ⚠️  Warning: {self.model_name} does not support timestamps")
             print(f"[{self.display_name}] Proceeding without timestamps...")
             return_timestamps = False
-        elif return_timestamps and self.model_name in ["gpt-4o-transcribe", "gpt-4o-mini-transcribe"]:
+        elif return_timestamps and self.model_name in ["gpt-4o-transcribe", "gpt-4o-mini-transcribe"] and not use_hybrid:
             print(f"[{self.display_name}] ℹ️  Using chunked timestamps for {self.model_name}")
         
         # Check if chunking is needed or forced for GPT-4o timestamps
-        force_chunking = return_timestamps and self.model_name in ["gpt-4o-transcribe", "gpt-4o-mini-transcribe"]
+        force_chunking = return_timestamps and self.model_name in ["gpt-4o-transcribe", "gpt-4o-mini-transcribe"] and not use_hybrid
         
         if should_use_chunking(audio_path) or force_chunking:
             if force_chunking and not should_use_chunking(audio_path):
