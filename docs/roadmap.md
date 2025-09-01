@@ -62,28 +62,30 @@ YouTube 비디오 전사를 넘어 종합적인 미디어 전사 및 분석 플�
 ### 1.4 자막 생성 및 번역 기능
 - [ ] **SRT/VTT 자막 생성**
   - [ ] `--srt` 옵션 CLI 인자 추가
-  - [ ] 타임스탬프 기반 SRT 파일 생성
+  - [x] 타임스탬프 기반 텍스트 생성 (--timestamp 옵션으로 구현)
+  - [ ] SRT 파일 포맷 변환
   - [ ] VTT (WebVTT) 포맷 지원
   - [ ] 자막 싱크 조정 기능
   - [ ] 자막 병합/분할 기능
   
 - [ ] **엔진별 자막 지원 전략**
-  - [ ] ⚠️ **GPT-4o/GPT-4o-mini 단독**: 정밀한 타임코드 생성 불가 → 자막 기능 비활성화
+  - [x] ✅ **GPT-4o/GPT-4o-mini**: 하이브리드 모드로 정밀한 타임코드 생성 가능
   - [ ] ✅ **whisper-api**: 단어 단위 타임스탬프 지원 → 자막 생성 가능
   - [ ] ✅ **whisper-cpp**: SRT 포맷 네이티브 지원 → 자막 생성 가능
   - [ ] ✅ **youtube-transcript-api**: 원본 자막 타임코드 활용 → 자막 생성 가능
-  - [ ] 🚀 **하이브리드 모드**: YouTube 자막 + GPT-4o 전사 결합 → 최고 품질 자막
+  - [x] 🚀 **하이브리드 모드**: YouTube 자막 + GPT-4o 전사 결합 → 최고 품질 자막 (구현 완료)
 
-- [ ] **하이브리드 자막 보정 시스템**
-  - [ ] YouTube 자막 타임코드 추출
-  - [ ] GPT-4o/GPT-4o-mini로 고품질 전사 수행
-  - [ ] CORRECT_MODEL을 사용한 자막 보정
-    - [ ] YouTube 타임코드 + GPT-4o 텍스트 매칭
-    - [ ] 문장 경계 자동 조정
-    - [ ] 맞춤법 및 문법 교정
-  - [ ] `.env`에 CORRECT_MODEL 환경변수 추가
-  - [ ] Config 모듈에서 CORRECT_MODEL 관리
-  - [ ] 교정 모듈 (`src/utils/subtitle_corrector.py`) 구현
+- [x] **하이브리드 자막 보정 시스템**
+  - [x] YouTube 자막 타임코드 추출
+  - [x] GPT-4o/GPT-4o-mini로 고품질 전사 수행
+  - [x] CORRECT_MODEL을 사용한 자막 보정
+    - [x] YouTube 타임코드 + GPT-4o 텍스트 매칭
+    - [x] 문장 경계 자동 조정
+    - [x] 맞춤법 및 문법 교정
+  - [x] `.env`에 CORRECT_MODEL 환경변수 추가 (gpt-5-mini)
+  - [x] Config 모듈에서 CORRECT_MODEL 관리
+  - [x] 교정 모듈 (`src/utils/subtitle_corrector.py`) 구현
+  - [x] GPT-4o + --timestamp 옵션 시 하이브리드 모드 자동 적용
 
 - [ ] **자막 번역 기능**
   - [ ] `--translate` 옵션 CLI 인자 추가
