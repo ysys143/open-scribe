@@ -38,7 +38,7 @@ class WorkerCalculator:
     
     # Estimated memory per worker in GB
     MEMORY_PER_WORKER = {
-        'whisper-cpp': 2.5,          # large-v3 model
+        'whisper-cpp': 1.8,          # large-v3 model (more realistic)
         'whisper-api': 0.1,          # API calls
         'gpt-4o-transcribe': 0.1,
         'gpt-4o-mini-transcribe': 0.1,
