@@ -51,8 +51,8 @@ Environment variables for defaults:
     parser.add_argument(
         '--stream', '-s',
         action='store_true',
-        default=Config.DEFAULT_STREAM,
-        help=f'Stream transcription output (default: {Config.DEFAULT_STREAM})'
+        default=Config.ENABLE_STREAM,
+        help=f'Stream transcription output (default: {Config.ENABLE_STREAM})'
     )
     
     parser.add_argument(
