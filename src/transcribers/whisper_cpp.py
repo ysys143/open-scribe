@@ -159,19 +159,14 @@ class WhisperCppTranscriber(BaseTranscriber):
                     decoded_line = line.decode('utf-8', errors='replace')
                     output_lines.append(decoded_line)
                     
-                    # Parse timestamp from output like "[00:00]" or "[01:23:45]"
-                    timestamp_match = re.match(r'\[(\d{1,2}):(\d{2})(?::(\d{2}))?\]', decoded_line)
+                    # Parse timestamp from output like "[HH:MM:SS.mmm --> HH:MM:SS.mmm]"
+                    timestamp_match = re.match(r'\[(\d{2}):(\d{2}):(\d{2})\.\d{3} --> (\d{2}):(\d{2}):(\d{2})\.\d{3}\]', decoded_line)
                     if timestamp_match and not use_parallel:
-                        # Extract timestamp in seconds
-                        if timestamp_match.group(3):  # HH:MM:SS format
-                            hours = int(timestamp_match.group(1))
-                            minutes = int(timestamp_match.group(2))
-                            seconds = int(timestamp_match.group(3))
-                            current_time = hours * 3600 + minutes * 60 + seconds
-                        else:  # MM:SS format
-                            minutes = int(timestamp_match.group(1))
-                            seconds = int(timestamp_match.group(2))
-                            current_time = minutes * 60 + seconds
+                        # Extract end timestamp in seconds (use the end time for progress)
+                        hours = int(timestamp_match.group(4))
+                        minutes = int(timestamp_match.group(5))
+                        seconds = int(timestamp_match.group(6))
+                        current_time = hours * 3600 + minutes * 60 + seconds
                         
                         # Update progress based on actual timestamp
                         if current_time > last_timestamp:
