@@ -79,8 +79,8 @@ Environment variables for defaults:
     parser.add_argument(
         '--verbose', '-v',
         action='store_true',
-        default=Config.DEFAULT_VERBOSE,
-        help=f'Verbose output (default: {Config.DEFAULT_VERBOSE})'
+        default=Config.VERBOSE,
+        help=f'Verbose output (default: {Config.VERBOSE})'
     )
     
     parser.add_argument(
