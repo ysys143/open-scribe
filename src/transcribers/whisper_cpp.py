@@ -285,17 +285,23 @@ class WhisperCppTranscriber(BaseTranscriber):
         # Initialize worker pool
         worker_pool = WorkerPool(self.config)
         
-        # Define processor function for chunks
-        def process_chunk(chunk_path: str, index: int) -> str:
-            """Process a single chunk"""
+        # Define processor function for chunks with progress callback
+        def process_chunk_with_progress(chunk_path: str, index: int, progress_callback=None) -> str:
+            """Process a single chunk with progress tracking"""
             # Use single-threaded transcribe for each chunk
-            result = self.transcribe(
+            result = self._transcribe_single_chunk(
                 chunk_path,
-                stream=False,
                 return_timestamps=return_timestamps,
-                use_parallel=False  # Prevent recursive parallel
+                chunk_index=index,
+                progress_callback=progress_callback
             )
             return result if result else ""
+        
+        # Wrapper to pass progress updates to monitor
+        def process_chunk(chunk_path: str, index: int) -> str:
+            def progress_callback(percent: float):
+                worker_pool.progress.update_chunk_progress(index, percent)
+            return process_chunk_with_progress(chunk_path, index, progress_callback)
         
         try:
             # Process chunks in parallel
