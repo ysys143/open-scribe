@@ -43,9 +43,9 @@ Environment variables for defaults:
     
     parser.add_argument(
         '--engine', '-e',
-        default=Config.DEFAULT_ENGINE,
+        default=Config.ENGINE,
         choices=Config.AVAILABLE_ENGINES,
-        help=f'Transcription engine (default: {Config.DEFAULT_ENGINE})'
+        help=f'Transcription engine (default: {Config.ENGINE})'
     )
     
     parser.add_argument(
