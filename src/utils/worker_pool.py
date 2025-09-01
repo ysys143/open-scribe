@@ -74,18 +74,43 @@ class WorkerCalculator:
         # Calculate total chunks
         total_chunks = math.ceil(duration_seconds / chunk_size)
         
-        # Dynamic worker calculation based on chunks
-        if total_chunks <= 2:
-            optimal = min_workers
-        elif total_chunks <= 5:
-            optimal = min(3, max_workers)
-        elif total_chunks <= 10:
-            optimal = min(5, max_workers)
-        elif total_chunks <= 20:
-            optimal = min(7, max_workers)
+        # For small number of chunks, use chunk count as worker count
+        if total_chunks <= max_workers:
+            # Find divisors of total_chunks that are within worker bounds
+            divisors = []
+            for i in range(min_workers, min(total_chunks + 1, max_workers + 1)):
+                if total_chunks % i == 0:
+                    divisors.append(i)
+            
+            # If we have divisors, prefer the largest one for better parallelism
+            if divisors:
+                optimal = divisors[-1]
+            else:
+                # No perfect divisor, use chunk count if within bounds
+                optimal = min(total_chunks, max_workers)
         else:
-            # For very long videos: use half the chunks or max workers
-            optimal = min(max(total_chunks // 2, 5), max_workers)
+            # For large number of chunks, find best divisor within max_workers
+            divisors = []
+            for i in range(min_workers, max_workers + 1):
+                if total_chunks % i == 0:
+                    divisors.append(i)
+            
+            if divisors:
+                # Prefer divisors that give reasonable chunks per worker (2-10)
+                best_divisor = max_workers
+                for d in reversed(divisors):
+                    chunks_per_worker = total_chunks // d
+                    if 2 <= chunks_per_worker <= 10:
+                        best_divisor = d
+                        break
+                optimal = best_divisor
+            else:
+                # No perfect divisor, use heuristic
+                if total_chunks <= 20:
+                    optimal = min(7, max_workers)
+                else:
+                    # For very long videos: use a reasonable number
+                    optimal = min(max(total_chunks // 4, 5), max_workers)
         
         # Adjust based on available memory
         optimal = WorkerCalculator.adjust_by_memory(optimal, engine)
