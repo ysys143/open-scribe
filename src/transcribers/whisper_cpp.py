@@ -6,10 +6,13 @@ import os
 import re
 import subprocess
 import tempfile
+import hashlib
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 
 from .base import BaseTranscriber
+from ..utils.audio import split_audio_into_chunks, cleanup_temp_chunks, get_audio_duration
+from ..utils.worker_pool import WorkerPool, ChunkResult
 
 
 class WhisperCppTranscriber(BaseTranscriber):
@@ -48,7 +51,7 @@ class WhisperCppTranscriber(BaseTranscriber):
             return False
     
     def transcribe(self, audio_file: str, stream: bool = False,
-                  return_timestamps: bool = False) -> Optional[str]:
+                  return_timestamps: bool = False, use_parallel: bool = True) -> Optional[str]:
         """
         Transcribe using whisper.cpp
         
@@ -56,6 +59,7 @@ class WhisperCppTranscriber(BaseTranscriber):
             audio_file: Path to audio file
             stream: Streaming mode (not supported for whisper.cpp)
             return_timestamps: Whether to include timestamps
+            use_parallel: Use parallel processing for large files
             
         Returns:
             str: Transcription text or None if failed
@@ -65,6 +69,14 @@ class WhisperCppTranscriber(BaseTranscriber):
             print(f"Model path: {self.model_path}")
             print(f"Executable: {self.executable_path}")
             return None
+        
+        # Check if we should use parallel processing
+        duration = get_audio_duration(audio_file)
+        
+        # Use parallel for files longer than 10 minutes
+        if use_parallel and duration > 600:
+            print(f"[Whisper.cpp] Using parallel processing for {duration}s audio")
+            return self._transcribe_parallel(audio_file, return_timestamps)
         
         # Create temp output file
         with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as tmp:
@@ -244,3 +256,124 @@ class WhisperCppTranscriber(BaseTranscriber):
                     Path(temp_audio_link).unlink()
                 except:
                     pass
+    
+    def _transcribe_parallel(self, audio_file: str, return_timestamps: bool = False) -> Optional[str]:
+        """
+        Transcribe using parallel processing
+        
+        Args:
+            audio_file: Path to audio file
+            return_timestamps: Whether to include timestamps
+            
+        Returns:
+            Transcribed text or None
+        """
+        # Get audio duration
+        duration = get_audio_duration(audio_file)
+        
+        # Split audio into chunks (5 minute chunks for whisper-cpp)
+        chunk_duration = 300  # 5 minutes
+        print(f"[Whisper.cpp] Splitting audio into {chunk_duration}s chunks...")
+        chunk_paths = split_audio_into_chunks(audio_file, chunk_duration_seconds=chunk_duration)
+        
+        if not chunk_paths:
+            print("[Whisper.cpp] Failed to split audio")
+            return None
+        
+        print(f"[Whisper.cpp] Created {len(chunk_paths)} chunks")
+        
+        # Initialize worker pool
+        worker_pool = WorkerPool(self.config)
+        
+        # Define processor function for chunks
+        def process_chunk(chunk_path: str, index: int) -> str:
+            """Process a single chunk"""
+            # Use single-threaded transcribe for each chunk
+            result = self.transcribe(
+                chunk_path,
+                stream=False,
+                return_timestamps=return_timestamps,
+                use_parallel=False  # Prevent recursive parallel
+            )
+            return result if result else ""
+        
+        try:
+            # Process chunks in parallel
+            results = worker_pool.process_chunks(
+                chunks=chunk_paths,
+                processor_func=process_chunk,
+                duration_seconds=int(duration),
+                engine='whisper-cpp',
+                verbose=self.config.VERBOSE
+            )
+            
+            # Merge results
+            if return_timestamps:
+                # For timestamps, we need special handling to adjust times
+                merged = self._merge_timestamped_results(results, chunk_duration)
+            else:
+                # Simple merge for plain text
+                merged = worker_pool.merge_results(results, separator=" ")
+            
+            return merged if merged else None
+            
+        finally:
+            # Clean up chunk files
+            cleanup_temp_chunks(chunk_paths, keep_for_debug=self.config.VERBOSE)
+    
+    def _merge_timestamped_results(self, results: List[ChunkResult], chunk_duration: int) -> str:
+        """
+        Merge timestamped results adjusting timestamps for each chunk
+        
+        Args:
+            results: List of chunk results
+            chunk_duration: Duration of each chunk in seconds
+            
+        Returns:
+            Merged text with adjusted timestamps
+        """
+        merged_lines = []
+        
+        for result in sorted(results, key=lambda r: r.index):
+            if not result.success or not result.text:
+                continue
+            
+            # Calculate time offset for this chunk
+            time_offset = result.index * chunk_duration
+            
+            # Adjust timestamps in the text
+            lines = result.text.split('\n')
+            for line in lines:
+                # Match timestamp pattern [HH:MM:SS] or [MM:SS]
+                match = re.match(r'^\[(\d{1,2}):(\d{2})(?::(\d{2}))?\]\s*(.*)$', line)
+                if match:
+                    # Parse timestamp
+                    if match.group(3):  # HH:MM:SS format
+                        hours = int(match.group(1))
+                        minutes = int(match.group(2))
+                        seconds = int(match.group(3))
+                    else:  # MM:SS format
+                        hours = 0
+                        minutes = int(match.group(1))
+                        seconds = int(match.group(2))
+                    
+                    # Add offset
+                    total_seconds = hours * 3600 + minutes * 60 + seconds + time_offset
+                    
+                    # Format new timestamp
+                    new_hours = total_seconds // 3600
+                    new_minutes = (total_seconds % 3600) // 60
+                    new_seconds = total_seconds % 60
+                    
+                    if new_hours > 0:
+                        timestamp = f"[{new_hours:02d}:{new_minutes:02d}:{new_seconds:02d}]"
+                    else:
+                        timestamp = f"[{new_minutes:02d}:{new_seconds:02d}]"
+                    
+                    # Add adjusted line
+                    text = match.group(4) if match.group(4) else ""
+                    merged_lines.append(f"{timestamp} {text}")
+                elif line.strip():  # Non-timestamp lines
+                    merged_lines.append(line)
+        
+        return '\n'.join(merged_lines)
