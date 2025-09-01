@@ -3,8 +3,14 @@ Summary generation utilities
 """
 
 import os
+import sys
+from pathlib import Path
 from typing import Optional
 from openai import OpenAI
+
+# Add parent directory to path for imports
+sys.path.append(str(Path(__file__).parent.parent))
+from config import Config
 
 
 def generate_summary(transcript: str, verbose: bool = False) -> Optional[str]:
