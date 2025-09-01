@@ -162,13 +162,16 @@ class WhisperCppTranscriber(BaseTranscriber):
                 """Show time-based progress if whisper doesn't provide it"""
                 while process.poll() is None:
                     elapsed = time.time() - start_time
-                    if not has_progress and elapsed > 1:  # Only show after 1 second if no real progress
-                        progress_pct = min(99, int((elapsed / estimated_time) * 100))
+                    if not has_progress and elapsed > 2:  # Only show after 2 seconds if no real progress
+                        # Conservative progress: max 90% until actually done
+                        progress_pct = min(90, int((elapsed / estimated_time) * 80))
                         bar_length = 50
                         filled = int(bar_length * progress_pct / 100)
                         bar = '█' * filled + '░' * (bar_length - filled)
-                        print(f"\r[Whisper.cpp] Processing: [{bar}] {progress_pct:3d}% (estimated)", end='', flush=True)
-                    time.sleep(0.5)
+                        # Show elapsed time for transparency
+                        elapsed_str = f"{int(elapsed)}s"
+                        print(f"\r[Whisper.cpp] Processing: [{bar}] {progress_pct:3d}% (est. {elapsed_str})", end='', flush=True)
+                    time.sleep(1.0)  # Update less frequently
             
             # Start fallback progress thread
             if not use_parallel:
