@@ -72,7 +72,7 @@ class WhisperAPITranscriber(OpenAITranscriber):
                 )
                 
                 # Debug: Log the response type and content
-                if os.getenv('OPEN_SCRIBE_VERBOSE') == 'true':
+                if self.config.DEFAULT_VERBOSE:
                     print(f"[{self.display_name}] Chunk {chunk_index + 1} response type: {type(transcription)}")
                     if hasattr(transcription, '__dict__'):
                         print(f"[{self.display_name}] Chunk {chunk_index + 1} attributes: {transcription.__dict__.keys() if hasattr(transcription.__dict__, 'keys') else transcription.__dict__}")
