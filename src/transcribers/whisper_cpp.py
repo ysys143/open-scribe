@@ -145,9 +145,14 @@ class WhisperCppTranscriber(BaseTranscriber):
             
             # Stream output in real-time with progress bar
             output_lines = []
+            has_progress = False
             try:
                 for line in process.stdout:
                     decoded_line = line.decode('utf-8', errors='replace')
+                    # Debug: show any line with numbers that might be progress
+                    if any(char.isdigit() for char in decoded_line) and self.config.VERBOSE:
+                        print(f"\n[DEBUG] Whisper output: {decoded_line.strip()[:100]}")
+                    
                     # Parse and display progress bar
                     if 'progress' in decoded_line.lower() or '%' in decoded_line:
                         # Extract percentage from lines like "progress = 90%"
