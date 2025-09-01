@@ -17,6 +17,7 @@ class Config:
     OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
     OPENAI_SUMMARY_MODEL = os.getenv('OPENAI_SUMMARY_MODEL', 'gpt-4o-mini')
     OPENAI_SUMMARY_LANGUAGE = os.getenv('OPENAI_SUMMARY_LANGUAGE', 'auto')
+    OPENAI_CORRECT_MODEL = os.getenv('OPENAI_CORRECT_MODEL', 'gpt-4o-mini')
     
     # Worker Configuration
     MIN_WORKER = int(os.getenv('MIN_WORKER', '1'))
