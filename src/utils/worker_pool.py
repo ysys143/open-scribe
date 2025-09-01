@@ -286,7 +286,8 @@ class WorkerPool:
         processor_func: Callable,
         duration_seconds: int,
         engine: str,
-        verbose: bool = False
+        verbose: bool = False,
+        progress_monitor: Optional[ParallelProgressMonitor] = None
     ) -> List[ChunkResult]:
         """
         Process chunks in parallel
