@@ -16,6 +16,11 @@ class Config:
     # OpenAI Configuration
     OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
     OPENAI_SUMMARY_MODEL = os.getenv('OPENAI_SUMMARY_MODEL', 'gpt-4o-mini')
+    OPENAI_SUMMARY_LANGUAGE = os.getenv('OPENAI_SUMMARY_LANGUAGE', 'auto')
+    
+    # Worker Configuration
+    MIN_WORKER = int(os.getenv('MIN_WORKER', '1'))
+    MAX_WORKER = int(os.getenv('MAX_WORKER', '5'))
     
     # Base paths
     BASE_PATH = Path(os.getenv('OPEN_SCRIBE_BASE_PATH', 
