@@ -157,6 +157,16 @@ class ParallelProgressMonitor:
             }
             self.chunk_progress[chunk_index] = 0  # Initialize chunk progress at 0%
     
+    def update_chunk_progress(self, chunk_index: int, progress: float):
+        """Update progress for a specific chunk (0-100)"""
+        with self.lock:
+            self.chunk_progress[chunk_index] = min(100, max(0, progress))
+            # Only update display if enough time has passed
+            current_time = time.time()
+            if current_time - self.last_display_time > self.display_interval:
+                self._display_progress()
+                self.last_display_time = current_time
+    
     def complete_chunk(self, worker_id: int, chunk_index: int):
         """Mark a chunk as completed"""
         with self.lock:
@@ -170,6 +180,10 @@ class ParallelProgressMonitor:
                 self.worker_times[worker_id].append(elapsed)
                 
                 del self.in_progress[worker_id]
+            
+            # Mark chunk as 100% complete
+            if chunk_index in self.chunk_progress:
+                self.chunk_progress[chunk_index] = 100
             
             self.completed += 1
             self._display_progress()
