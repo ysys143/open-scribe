@@ -225,7 +225,7 @@ class WhisperAPITranscriber(OpenAITranscriber):
                 
             finally:
                 # Clean up chunk files
-                keep_chunks = os.getenv('OPEN_SCRIBE_VERBOSE') == 'true'
+                keep_chunks = self.config.DEFAULT_VERBOSE
                 cleanup_temp_chunks(chunk_paths, keep_for_debug=keep_chunks)
         
         # For smaller files, transcribe directly
