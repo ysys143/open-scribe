@@ -16,6 +16,7 @@ from ..utils.audio import (
     get_audio_duration
 )
 from ..utils.progress import create_estimated_progress, ChunkedProgressBar
+from ..utils.worker_pool import ParallelProgressMonitor
 
 
 class OpenAITranscriber(BaseTranscriber):
