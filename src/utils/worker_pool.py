@@ -119,6 +119,57 @@ class WorkerCalculator:
         return max(min_workers, min(optimal, max_workers))
     
     @staticmethod
+    def calculate_adaptive_chunk_size(
+        duration_seconds: int,
+        engine: str,
+        target_workers: int = None,
+        min_chunks: int = 2,
+        max_chunk_size: int = 1200  # 20 minutes max
+    ) -> tuple[int, int]:
+        """
+        Calculate adaptive chunk size to optimize worker utilization
+        
+        Args:
+            duration_seconds: Total duration in seconds
+            engine: Transcription engine name
+            target_workers: Desired number of workers (None for auto)
+            min_chunks: Minimum number of chunks to create
+            max_chunk_size: Maximum chunk size in seconds
+            
+        Returns:
+            tuple: (chunk_size, expected_chunks)
+        """
+        default_chunk_size = WorkerCalculator.CHUNK_SIZES.get(engine, 600)
+        
+        # If no target workers specified, use default chunk size
+        if target_workers is None:
+            chunk_size = min(default_chunk_size, max_chunk_size)
+            expected_chunks = math.ceil(duration_seconds / chunk_size)
+            return chunk_size, expected_chunks
+        
+        # Calculate ideal chunk size for target workers
+        ideal_chunk_size = duration_seconds / target_workers
+        
+        # Constrain to reasonable bounds
+        min_chunk_size = max(60, duration_seconds // (target_workers * 10))  # At least 1 minute
+        max_allowed = min(default_chunk_size * 2, max_chunk_size)
+        
+        # Round to nearest 30 seconds for cleaner chunks
+        chunk_size = round(ideal_chunk_size / 30) * 30
+        chunk_size = max(min_chunk_size, min(chunk_size, max_allowed))
+        
+        expected_chunks = math.ceil(duration_seconds / chunk_size)
+        
+        # Verify we have reasonable distribution
+        if expected_chunks < min_chunks:
+            # Too few chunks, reduce chunk size
+            chunk_size = duration_seconds // min_chunks
+            chunk_size = round(chunk_size / 30) * 30
+            expected_chunks = math.ceil(duration_seconds / chunk_size)
+        
+        return chunk_size, expected_chunks
+    
+    @staticmethod
     def adjust_by_memory(workers: int, engine: str) -> int:
         """
         Adjust worker count based on available system memory
