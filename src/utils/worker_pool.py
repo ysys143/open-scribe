@@ -320,8 +320,9 @@ class WorkerPool:
             print(f"[WorkerPool] Processing {len(chunks)} chunks with {num_workers} workers")
             print(f"[WorkerPool] Engine: {engine}, Duration: {duration_seconds}s")
         
-        # Initialize progress monitor
-        progress = ParallelProgressMonitor(len(chunks), num_workers)
+        # Initialize progress monitor (use provided or create new)
+        progress = progress_monitor if progress_monitor else ParallelProgressMonitor(len(chunks), num_workers)
+        self.progress = progress  # Store for access by processor functions
         
         # Process chunks in parallel
         results = [None] * len(chunks)
