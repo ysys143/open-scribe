@@ -65,8 +65,8 @@ Environment variables for defaults:
     parser.add_argument(
         '--downloads', '-d',
         action='store_true',
-        default=Config.DEFAULT_DOWNLOADS,
-        help=f'Copy to Downloads folder (default: {Config.DEFAULT_DOWNLOADS})'
+        default=Config.COPY_TO_DOWNLOADS,
+        help=f'Copy to Downloads folder (default: {Config.COPY_TO_DOWNLOADS})'
     )
     
     parser.add_argument(
