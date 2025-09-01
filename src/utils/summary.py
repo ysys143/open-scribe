@@ -24,20 +24,19 @@ def generate_summary(transcript: str, verbose: bool = False) -> Optional[str]:
     Returns:
         str: Summary text or None if failed
     """
-    api_key = os.getenv('OPENAI_API_KEY')
-    if not api_key:
+    if not Config.OPENAI_API_KEY:
         if verbose:
             print("Error: OPENAI_API_KEY not set")
         return None
     
     try:
-        client = OpenAI(api_key=api_key)
+        client = OpenAI(api_key=Config.OPENAI_API_KEY)
         
-        # Get model from environment or use default
-        model = os.getenv('OPENAI_SUMMARY_MODEL', 'gpt-4o-mini')
+        # Get model from config
+        model = Config.OPENAI_SUMMARY_MODEL
         
-        # Get language preference from environment
-        summary_lang = os.getenv('OPENAI_SUMMARY_LANGUAGE', 'auto')
+        # Get language preference from config
+        summary_lang = Config.OPENAI_SUMMARY_LANGUAGE
         
         # Prepare the prompt
         system_prompt = """You are a helpful assistant that creates concise, well-structured summaries of video transcripts.
