@@ -45,9 +45,9 @@ class Config:
     
     # Whisper.cpp Configuration
     WHISPER_CPP_MODEL = os.getenv('WHISPER_CPP_MODEL', 
-                                  os.path.expanduser('~/whisper.cpp/models/ggml-base.bin'))
+                                  str(Path(__file__).parent.parent / 'whisper.cpp/models/ggml-large-v3.bin'))
     WHISPER_CPP_EXECUTABLE = os.getenv('WHISPER_CPP_EXECUTABLE', 
-                                       os.path.expanduser('~/whisper.cpp/build/bin/whisper-cli'))
+                                       str(Path(__file__).parent.parent / 'whisper.cpp/build/bin/whisper-cli'))
     
     # Options Configuration
     ENGINE = os.getenv('OPEN_SCRIBE_ENGINE', 'gpt-4o-mini-transcribe')
