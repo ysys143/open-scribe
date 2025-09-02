@@ -61,11 +61,38 @@ Your summaries should:
 
 {transcript[:15000]}  # Limit to ~15k chars to stay within token limits
 
-Please structure the summary with:
-- A brief overview (1-2 sentences)
-- Main topics/sections covered
-- Key points and takeaways
-- Any important conclusions or recommendations"""
+요약 형식:
+
+개요
+- 영상의 주요 내용을 2-3문장으로 요약
+
+주요 주제/섹션
+- 각 주요 섹션 제목 [MM:SS] 또는 [HH:MM:SS] 형식으로 시작 시간 표시
+  - 하위 항목들은 들여쓰기로 구조화
+  - 세부 설명은 타임코드 없이 내용만 기술
+  - 중요한 전환점이나 새로운 주제 시작 시점의 타임코드를 전사 텍스트에서 찾아 삽입
+
+타임코드 추출 규칙:
+1. 전사 텍스트에 [00:00], [1:23:45] 등의 타임스탬프가 있으면 해당 섹션의 시작 시간으로 사용
+2. 주제가 전환되는 첫 번째 타임스탬프를 해당 섹션의 시작 시간으로 설정
+3. 타임코드가 없는 전사의 경우 섹션 제목만 표시 (타임코드 생략)
+
+예시 형식:
+주요 주제/섹션
+- 도입부 및 주제 소개 [00:00]
+  - 오늘 다룰 내용 개요
+  - 사용할 도구 소개
+- 실습 데모 시작 [05:23]
+  - 환경 설정
+  - 첫 번째 예제 실행
+  - 결과 분석
+
+핵심 포인트 및 세부 내용
+- 주요 인사이트와 중요한 정보들
+- 구체적인 팁, 통계, 사실 등
+
+결론 및 권장사항
+- 핵심 메시지 요약"""
 
         if verbose:
             print(f"Generating summary with {model}...")

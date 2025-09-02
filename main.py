@@ -15,7 +15,8 @@ from src.cli import main
 
 if __name__ == "__main__":
     try:
-        main()
+        result = main()
+        sys.exit(result)
     except KeyboardInterrupt:
         print("\n\nOperation cancelled by user")
         sys.exit(130)

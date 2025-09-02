@@ -20,6 +20,7 @@ def validate_youtube_url(url: str) -> bool:
         'youtu.be/',
         'youtube.com/playlist',
         'youtube.com/embed/',
+        'youtube.com/live/',
         'm.youtube.com/'
     ]
     return any(pattern in url.lower() for pattern in valid_patterns)
@@ -38,7 +39,8 @@ def extract_video_id(url: str) -> Optional[str]:
     patterns = [
         r'(?:v=|\/)([0-9A-Za-z_-]{11}).*',
         r'(?:embed\/)([0-9A-Za-z_-]{11})',
-        r'(?:youtu\.be\/)([0-9A-Za-z_-]{11})'
+        r'(?:youtu\.be\/)([0-9A-Za-z_-]{11})',
+        r'(?:live\/)([0-9A-Za-z_-]{11})'
     ]
     
     for pattern in patterns:
