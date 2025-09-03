@@ -81,9 +81,11 @@ python trans.py [url] [options]
 
 ### 다른 엔진 선택 시
 
-* yt-dlp Python 라이브러리로 오디오 자동 다운로드
+* `yt-dlp` Python 라이브러리로 오디오 자동 다운로드 (subprocess 대신 직접 API 사용)
 * 선택한 엔진으로 오디오 파일 전사
+* 25MB 초과 파일 자동 압축 (OpenAI API 제한 대응)
 * 실시간 다운로드 및 전사 진행률 표시 (`--progress` 옵션)
+* 워커 수 동적 계산으로 시스템 리소스 최적 활용
 
 ### 파일 저장 위치
 
@@ -164,7 +166,11 @@ scribe "URL" --force --engine whisper-api --filename my_video
 
 ### Python 스크립트 직접 실행
 ```sh
-# 동일한 옵션들로 직접 실행 가능
+# 모듈화된 v2.0 구조 사용 (권장)
+python main.py "https://www.youtube.com/watch?v=VIDEO_ID" --engine youtube-transcript-api
+python main.py "https://youtu.be/VIDEO_ID" --engine whisper-cpp --summary --timestamp
+
+# 레거시 스크립트 (호환성 유지)
 python trans.py "https://www.youtube.com/watch?v=VIDEO_ID" --engine youtube
 python trans.py "https://youtu.be/VIDEO_ID" --engine whisper-local --summary --timestamp
 ```
@@ -174,6 +180,16 @@ python trans.py "https://youtu.be/VIDEO_ID" --engine whisper-local --summary --t
 ### 필수 설정
 ```bash
 OPENAI_API_KEY=your_api_key_here  # OpenAI API 키 (GPT-4o, Whisper API 사용 시)
+```
+
+### OpenAI 모델 설정 (선택사항)
+```bash
+# 최신 모델 사용 (2025년 기준)
+OPENAI_SUMMARY_MODEL=gpt-5-mini      # 요약 생성 모델
+OPENAI_CORRECT_MODEL=gpt-5-mini      # 자막 교정 모델  
+OPENAI_TRANSLATE_MODEL=gpt-5-mini    # 번역 모델
+OPENAI_SUMMARY_LANGUAGE=auto         # 요약 언어 자동 감지
+OPENAI_TRANSLATE_LANGUAGE=Korean     # 번역 대상 언어
 ```
 
 ### 경로 설정 (선택사항)
@@ -195,12 +211,17 @@ WHISPER_CPP_EXECUTABLE=~/whisper.cpp/build/bin/whisper-cli
 
 ### 기본 옵션 설정 (선택사항)
 ```bash
+# 전사 엔진 및 동작 설정
 OPEN_SCRIBE_ENGINE=youtube-transcript-api   # 기본 전사 엔진
 OPEN_SCRIBE_STREAM=true                     # 스트리밍 출력
 OPEN_SCRIBE_DOWNLOADS=true                  # Downloads 폴더 저장
 OPEN_SCRIBE_SUMMARY=true                    # AI 요약 생성
 OPEN_SCRIBE_VERBOSE=true                    # 상세 요약
 OPEN_SCRIBE_TIMESTAMP=false                 # 타임스탬프 포함
+
+# 병렬 처리 설정
+MIN_WORKER=1                               # 최소 워커 수
+MAX_WORKER=5                               # 최대 워커 수 (시스템 리소스 기반 자동 계산)
 ```
 
 ## 필수 요구사항
@@ -253,12 +274,42 @@ open-scribe/
 └── docs/                  # 문서
 ```
 
-### 주요 개선사항
-- **자동 오디오 압축**: 25MB 초과 파일 자동 압축 (OpenAI API 제한 대응)
-- **모듈화 설계**: 단일 책임 원칙에 따른 깔끔한 구조
-- **병렬 처리**: 재생목록 병렬 다운로드/전사 지원
-- **확장성**: 플러그인 방식으로 새 전사 엔진 추가 가능
-- **에러 처리**: 강화된 예외 처리 및 복구 메커니즘
+### 핵심 적용 기술 및 기법
+
+#### 🏗️ 아키텍처 패턴
+- **추상 팩토리 패턴**: `BaseTranscriber` 추상 클래스로 전사 엔진 통합 인터페이스 제공
+- **전략 패턴**: 런타임에 전사 엔진 동적 선택 (`openai.py`, `youtube.py`, `whisper_cpp.py`)
+- **모듈화 설계**: 단일 책임 원칙에 따른 계층별 분리 (`src/` 디렉토리 구조)
+
+#### 🚀 성능 최적화
+- **동적 워커 계산**: `WorkerCalculator`가 시스템 리소스 기반으로 최적 병렬 워커 수 자동 계산
+- **청크 기반 병렬 처리**: `worker_pool.py`로 대용량 오디오 파일 분할 처리
+- **스마트 오디오 압축**: `audio.py`에서 25MB 초과 시 점진적 비트레이트 감소 (64k→24k)
+- **메모리 효율 스트리밍**: 실시간 전사 결과 출력으로 메모리 사용량 최소화
+
+#### 🛡️ 안정성 및 복원력
+- **자동 폴백 시스템**: `fallback.py`로 엔진 실패 시 다른 엔진으로 자동 전환
+- **재시도 로직**: 네트워크 오류 시 지수 백오프 재시도 패턴
+- **상태 추적**: SQLite 기반 작업 상태 영속화 (`database.py`)
+- **파일 검증**: 다운로드 후 파일 무결성 및 크기 검증
+
+#### 📊 모니터링 및 진단
+- **실시간 진행률**: `progress.py`에서 퍼센트, ETA, 처리 속도 표시
+- **시스템 리소스 모니터링**: `psutil` 기반 CPU/메모리 사용량 추적
+- **처리 시간 메트릭**: 각 단계별 소요 시간 측정 및 최적화 가이드
+- **에러 분류**: 네트워크/API/파일 오류별 세분화된 예외 처리
+
+#### 🔧 환경 적응성
+- **환경 변수 기반 설정**: `config.py`에서 12가지 환경 변수 지원
+- **다중 플랫폼 호환**: macOS/Linux/Windows 크로스 플랫폼 지원
+- **동적 경로 관리**: 사용자 환경에 따른 자동 경로 설정
+- **API 모델 동적 선택**: GPT-5, GPT-5-mini 등 최신 모델 지원
+
+#### 🌐 국제화 및 번역
+- **언어 자동 감지**: 콘텐츠 언어 자동 판별 후 번역 여부 결정
+- **다단계 번역 파이프라인**: `translator.py`에서 원문→한국어 고품질 번역
+- **자막 형식 변환**: `srt_converter.py`로 다양한 자막 형식 지원
+- **타임코드 동기화**: 번역 시 원본 타임스탬프 유지
 
 ## 라이선스
 
