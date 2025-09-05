@@ -17,6 +17,8 @@ from .utils.validators import validate_youtube_url, extract_video_id
 from .utils.file import sanitize_filename, save_text_file, copy_to_downloads
 from .utils.progress import ProgressBar
 from .utils.summary import generate_summary, format_summary_output
+from .utils.srt_converter import convert_transcript_to_srt
+from .utils.translator import SubtitleTranslator
 
 def create_argument_parser():
     """Create and configure argument parser"""
@@ -75,6 +77,13 @@ Environment variables for defaults:
         default=Config.ENABLE_SUMMARY,
         help=f'Generate AI summary (default: {Config.ENABLE_SUMMARY})'
     )
+
+    parser.add_argument(
+        '--translate',
+        action='store_true',
+        default=Config.ENABLE_TRANSLATE,
+        help=f'Translate transcript/SRT (default: {Config.ENABLE_TRANSLATE})'
+    )
     
     parser.add_argument(
         '--verbose', '-v',
@@ -88,6 +97,13 @@ Environment variables for defaults:
         action='store_true',
         default=Config.INCLUDE_TIMESTAMP,
         help=f'Include timestamps (default: {Config.INCLUDE_TIMESTAMP})'
+    )
+
+    parser.add_argument(
+        '--srt',
+        action='store_true',
+        default=Config.GENERATE_SRT,
+        help=f'Generate SRT subtitles (default: {Config.GENERATE_SRT})'
     )
     
     parser.add_argument(
@@ -304,7 +320,55 @@ def process_single_video(url: str, args, config: Config) -> bool:
                 print("Warning: Summary generation failed")
                 db.update_summary_status(job_id, False, None)
     
-    # Copy transcript to downloads if requested (after summary so both files are together)
+    # Generate SRT if requested
+    srt_path = None
+    if args.srt and transcript_path:
+        try:
+            print("\n🎞 Generating SRT subtitles...")
+            srt_path = convert_transcript_to_srt(transcript_path)
+            print(f"SRT saved: {srt_path}")
+            try:
+                db.update_srt_status(job_id, True, str(srt_path))
+            except Exception:
+                pass
+            if args.downloads:
+                srt_download = copy_to_downloads(srt_path, config.DOWNLOADS_PATH)
+                if srt_download:
+                    print(f"SRT copied to: {srt_download}")
+        except Exception as e:
+            print(f"Warning: Failed to generate SRT: {e}")
+
+    # Translate if requested (transcript and/or SRT)
+    if args.translate:
+        try:
+            translator = SubtitleTranslator(config)
+            # Prefer SRT translation when available
+            if srt_path and srt_path.exists():
+                print("\n🌐 Translating SRT...")
+                translated_srt, ok = translator.translate_srt(srt_path.read_text(encoding='utf-8'), verbose=args.verbose)
+                if ok:
+                    srt_ko_path = srt_path.with_name(f"{srt_path.stem}.ko.srt")
+                    save_text_file(translated_srt, srt_ko_path)
+                    print(f"Translated SRT saved: {srt_ko_path}")
+                    if args.downloads:
+                        srt_ko_download = copy_to_downloads(srt_ko_path, config.DOWNLOADS_PATH)
+                        if srt_ko_download:
+                            print(f"Translated SRT copied to: {srt_ko_download}")
+            else:
+                print("\n🌐 Translating transcript...")
+                translated_text, ok = translator.translate_text(transcription, preserve_timestamps=True, verbose=args.verbose)
+                if ok:
+                    ko_path = config.TRANSCRIPT_PATH / f"{safe_title}.ko.txt"
+                    save_text_file(translated_text, ko_path)
+                    print(f"Translated transcript saved: {ko_path}")
+                    if args.downloads:
+                        ko_download = copy_to_downloads(ko_path, config.DOWNLOADS_PATH)
+                        if ko_download:
+                            print(f"Translated transcript copied to: {ko_download}")
+        except Exception as e:
+            print(f"Warning: Translation failed: {e}")
+
+    # Copy transcript to downloads if requested (after summary/SRT so files are together)
     if args.downloads and transcript_path:
         download_path = copy_to_downloads(transcript_path, config.DOWNLOADS_PATH)
         if download_path:

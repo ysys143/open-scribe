@@ -4,3 +4,6 @@ youtube-transcript-api
 yt-dlp
 simple-term-menu
 psutil
+textual>=0.47.0
+rich>=13.7.0
+prompt-toolkit>=3.0.0
