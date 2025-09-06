@@ -130,7 +130,7 @@ class WhisperAPITranscriber(OpenAITranscriber):
             return chunk_index, result
             
         except Exception as e:
-            print(f"[{self.display_name}] ❌ Error transcribing chunk {chunk_index + 1}: {e}")
+            print(f"[{self.display_name}] [ERROR] Error transcribing chunk {chunk_index + 1}: {e}")
             import traceback
             if self.config.VERBOSE:
                 traceback.print_exc()
@@ -207,10 +207,10 @@ class WhisperAPITranscriber(OpenAITranscriber):
         failed_chunks = len(chunk_results) - len(valid_results)
         
         if failed_chunks > 0:
-            print(f"[{self.display_name}] ⚠️  {failed_chunks} chunk(s) failed to transcribe")
+            print(f"[{self.display_name}] [WARNING] {failed_chunks} chunk(s) failed to transcribe")
         
         if not valid_results:
-            print(f"[{self.display_name}] ❌ All chunks failed - no transcription available")
+            print(f"[{self.display_name}] [ERROR] All chunks failed - no transcription available")
             return ""
         
         # Debug: Show what we got from each chunk
@@ -313,7 +313,7 @@ class WhisperAPITranscriber(OpenAITranscriber):
                     final_transcription = self.merge_chunk_results(chunk_results, return_timestamps)
                     
                     if not final_transcription or not final_transcription.strip():
-                        print(f"[{self.display_name}] ❌ Failed to merge chunk results")
+                        print(f"[{self.display_name}] [ERROR] Failed to merge chunk results")
                         return None
                     
                     # Stream output if requested

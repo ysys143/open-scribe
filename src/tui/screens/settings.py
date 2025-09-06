@@ -167,7 +167,7 @@ class SettingsScreen(BaseScreen):
                 Config.create_directories()
             except Exception:
                 pass
-            self._set_status("✅ 저장되었습니다")
+            self._set_status("[OK] 저장되었습니다")
             self.show_success("설정 저장 완료")
         except Exception as e:
             self.show_error(str(e))

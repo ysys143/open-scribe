@@ -237,13 +237,13 @@ class WhisperAPITranscriber(OpenAITranscriber):
                 return result
             else:
                 print(f"[{self.display_name}] Hybrid mode failed, falling back to standard mode")
-                print(f"[{self.display_name}] ⚠️  YouTube transcript API를 사용할 수 없어 30초 단위의 타임코드가 생성됩니다")
+                print(f"[{self.display_name}] [WARNING] YouTube transcript API를 사용할 수 없어 30초 단위의 타임코드가 생성됩니다")
                 print(f"[{self.display_name}] (Live 영상이거나 자막이 없는 영상일 수 있습니다)")
                 use_hybrid = False  # Mark hybrid as failed but keep timestamps enabled
         
         # Check timestamp support for the model
         if return_timestamps and self.model_name not in ["whisper-1", "gpt-4o-transcribe", "gpt-4o-mini-transcribe"]:
-            print(f"[{self.display_name}] ⚠️  Warning: {self.model_name} does not support timestamps")
+            print(f"[{self.display_name}] [WARNING] Warning: {self.model_name} does not support timestamps")
             print(f"[{self.display_name}] Proceeding without timestamps...")
             return_timestamps = False
         elif return_timestamps and self.model_name in ["gpt-4o-transcribe", "gpt-4o-mini-transcribe"] and not use_hybrid:

@@ -120,11 +120,11 @@ class ApiKeysScreen(BaseScreen):
         try:
             ok = await self.cfg.validate_api_key_async(key, env_key="OPENAI_API_KEY")
             if ok:
-                self._set_status("✅ 키가 유효합니다")
+                self._set_status("[OK] 키가 유효합니다")
                 self.show_success("검증 완료")
                 self._update_mask()
             else:
-                self._set_status("❌ 키가 유효하지 않습니다")
+                self._set_status("[ERROR] 키가 유효하지 않습니다")
                 self.show_error("검증 실패")
         except Exception as e:
             self._set_status(f"오류: {e}")

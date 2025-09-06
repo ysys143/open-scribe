@@ -91,7 +91,7 @@ class TaskProgressWidget(Widget):
     
     def set_error(self, error_msg: str) -> None:
         """에러 상태로 설정"""
-        self.status = f"❌ {error_msg}"
+        self.status = f"[ERROR] {error_msg}"
         self.query_one(ProgressBar).add_class("error")
 
 
@@ -223,12 +223,12 @@ class RealTimeLogWidget(Widget):
         level_styles = {
             "debug": ("○", "dim"),
             "info": ("ℹ️", "blue"),
-            "warning": ("⚠️", "yellow"),
-            "error": ("❌", "red"),
-            "success": ("✅", "green")
+            "warning": ("[WARN]", "yellow"),
+            "error": ("[ERROR]", "red"),
+            "success": ("[OK]", "green")
         }
         
-        icon, color = level_styles.get(level, ("📝", "white"))
+        icon, color = level_styles.get(level, ("[INFO]", "white"))
         
         formatted_message = f"[{color}]{timestamp} {icon} {message}[/{color}]"
         log_widget.write_line(formatted_message)
@@ -271,12 +271,12 @@ class StatusBarWidget(Widget):
     def compose(self) -> ComposeResult:
         """위젯 구성"""
         with Horizontal(classes="status-bar"):
-            yield Static("🟢", id="status-icon", classes="status-icon")
+            yield Static("[*]", id="status-icon", classes="status-icon")
             yield Static(self.current_status, id="status-text", classes="status-text")
             yield Static("", id="progress-info", classes="progress-info")
             yield Static("", id="time-info", classes="time-info")
     
-    def update_status(self, status: str, icon: str = "🟢") -> None:
+    def update_status(self, status: str, icon: str = "[*]") -> None:
         """상태 업데이트"""
         self.current_status = status
         
@@ -295,19 +295,19 @@ class StatusBarWidget(Widget):
     
     def set_working(self, status: str = "작업 중") -> None:
         """작업 중 상태"""
-        self.update_status(status, "🟡")
+        self.update_status(status, "[~]")
     
     def set_error(self, status: str = "오류") -> None:
         """오류 상태"""
-        self.update_status(status, "🔴")
+        self.update_status(status, "[!]")
     
     def set_success(self, status: str = "완료") -> None:
         """완료 상태"""
-        self.update_status(status, "🟢")
+        self.update_status(status, "[OK]")
     
     def set_ready(self, status: str = "준비") -> None:
         """준비 상태"""
-        self.update_status(status, "🟢")
+        self.update_status(status, "[OK]")
 
 
 class CompactProgressWidget(Widget):

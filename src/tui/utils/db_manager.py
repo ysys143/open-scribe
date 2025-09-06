@@ -49,6 +49,77 @@ class DatabaseManager:
             print(f"Error fetching jobs: {e}")
             return []
     
+    def get_job_statistics(self) -> Dict[str, int]:
+        """작업 통계 조회"""
+        try:
+            stats = {
+                'total': 0,
+                'pending': 0,
+                'running': 0,
+                'completed': 0,
+                'failed': 0,
+                'cancelled': 0
+            }
+            
+            query = """
+                SELECT status, COUNT(*) as count
+                FROM transcription_jobs
+                GROUP BY status
+            """
+            
+            with sqlite3.connect(str(Config.DB_PATH)) as conn:
+                cursor = conn.execute(query)
+                for row in cursor.fetchall():
+                    status, count = row
+                    if status in stats:
+                        stats[status] = count
+                    stats['total'] += count
+            
+            return stats
+            
+        except Exception as e:
+            print(f"Error getting statistics: {e}")
+            return {'total': 0, 'pending': 0, 'running': 0, 'completed': 0, 'failed': 0}
+    
+    def update_job_status(self, job_id: int, status: str) -> bool:
+        """작업 상태 업데이트"""
+        try:
+            with sqlite3.connect(str(Config.DB_PATH)) as conn:
+                conn.execute(
+                    "UPDATE transcription_jobs SET status = ? WHERE id = ?",
+                    (status, job_id)
+                )
+                conn.commit()
+            return True
+        except Exception as e:
+            print(f"Error updating job status: {e}")
+            return False
+    
+    def delete_jobs_by_status(self, statuses: List[str]) -> Dict[str, int]:
+        """특정 상태의 작업들 삭제"""
+        try:
+            placeholders = ','.join('?' * len(statuses))
+            query = f"""
+                DELETE FROM transcription_jobs
+                WHERE status IN ({placeholders})
+            """
+            
+            with sqlite3.connect(str(Config.DB_PATH)) as conn:
+                cursor = conn.execute(
+                    f"SELECT COUNT(*) FROM transcription_jobs WHERE status IN ({placeholders})",
+                    statuses
+                )
+                count = cursor.fetchone()[0]
+                
+                conn.execute(query, statuses)
+                conn.commit()
+                
+            return {'rows': count, 'files_removed': 0}
+            
+        except Exception as e:
+            print(f"Error deleting jobs: {e}")
+            return {'rows': 0, 'files_removed': 0}
+    
     def get_statistics(self) -> Dict[str, Any]:
         """통계 데이터 조회"""
         try:

@@ -57,9 +57,9 @@ class MainMenuScreen(Widget):
     BINDINGS = [
         Binding("1", "menu_action('transcribe')", "Transcription", priority=True),
         Binding("2", "menu_action('database')", "Database", priority=True),
-        Binding("3", "menu_action('api_keys')", "API Keys", priority=True),
-        Binding("4", "menu_action('settings')", "Settings", priority=True),
-        Binding("5", "menu_action('monitor')", "Monitoring", priority=True),
+        Binding("3", "menu_action('monitor')", "Monitor", priority=True),
+        Binding("4", "menu_action('api_keys')", "API Keys", priority=True),
+        Binding("5", "menu_action('settings')", "Settings", priority=True),
         Binding("h", "menu_action('help')", "Help", priority=True),
         Binding("q", "menu_action('quit')", "Quit", priority=True),
         Binding("ㅂ", "menu_action('quit')", "Quit", priority=True),
@@ -122,9 +122,9 @@ class MainMenuScreen(Widget):
                     with Vertical(classes="menu-buttons"):
                         yield Button("1. Transcribe", id="transcribe", classes="menu-button")
                         yield Button("2. Database", id="database", classes="menu-button")
-                        yield Button("3. API Key", id="api_keys", classes="menu-button")
-                        yield Button("4. Settings", id="settings", classes="menu-button")
-                        yield Button("5. Monitoring", id="monitor", classes="menu-button")
+                        yield Button("3. Monitor", id="monitor", classes="menu-button")
+                        yield Button("4. API Key", id="api_keys", classes="menu-button")
+                        yield Button("5. Settings", id="settings", classes="menu-button")
                         yield Button("H. Help", id="help", classes="menu-button")
                         yield Button("Q. Quit", id="quit", classes="menu-button")
                 
@@ -267,18 +267,18 @@ General Keyboard Shortcuts:
         """에러 메시지 표시"""
         # 알림 + 섹션 상태라인 모두 갱신 (알림 미표시 환경 대비)
         try:
-            self.app.notify(f"✗ {message}", severity="error")
+            self.app.notify(f"[ERROR] {message}", severity="error")
         except Exception:
             pass
-        self._update_any_status_lines(f"✗ {message}")
+        self._update_any_status_lines(f"[ERROR] {message}")
     
     def show_success(self, message: str) -> None:
         """성공 메시지 표시"""
         try:
-            self.app.notify(f"✓ {message}", severity="information")
+            self.app.notify(f"[OK] {message}", severity="information")
         except Exception:
             pass
-        self._update_any_status_lines(f"✓ {message}")
+        self._update_any_status_lines(f"[OK] {message}")
 
     def _update_any_status_lines(self, text: str) -> None:
         """현재 섹션에 존재하는 상태 라인을 모두 업데이트"""
@@ -471,10 +471,10 @@ General Keyboard Shortcuts:
                     load_dotenv(override=True)
                 except Exception:
                     pass
-                self._set_api_status("✓ 저장되었습니다")
+                self._set_api_status("[OK] 저장되었습니다")
                 self.show_success("API 키 저장 완료")
             else:
-                self._set_api_status("✗ 저장 실패")
+                self._set_api_status("[ERROR] 저장 실패")
                 self.show_error("저장 실패")
         except Exception as e:
             self._set_api_status(str(e))
@@ -523,10 +523,10 @@ General Keyboard Shortcuts:
                 # UI 업데이트를 메인 스레드에서 실행
                 def update_ui():
                     if ok:
-                        self._set_api_status("✓ 키가 유효합니다")
+                        self._set_api_status("[OK] 키가 유효합니다")
                         self.app.notify("키 검증 성공", severity="information")
                     else:
-                        msg = f"✗ 키 검증 실패: {err}" if err else "✗ 키 검증 실패"
+                        msg = f"[ERROR] 키 검증 실패: {err}" if err else "[ERROR] 키 검증 실패"
                         self._set_api_status(msg)
                         self.app.notify(f"키 검증 실패: {err}" if err else "키 검증 실패", severity="error")
                     self._validating_api_key = False
@@ -541,6 +541,120 @@ General Keyboard Shortcuts:
         except Exception as e:
             self._validating_api_key = False
             self.show_error(str(e))
+
+    def show_monitor_interface(self) -> None:
+        """메인 영역에 모니터링 UI 표시"""
+        if not self.content_area:
+            return
+        self.content_area.remove_children()
+        
+        # 스크롤 가능한 컨테이너
+        scroller = ScrollableContainer(classes="tab-content", id="monitor_scroller")
+        try:
+            scroller.styles.height = "1fr"
+            scroller.styles.min_height = 0
+            scroller.styles.overflow_y = "auto"
+        except Exception:
+            pass
+        self.content_area.mount(scroller)
+        
+        # 메인 컨테이너
+        container = Vertical(classes="form-stack")
+        scroller.mount(container)
+        container.mount(Static("== Job Monitor ==", classes="options-title"))
+        
+        # 통계 섹션
+        stats_section = Horizontal(classes="stats-row")
+        container.mount(stats_section)
+        stats_section.mount(Label("Total: 0", id="stat_total"))
+        stats_section.mount(Label("[PENDING] Pending: 0", id="stat_pending"))
+        stats_section.mount(Label("[RUNNING] Running: 0", id="stat_running"))
+        stats_section.mount(Label("[DONE] Completed: 0", id="stat_completed"))
+        stats_section.mount(Label("[FAILED] Failed: 0", id="stat_failed"))
+        
+        # 작업 목록
+        container.mount(Static("== Job Queue ==", classes="options-title"))
+        
+        # 작업 테이블 (간단한 텍스트 형태로)
+        job_list = Vertical(id="job_list", classes="job-list")
+        container.mount(job_list)
+        
+        # 샘플 데이터 또는 실제 데이터 로드
+        self._load_monitor_data(job_list)
+        
+        # 컨트롤 버튼
+        actions = Horizontal(classes="actions-bar")
+        container.mount(actions)
+        actions.mount(Button("Refresh", id="refresh_monitor", classes="action-button"))
+        actions.mount(Button("Clear Completed", id="clear_completed", classes="utility-button"))
+        actions.mount(Button("Back", id="transcribe", classes="warning-button"))
+        
+        # 자동 새로고침 시작 (2초마다)
+        self._start_monitor_refresh()
+    
+    def _load_monitor_data(self, container: Vertical) -> None:
+        """모니터링 데이터 로드"""
+        try:
+            from ..utils.db_manager import DatabaseManager
+            db = DatabaseManager()
+            
+            # 통계 업데이트
+            stats = db.get_job_statistics()
+            self.query_one("#stat_total", Label).update(f"Total: {stats.get('total', 0)}")
+            self.query_one("#stat_pending", Label).update(f"[PENDING] Pending: {stats.get('pending', 0)}")
+            self.query_one("#stat_running", Label).update(f"[RUNNING] Running: {stats.get('running', 0)}")
+            self.query_one("#stat_completed", Label).update(f"[DONE] Completed: {stats.get('completed', 0)}")
+            self.query_one("#stat_failed", Label).update(f"[FAILED] Failed: {stats.get('failed', 0)}")
+            
+            # 작업 목록 업데이트
+            container.remove_children()
+            
+            # 최근 작업들 표시 (pending/running 우선)
+            jobs = db.get_jobs_filtered(limit=20)
+            
+            if not jobs:
+                container.mount(Static("No jobs in queue", classes="output-text"))
+                return
+            
+            # 작업별 상태 표시
+            for job in jobs[:10]:  # 최대 10개만 표시
+                job_id = job.get('id', 0)
+                title = job.get('title', 'Unknown')[:40]
+                status = job.get('status', 'unknown')
+                engine = job.get('engine', '')
+                
+                # 상태 이모지
+                status_emoji = {
+                    'pending': '[P]',
+                    'running': '[R]',
+                    'completed': '[D]',
+                    'failed': '[F]',
+                    'cancelled': '[X]'
+                }.get(status, '[?]')
+                
+                job_text = f"{status_emoji} #{job_id}: {title} [{engine}] - {status}"
+                container.mount(Static(job_text, classes="job-item"))
+                
+        except Exception as e:
+            container.mount(Static(f"Error loading monitor data: {e}", classes="error-text"))
+    
+    def _start_monitor_refresh(self) -> None:
+        """모니터링 자동 새로고침 시작"""
+        import threading
+        
+        def refresh_loop():
+            while self.selected_button_id == "monitor":
+                time.sleep(2)  # 2초마다
+                if self.selected_button_id == "monitor":
+                    try:
+                        job_list = self.query_one("#job_list", Vertical)
+                        self._load_monitor_data(job_list)
+                    except Exception:
+                        break
+        
+        # 백그라운드 스레드에서 실행
+        refresh_thread = threading.Thread(target=refresh_loop, daemon=True)
+        refresh_thread.start()
 
     def show_settings_interface(self) -> None:
         """메인 영역에 Settings UI 표시 (싱글 페이지)"""
@@ -661,7 +775,7 @@ General Keyboard Shortcuts:
                 load_dotenv(override=True)
             except Exception:
                 pass
-            self._set_settings_status("✓ 저장되었습니다")
+            self._set_settings_status("[OK] 저장되었습니다")
             self.show_success("설정 저장 완료")
         except Exception as e:
             self._set_settings_status(str(e))
@@ -749,7 +863,9 @@ General Keyboard Shortcuts:
                 self.set_timer(0.01, lambda btn_id="settings": self._update_button_selection(btn_id))
                 return
             elif button_id == "monitor":
-                self.show_content("Monitoring", "Monitoring screen will be implemented in Phase 4.")
+                self.selected_button_id = "monitor"
+                self.show_monitor_interface()
+                self.focus_area = "content"
                 self.set_timer(0.01, lambda btn_id="monitor": self._update_button_selection(btn_id))
                 return
             elif button_id == "help":
@@ -784,6 +900,29 @@ General Keyboard Shortcuts:
             return
         elif button_id == "settings_save":
             self._save_settings_inline()
+            return
+        elif button_id == "refresh_monitor":
+            # 모니터 데이터 새로고침
+            try:
+                job_list = self.query_one("#job_list", Vertical)
+                self._load_monitor_data(job_list)
+                self.app.notify("Refreshed monitor data", severity="information")
+            except Exception:
+                pass
+            return
+        elif button_id == "clear_completed":
+            # 완료된 작업 삭제
+            try:
+                from ..utils.db_manager import DatabaseManager
+                db = DatabaseManager()
+                result = db.delete_jobs_by_status(['completed', 'failed', 'cancelled'])
+                count = result.get('rows', 0)
+                self.app.notify(f"Cleared {count} completed/failed jobs", severity="information")
+                # 새로고침
+                job_list = self.query_one("#job_list", Vertical)
+                self._load_monitor_data(job_list)
+            except Exception as e:
+                self.app.notify(f"Error clearing jobs: {e}", severity="error")
             return
         # 옵션 토글
         if button_id == 'opt_timestamp':
@@ -858,7 +997,9 @@ General Keyboard Shortcuts:
             self.show_settings_interface()
             self.focus_area = "content"
         elif menu_id == "monitor":
-            self.show_content("Monitoring", "Monitoring screen will be implemented in Phase 4.")
+            self.selected_button_id = "monitor"
+            self.show_monitor_interface()
+            self.focus_area = "content"
         elif menu_id == "help":
             self.show_help()
         elif menu_id == "quit":
@@ -991,7 +1132,7 @@ General Keyboard Shortcuts:
             # 출력 영역 업데이트
             output = self.content_area.query_one(".transcribe-output", Static)
             options_str = ", ".join(options_text) if options_text else "none"
-            output.update(f"🔄 Starting transcription...\nURL: {url[:50]}...\nEngine: {self.selected_engine}\nOptions: {options_str}")
+            output.update(f"[PROCESSING] Starting transcription...\nURL: {url[:50]}...\nEngine: {self.selected_engine}\nOptions: {options_str}")
             
             # Background 모드면 큐에 적재 후 종료
             if self.background_enabled:
@@ -1078,11 +1219,11 @@ General Keyboard Shortcuts:
         elif key == "2":
             self.action_menu_action("database")
         elif key == "3":
-            self.action_menu_action("api_keys")
-        elif key == "4":
-            self.action_menu_action("settings")
-        elif key == "5":
             self.action_menu_action("monitor")
+        elif key == "4":
+            self.action_menu_action("api_keys")
+        elif key == "5":
+            self.action_menu_action("settings")
         elif key == "h":
             self.action_menu_action("help")
         elif key == "q" or key == "ㅂ":
@@ -1179,7 +1320,7 @@ General Keyboard Shortcuts:
             qfile.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding='utf-8')
             try:
                 out = self.content_area.query_one(".transcribe-output", Static)
-                out.update(f"📝 Enqueued background job (ID: {job_id}).\nSee Monitoring for status.")
+                out.update(f"[QUEUED] Enqueued background job (ID: {job_id}).\nSee Monitoring for status.")
             except Exception:
                 pass
             self.show_success("Job added to queue")

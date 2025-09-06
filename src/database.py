@@ -5,7 +5,7 @@ Handles SQLite database for tracking transcription jobs
 
 import sqlite3
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from datetime import datetime
 
 class TranscriptionDatabase:
@@ -291,3 +291,153 @@ class TranscriptionDatabase:
         if row:
             return dict(row)
         return None
+    
+    def get_pending_jobs(self) -> List[Dict[str, Any]]:
+        """
+        Get all pending and running jobs
+        
+        Returns:
+            List of job dictionaries
+        """
+        conn = sqlite3.connect(str(self.db_path))
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT * FROM transcription_jobs 
+            WHERE status IN ('pending', 'running')
+            ORDER BY created_at ASC
+        ''')
+        
+        rows = cursor.fetchall()
+        conn.close()
+        
+        return [dict(row) for row in rows]
+    
+    def update_job_field(self, job_id: int, field: str, value: Any):
+        """
+        Update a specific field in a job
+        
+        Args:
+            job_id: Job ID
+            field: Field name to update
+            value: New value for the field
+        """
+        conn = sqlite3.connect(str(self.db_path))
+        cursor = conn.cursor()
+        
+        # Validate field name to prevent SQL injection
+        allowed_fields = [
+            'status', 'progress', 'started_at', 'completed_at', 
+            'error_message', 'download_path', 'transcript_path',
+            'srt_path', 'translation_path', 'summary'
+        ]
+        
+        if field not in allowed_fields:
+            raise ValueError(f"Field '{field}' is not allowed for update")
+        
+        query = f'''
+            UPDATE transcription_jobs 
+            SET {field} = ?, updated_at = ?
+            WHERE id = ?
+        '''
+        
+        cursor.execute(query, (value, datetime.now(), job_id))
+        conn.commit()
+        conn.close()
+    
+    def get_job_by_id(self, job_id: int) -> Optional[Dict[str, Any]]:
+        """
+        Get job details by ID
+        
+        Args:
+            job_id: Job ID
+            
+        Returns:
+            Job dictionary if exists, None otherwise
+        """
+        conn = sqlite3.connect(str(self.db_path))
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        cursor.execute('SELECT * FROM transcription_jobs WHERE id = ?', (job_id,))
+        
+        row = cursor.fetchone()
+        conn.close()
+        
+        if row:
+            return dict(row)
+        return None
+    
+    def get_old_completed_jobs(self, minutes: int) -> List[Dict[str, Any]]:
+        """
+        Get completed jobs older than specified minutes
+        
+        Args:
+            minutes: Minutes since completion
+            
+        Returns:
+            List of old completed job dictionaries
+        """
+        conn = sqlite3.connect(str(self.db_path))
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT * FROM transcription_jobs 
+            WHERE status = 'completed' 
+            AND completed_at IS NOT NULL
+            AND datetime(completed_at) < datetime('now', '-' || ? || ' minutes')
+            ORDER BY completed_at ASC
+        ''', (minutes,))
+        
+        rows = cursor.fetchall()
+        conn.close()
+        
+        return [dict(row) for row in rows]
+    
+    def delete_job(self, job_id: int, delete_files: bool = False) -> bool:
+        """
+        Delete a job from the database
+        
+        Args:
+            job_id: Job ID to delete
+            delete_files: Whether to delete associated files
+            
+        Returns:
+            True if deleted successfully
+        """
+        import os
+        
+        # Get job details first if we need to delete files
+        job = None
+        if delete_files:
+            job = self.get_job_by_id(job_id)
+        
+        # Delete from database
+        conn = sqlite3.connect(str(self.db_path))
+        cursor = conn.cursor()
+        
+        cursor.execute('DELETE FROM transcription_jobs WHERE id = ?', (job_id,))
+        deleted = cursor.rowcount > 0
+        
+        conn.commit()
+        conn.close()
+        
+        # Delete associated files if requested
+        if deleted and delete_files and job:
+            files_to_delete = [
+                job.get('download_path'),
+                job.get('transcript_path'),
+                job.get('srt_path'),
+                job.get('translation_path')
+            ]
+            
+            for file_path in files_to_delete:
+                if file_path and os.path.exists(file_path):
+                    try:
+                        os.remove(file_path)
+                    except Exception as e:
+                        print(f"Warning: Could not delete file {file_path}: {e}")
+        
+        return deleted

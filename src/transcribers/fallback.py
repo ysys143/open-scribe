@@ -171,7 +171,7 @@ class FallbackTranscriber(BaseTranscriber):
                         
                         if engine_idx > 0 or retry_count > 0:
                             fallback_reason = f"Fallback from failed engine" if engine_idx > 0 else f"Retry {retry_count}"
-                            print(f"\n✓ Chunk {chunk_index}: Success with {engine_name} ({fallback_reason})")
+                            print(f"\n[OK] Chunk {chunk_index}: Success with {engine_name} ({fallback_reason})")
                         
                         return ChunkResult(
                             index=chunk_index,
@@ -193,17 +193,17 @@ class FallbackTranscriber(BaseTranscriber):
                     if self._should_retry(error_type, retry_count):
                         retry_count += 1
                         delay = self._get_retry_delay(retry_count)
-                        print(f"\n⚠️ Chunk {chunk_index}: {engine_name} failed ({error_type}), retrying in {delay}s...")
+                        print(f"\n[WARNING] Chunk {chunk_index}: {engine_name} failed ({error_type}), retrying in {delay}s...")
                         time.sleep(delay)
                     else:
                         # Move to next engine
                         if engine_idx < len(self.ENGINE_CHAIN) - 1:
-                            print(f"\n⚠️ Chunk {chunk_index}: {engine_name} failed ({error_type}), trying fallback...")
+                            print(f"\n[WARNING] Chunk {chunk_index}: {engine_name} failed ({error_type}), trying fallback...")
                         break
         
         # All engines failed
         processing_time = time.time() - start_time
-        print(f"\n✗ Chunk {chunk_index}: All engines failed. Last error: {last_error}")
+        print(f"\n[FAILED] Chunk {chunk_index}: All engines failed. Last error: {last_error}")
         
         return ChunkResult(
             index=chunk_index,
@@ -351,27 +351,27 @@ class FallbackTranscriber(BaseTranscriber):
         
         # Display report
         print("\n" + "=" * 60)
-        print("📊 Transcription Quality Report")
+        print("== Transcription Quality Report ==")
         print("=" * 60)
-        print(f"✓ Successfully transcribed: {successful_chunks}/{total_chunks} chunks")
-        print(f"📈 Overall quality: {quality_score:.0f}% ({quality_rating})")
+        print(f"[OK] Successfully transcribed: {successful_chunks}/{total_chunks} chunks")
+        print(f"[QUALITY] Overall quality: {quality_score:.0f}% ({quality_rating})")
         
         if engine_counts:
-            print("\n🔧 Engine usage:")
+            print("\n[INFO] Engine usage:")
             for engine, count in sorted(engine_counts.items()):
                 quality = next((q for e, q, _ in self.ENGINE_CHAIN if e == engine), 'unknown')
                 percentage = (count / total_chunks) * 100
                 print(f"  - {engine} ({quality}): {count} chunks ({percentage:.0f}%)")
         
         if fallback_chunks:
-            print(f"\n⚠️ {len(fallback_chunks)} chunks used fallback:")
+            print(f"\n[WARNING] {len(fallback_chunks)} chunks used fallback:")
             for chunk_idx, reason in fallback_chunks[:5]:  # Show first 5
                 print(f"  - Chunk {chunk_idx + 1}: {reason}")
             if len(fallback_chunks) > 5:
                 print(f"  ... and {len(fallback_chunks) - 5} more")
         
         if quality_rating == "Degraded":
-            print("\n💡 Tip: Consider re-running with different settings or checking system resources")
+            print("\n[TIP] Consider re-running with different settings or checking system resources")
         
         print("=" * 60)
     
@@ -385,10 +385,10 @@ class FallbackTranscriber(BaseTranscriber):
             
             # Add quality indicator at chunk boundaries
             quality_marker = {
-                'high': '✓',
-                'medium': '⚠',
-                'low': '⚡',
-                'failed': '✗'
+                'high': '[OK]',
+                'medium': '[WARN]',
+                'low': '[FAST]',
+                'failed': '[FAIL]'
             }.get(result.quality_level, '')
             
             if quality_marker and result.index > 0:
