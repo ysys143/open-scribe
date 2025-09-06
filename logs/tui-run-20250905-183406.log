@@ -1,0 +1,628 @@
+[youtube] Extracting URL: https://youtu.be/Dm1V-ODwb1Q?si=ef8Fp212kP1yIpvj
+🎥 Starting transcription: https://youtu.be/Dm1V-ODwb1Q?si=ef8Fp212kP1yIpvj
+Engine: gpt-4o-mini-transcribe
+
+Extracting video information...
+Title: AI Breakfast S2 | Episode 1 - AI의 판도를 뒤집다 : Google I/O 2025 클라우드 업데이트 (Part 1)
+Duration: 1447 seconds
+Uploader: Google Cloud APAC
+
+Downloading audio...
+Downloading audio from YouTube...
+[youtube] Dm1V-ODwb1Q: Downloading webpage
+[youtube] Dm1V-ODwb1Q: Downloading tv simply player API JSON
+[youtube] Dm1V-ODwb1Q: Downloading tv client config
+[youtube] Dm1V-ODwb1Q: Downloading tv player API JSON
+[info] Dm1V-ODwb1Q: Downloading 1 format(s): 251
+[download] Sleeping 5.00 seconds as required by the site...
+[download] Destination: /Users/jaesolshin/Documents/GitHub/yt-trans/audio/AI Breakfast S2 ｜ Episode 1 - AI의 판도를 뒤집다 ： Google I⧸O 2025 클라우드 업데이트 (Part 1) [Dm1V-ODwb1Q].webm
+
+[download]   0.0% of   18.96MiB at  122.25KiB/s ETA 02:39
+[download]   0.0% of   18.96MiB at  339.14KiB/s ETA 00:57
+[download]   0.0% of   18.96MiB at  770.51KiB/s ETA 00:25
+[download]   0.1% of   18.96MiB at    1.58MiB/s ETA 00:11
+[download]   0.2% of   18.96MiB at  168.25KiB/s ETA 01:55
+[download]   0.3% of   18.96MiB at  183.16KiB/s ETA 01:45
+[download]   0.7% of   18.96MiB at  239.83KiB/s ETA 01:20
+[download]   1.3% of   18.96MiB at  345.17KiB/s ETA 00:55
+[download]   2.6% of   18.96MiB at  493.21KiB/s ETA 00:38
+[download]   5.3% of   18.96MiB at  795.18KiB/s ETA 00:23
+[download]  10.5% of   18.96MiB at    1.25MiB/s ETA 00:13
+[download]  21.1% of   18.96MiB at    2.10MiB/s ETA 00:07
+[download]  42.2% of   18.96MiB at    3.36MiB/s ETA 00:03
+[download]  50.9% of   18.96MiB at    3.95MiB/s ETA 00:02
+[download]  50.9% of   18.96MiB at  Unknown B/s ETA Unknown
+[download]  50.9% of   18.96MiB at  Unknown B/s ETA Unknown
+[download]  50.9% of   18.96MiB at  Unknown B/s ETA Unknown
+[download]  51.0% of   18.96MiB at  Unknown B/s ETA Unknown
+[download]  51.0% of   18.96MiB at   26.49MiB/s ETA 00:00  
+[download]  51.2% of   18.96MiB at   39.90MiB/s ETA 00:00
+[download]  51.5% of   18.96MiB at   68.83MiB/s ETA 00:00
+[download]  52.2% of   18.96MiB at  117.79MiB/s ETA 00:00
+[download]  53.5% of   18.96MiB at    1.76MiB/s ETA 00:05
+[download]  56.1% of   18.96MiB at    3.37MiB/s ETA 00:02
+[download]  61.4% of   18.96MiB at    6.25MiB/s ETA 00:01
+[download]  72.0% of   18.96MiB at   10.85MiB/s ETA 00:00
+[download]  93.1% of   18.96MiB at   11.87MiB/s ETA 00:00
+[download] 100.0% of   18.96MiB at   12.33MiB/s ETA 00:00
+[download] 100% of   18.96MiB in 00:00:04 at 4.51MiB/s   
+[ExtractAudio] Destination: /Users/jaesolshin/Documents/GitHub/yt-trans/audio/AI Breakfast S2 ｜ Episode 1 - AI의 판도를 뒤집다 ： Google I⧸O 2025 클라우드 업데이트 (Part 1) [Dm1V-ODwb1Q].mp3
+Audio downloaded: AI Breakfast S2 ｜ Episode 1 - AI의 판도를 뒤집다 ： Google I⧸O 2025 클라우드 업데이트 (Part 1) [Dm1V-ODwb1Q].mp3
+
+Transcribing with gpt-4o-mini-transcribe...
+[GPT-4o-mini] Processing: /Users/jaesolshin/Documents/GitHub/yt-trans/audio/AI Breakfast S2 ｜ Episode 1 - AI의 판도를 뒤집다 ： Google I⧸O 2025 클라우드 업데이트 (Part 1) [Dm1V-ODwb1Q].mp3
+[GPT-4o-mini] Using hybrid mode for accurate timestamps...
+[Hybrid] Step 1: Fetching YouTube transcript with timestamps...
+Found manual transcript in en
+[Hybrid] Step 2: Getting high-quality transcription from gpt-4o-mini-transcribe...
+[GPT-4o-mini] Processing: /Users/jaesolshin/Documents/GitHub/yt-trans/audio/AI Breakfast S2 ｜ Episode 1 - AI의 판도를 뒤집다 ： Google I⧸O 2025 클라우드 업데이트 (Part 1) [Dm1V-ODwb1Q].mp3
+[Audio] File size (33.1MB) exceeds limit (25MB). Compressing...
+[Audio] Compressed to 11.0MB using 64k bitrate
+
+[GPT-4o-mini] Transcribing: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0.0% (0s/33s)          
+[GPT-4o-mini] Transcribing: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0.3% (0s/33s)          
+[GPT-4o-mini] Transcribing: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0.6% (0s/33s)          
+[GPT-4o-mini] Transcribing: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0.9% (0s/33s)          
+[GPT-4o-mini] Transcribing: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 1.1% (0s/33s)          
+[GPT-4o-mini] Transcribing: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 1.4% (0s/33s)          
+[GPT-4o-mini] Transcribing: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 1.7% (0s/33s)          
+[GPT-4o-mini] Transcribing: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 2.0% (0s/33s)          
+[GPT-4o-mini] Transcribing: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 2.3% (0s/33s)          
+[GPT-4o-mini] Transcribing: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 2.5% (0s/33s)          
+[GPT-4o-mini] Transcribing: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 2.8% (1s/33s)          
+[GPT-4o-mini] Transcribing: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 3.1% (1s/33s)          
+[GPT-4o-mini] Transcribing: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 3.4% (1s/33s)          
+[GPT-4o-mini] Transcribing: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 3.7% (1s/33s)          
+[GPT-4o-mini] Transcribing: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 4.0% (1s/33s)          
+[GPT-4o-mini] Transcribing: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 4.2% (1s/33s)          
+[GPT-4o-mini] Transcribing: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 4.5% (1s/33s)          
+[GPT-4o-mini] Transcribing: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 4.8% (1s/33s)          
+[GPT-4o-mini] Transcribing: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 5.1% (1s/33s)          
+[GPT-4o-mini] Transcribing: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 5.4% (1s/33s)          
+[GPT-4o-mini] Transcribing: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 5.7% (2s/33s)          
+[GPT-4o-mini] Transcribing: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 5.9% (2s/33s)          
+[GPT-4o-mini] Transcribing: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 6.2% (2s/33s)          
+[GPT-4o-mini] Transcribing: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 6.5% (2s/33s)          
+[GPT-4o-mini] Transcribing: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 6.8% (2s/33s)          
+[GPT-4o-mini] Transcribing: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 7.1% (2s/33s)          
+[GPT-4o-mini] Transcribing: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 7.4% (2s/33s)          
+[GPT-4o-mini] Transcribing: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 7.6% (2s/33s)          
+[GPT-4o-mini] Transcribing: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 7.9% (2s/33s)          
+[GPT-4o-mini] Transcribing: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 8.2% (3s/33s)          
+[GPT-4o-mini] Transcribing: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 8.5% (3s/33s)          
+[GPT-4o-mini] Transcribing: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 8.8% (3s/33s)          
+[GPT-4o-mini] Transcribing: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 9.0% (3s/33s)          
+[GPT-4o-mini] Transcribing: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 9.3% (3s/33s)          
+[GPT-4o-mini] Transcribing: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 9.6% (3s/33s)          
+[GPT-4o-mini] Transcribing: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 9.9% (3s/33s)          
+[GPT-4o-mini] Transcribing: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░] 10.2% (3s/33s)          
+[GPT-4o-mini] Transcribing: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░] 10.5% (3s/33s)          
+[GPT-4o-mini] Transcribing: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░] 10.7% (3s/33s)          
+[GPT-4o-mini] Transcribing: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░] 11.0% (4s/33s)          
+[GPT-4o-mini] Transcribing: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░] 11.3% (4s/33s)          
+[GPT-4o-mini] Transcribing: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░] 11.6% (4s/33s)          
+[GPT-4o-mini] Transcribing: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░] 11.9% (4s/33s)          
+[GPT-4o-mini] Transcribing: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░] 12.1% (4s/33s)          
+[GPT-4o-mini] Transcribing: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░] 12.4% (4s/33s)          
+[GPT-4o-mini] Transcribing: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░] 12.7% (4s/33s)          
+[GPT-4o-mini] Transcribing: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░] 13.0% (4s/33s)          
+[GPT-4o-mini] Transcribing: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░] 13.3% (4s/33s)          
+[GPT-4o-mini] Transcribing: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 13.6% (4s/33s)          
+[GPT-4o-mini] Transcribing: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 13.9% (5s/33s)          
+[GPT-4o-mini] Transcribing: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 14.1% (5s/33s)          
+[GPT-4o-mini] Transcribing: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 14.4% (5s/33s)          
+[GPT-4o-mini] Transcribing: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 14.7% (5s/33s)          
+[GPT-4o-mini] Transcribing: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 15.0% (5s/33s)          
+[GPT-4o-mini] Transcribing: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 15.3% (5s/33s)          
+[GPT-4o-mini] Transcribing: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 15.6% (5s/33s)          
+[GPT-4o-mini] Transcribing: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 15.8% (5s/33s)          
+[GPT-4o-mini] Transcribing: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 16.1% (5s/33s)          
+[GPT-4o-mini] Transcribing: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 16.4% (6s/33s)          
+[GPT-4o-mini] Transcribing: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 16.7% (6s/33s)          
+[GPT-4o-mini] Transcribing: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 17.0% (6s/33s)          
+[GPT-4o-mini] Transcribing: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 17.3% (6s/33s)          
+[GPT-4o-mini] Transcribing: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 17.5% (6s/33s)          
+[GPT-4o-mini] Transcribing: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 17.8% (6s/33s)          
+[GPT-4o-mini] Transcribing: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 18.1% (6s/33s)          
+[GPT-4o-mini] Transcribing: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 18.4% (6s/33s)          
+[GPT-4o-mini] Transcribing: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 18.7% (6s/33s)          
+[GPT-4o-mini] Transcribing: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 19.0% (6s/33s)          
+[GPT-4o-mini] Transcribing: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 19.3% (7s/33s)          
+[GPT-4o-mini] Transcribing: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 19.5% (7s/33s)          
+[GPT-4o-mini] Transcribing: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 19.8% (7s/33s)          
+[GPT-4o-mini] Transcribing: [██████░░░░░░░░░░░░░░░░░░░░░░░░] 20.1% (7s/33s)          
+[GPT-4o-mini] Transcribing: [██████░░░░░░░░░░░░░░░░░░░░░░░░] 20.4% (7s/33s)          
+[GPT-4o-mini] Transcribing: [██████░░░░░░░░░░░░░░░░░░░░░░░░] 20.7% (7s/33s)          
+[GPT-4o-mini] Transcribing: [██████░░░░░░░░░░░░░░░░░░░░░░░░] 20.9% (7s/33s)          
+[GPT-4o-mini] Transcribing: [██████░░░░░░░░░░░░░░░░░░░░░░░░] 21.2% (7s/33s)          
+[GPT-4o-mini] Transcribing: [██████░░░░░░░░░░░░░░░░░░░░░░░░] 21.5% (7s/33s)          
+[GPT-4o-mini] Transcribing: [██████░░░░░░░░░░░░░░░░░░░░░░░░] 21.8% (8s/33s)          
+[GPT-4o-mini] Transcribing: [██████░░░░░░░░░░░░░░░░░░░░░░░░] 22.1% (8s/33s)          
+[GPT-4o-mini] Transcribing: [██████░░░░░░░░░░░░░░░░░░░░░░░░] 22.3% (8s/33s)          
+[GPT-4o-mini] Transcribing: [██████░░░░░░░░░░░░░░░░░░░░░░░░] 22.6% (8s/33s)          
+[GPT-4o-mini] Transcribing: [██████░░░░░░░░░░░░░░░░░░░░░░░░] 22.9% (8s/33s)          
+[GPT-4o-mini] Transcribing: [██████░░░░░░░░░░░░░░░░░░░░░░░░] 23.2% (8s/33s)          
+[GPT-4o-mini] Transcribing: [███████░░░░░░░░░░░░░░░░░░░░░░░] 23.5% (8s/33s)          
+[GPT-4o-mini] Transcribing: [███████░░░░░░░░░░░░░░░░░░░░░░░] 23.7% (8s/33s)          
+[GPT-4o-mini] Transcribing: [███████░░░░░░░░░░░░░░░░░░░░░░░] 24.0% (8s/33s)          
+[GPT-4o-mini] Transcribing: [███████░░░░░░░░░░░░░░░░░░░░░░░] 24.3% (8s/33s)          
+[GPT-4o-mini] Transcribing: [███████░░░░░░░░░░░░░░░░░░░░░░░] 24.6% (9s/33s)          
+[GPT-4o-mini] Transcribing: [███████░░░░░░░░░░░░░░░░░░░░░░░] 24.9% (9s/33s)          
+[GPT-4o-mini] Transcribing: [███████░░░░░░░░░░░░░░░░░░░░░░░] 25.2% (9s/33s)          
+[GPT-4o-mini] Transcribing: [███████░░░░░░░░░░░░░░░░░░░░░░░] 25.4% (9s/33s)          
+[GPT-4o-mini] Transcribing: [███████░░░░░░░░░░░░░░░░░░░░░░░] 25.7% (9s/33s)          
+[GPT-4o-mini] Transcribing: [███████░░░░░░░░░░░░░░░░░░░░░░░] 26.0% (9s/33s)          
+[GPT-4o-mini] Transcribing: [███████░░░░░░░░░░░░░░░░░░░░░░░] 26.3% (9s/33s)          
+[GPT-4o-mini] Transcribing: [███████░░░░░░░░░░░░░░░░░░░░░░░] 26.6% (9s/33s)          
+[GPT-4o-mini] Transcribing: [████████░░░░░░░░░░░░░░░░░░░░░░] 26.9% (9s/33s)          
+[GPT-4o-mini] Transcribing: [████████░░░░░░░░░░░░░░░░░░░░░░] 27.1% (9s/33s)          
+[GPT-4o-mini] Transcribing: [████████░░░░░░░░░░░░░░░░░░░░░░] 27.4% (10s/33s)          
+[GPT-4o-mini] Transcribing: [████████░░░░░░░░░░░░░░░░░░░░░░] 27.7% (10s/33s)          
+[GPT-4o-mini] Transcribing: [████████░░░░░░░░░░░░░░░░░░░░░░] 28.0% (10s/33s)          
+[GPT-4o-mini] Transcribing: [████████░░░░░░░░░░░░░░░░░░░░░░] 28.3% (10s/33s)          
+[GPT-4o-mini] Transcribing: [████████░░░░░░░░░░░░░░░░░░░░░░] 28.6% (10s/33s)          
+[GPT-4o-mini] Transcribing: [████████░░░░░░░░░░░░░░░░░░░░░░] 28.8% (10s/33s)          
+[GPT-4o-mini] Transcribing: [████████░░░░░░░░░░░░░░░░░░░░░░] 29.1% (10s/33s)          
+[GPT-4o-mini] Transcribing: [████████░░░░░░░░░░░░░░░░░░░░░░] 29.4% (10s/33s)          
+[GPT-4o-mini] Transcribing: [████████░░░░░░░░░░░░░░░░░░░░░░] 29.7% (10s/33s)          
+[GPT-4o-mini] Transcribing: [████████░░░░░░░░░░░░░░░░░░░░░░] 30.0% (11s/33s)          
+[GPT-4o-mini] Transcribing: [█████████░░░░░░░░░░░░░░░░░░░░░] 30.3% (11s/33s)          
+[GPT-4o-mini] Transcribing: [█████████░░░░░░░░░░░░░░░░░░░░░] 30.5% (11s/33s)          
+[GPT-4o-mini] Transcribing: [█████████░░░░░░░░░░░░░░░░░░░░░] 30.8% (11s/33s)          
+[GPT-4o-mini] Transcribing: [█████████░░░░░░░░░░░░░░░░░░░░░] 31.1% (11s/33s)          
+[GPT-4o-mini] Transcribing: [█████████░░░░░░░░░░░░░░░░░░░░░] 31.4% (11s/33s)          
+[GPT-4o-mini] Transcribing: [█████████░░░░░░░░░░░░░░░░░░░░░] 31.7% (11s/33s)          
+[GPT-4o-mini] Transcribing: [█████████░░░░░░░░░░░░░░░░░░░░░] 31.9% (11s/33s)          
+[GPT-4o-mini] Transcribing: [█████████░░░░░░░░░░░░░░░░░░░░░] 32.2% (11s/33s)          
+[GPT-4o-mini] Transcribing: [█████████░░░░░░░░░░░░░░░░░░░░░] 32.5% (11s/33s)          
+[GPT-4o-mini] Transcribing: [█████████░░░░░░░░░░░░░░░░░░░░░] 32.8% (12s/33s)          
+[GPT-4o-mini] Transcribing: [█████████░░░░░░░░░░░░░░░░░░░░░] 33.1% (12s/33s)          
+[GPT-4o-mini] Transcribing: [██████████░░░░░░░░░░░░░░░░░░░░] 33.4% (12s/33s)          
+[GPT-4o-mini] Transcribing: [██████████░░░░░░░░░░░░░░░░░░░░] 33.6% (12s/33s)          
+[GPT-4o-mini] Transcribing: [██████████░░░░░░░░░░░░░░░░░░░░] 33.9% (12s/33s)          
+[GPT-4o-mini] Transcribing: [██████████░░░░░░░░░░░░░░░░░░░░] 34.2% (12s/33s)          
+[GPT-4o-mini] Transcribing: [██████████░░░░░░░░░░░░░░░░░░░░] 34.5% (12s/33s)          
+[GPT-4o-mini] Transcribing: [██████████░░░░░░░░░░░░░░░░░░░░] 34.8% (12s/33s)          
+[GPT-4o-mini] Transcribing: [██████████░░░░░░░░░░░░░░░░░░░░] 35.1% (12s/33s)          
+[GPT-4o-mini] Transcribing: [██████████░░░░░░░░░░░░░░░░░░░░] 35.3% (13s/33s)          
+[GPT-4o-mini] Transcribing: [██████████░░░░░░░░░░░░░░░░░░░░] 35.6% (13s/33s)          
+[GPT-4o-mini] Transcribing: [██████████░░░░░░░░░░░░░░░░░░░░] 35.9% (13s/33s)          
+[GPT-4o-mini] Transcribing: [██████████░░░░░░░░░░░░░░░░░░░░] 36.2% (13s/33s)          
+[GPT-4o-mini] Transcribing: [██████████░░░░░░░░░░░░░░░░░░░░] 36.5% (13s/33s)          
+[GPT-4o-mini] Transcribing: [███████████░░░░░░░░░░░░░░░░░░░] 36.7% (13s/33s)          
+[GPT-4o-mini] Transcribing: [███████████░░░░░░░░░░░░░░░░░░░] 37.0% (13s/33s)          
+[GPT-4o-mini] Transcribing: [███████████░░░░░░░░░░░░░░░░░░░] 37.3% (13s/33s)          
+[GPT-4o-mini] Transcribing: [███████████░░░░░░░░░░░░░░░░░░░] 37.6% (13s/33s)          
+[GPT-4o-mini] Transcribing: [███████████░░░░░░░░░░░░░░░░░░░] 37.9% (13s/33s)          
+[GPT-4o-mini] Transcribing: [███████████░░░░░░░░░░░░░░░░░░░] 38.2% (14s/33s)          
+[GPT-4o-mini] Transcribing: [███████████░░░░░░░░░░░░░░░░░░░] 38.4% (14s/33s)          
+[GPT-4o-mini] Transcribing: [███████████░░░░░░░░░░░░░░░░░░░] 38.7% (14s/33s)          
+[GPT-4o-mini] Transcribing: [███████████░░░░░░░░░░░░░░░░░░░] 39.0% (14s/33s)          
+[GPT-4o-mini] Transcribing: [███████████░░░░░░░░░░░░░░░░░░░] 39.3% (14s/33s)          
+[GPT-4o-mini] Transcribing: [███████████░░░░░░░░░░░░░░░░░░░] 39.6% (14s/33s)          
+[GPT-4o-mini] Transcribing: [███████████░░░░░░░░░░░░░░░░░░░] 39.9% (14s/33s)          
+[GPT-4o-mini] Transcribing: [████████████░░░░░░░░░░░░░░░░░░] 40.1% (14s/33s)          
+[GPT-4o-mini] Transcribing: [████████████░░░░░░░░░░░░░░░░░░] 40.4% (14s/33s)          
+[GPT-4o-mini] Transcribing: [████████████░░░░░░░░░░░░░░░░░░] 40.7% (14s/33s)          
+[GPT-4o-mini] Transcribing: [████████████░░░░░░░░░░░░░░░░░░] 41.0% (15s/33s)          
+[GPT-4o-mini] Transcribing: [████████████░░░░░░░░░░░░░░░░░░] 41.3% (15s/33s)          
+[GPT-4o-mini] Transcribing: [████████████░░░░░░░░░░░░░░░░░░] 41.5% (15s/33s)          
+[GPT-4o-mini] Transcribing: [████████████░░░░░░░░░░░░░░░░░░] 41.8% (15s/33s)          
+[GPT-4o-mini] Transcribing: [████████████░░░░░░░░░░░░░░░░░░] 42.1% (15s/33s)          
+[GPT-4o-mini] Transcribing: [████████████░░░░░░░░░░░░░░░░░░] 42.4% (15s/33s)          
+[GPT-4o-mini] Transcribing: [████████████░░░░░░░░░░░░░░░░░░] 42.7% (15s/33s)          
+[GPT-4o-mini] Transcribing: [████████████░░░░░░░░░░░░░░░░░░] 43.0% (15s/33s)          
+[GPT-4o-mini] Transcribing: [████████████░░░░░░░░░░░░░░░░░░] 43.2% (15s/33s)          
+[GPT-4o-mini] Transcribing: [█████████████░░░░░░░░░░░░░░░░░] 43.5% (16s/33s)          
+[GPT-4o-mini] Transcribing: [█████████████░░░░░░░░░░░░░░░░░] 43.8% (16s/33s)          
+[GPT-4o-mini] Transcribing: [█████████████░░░░░░░░░░░░░░░░░] 44.1% (16s/33s)          
+[GPT-4o-mini] Transcribing: [█████████████░░░░░░░░░░░░░░░░░] 44.4% (16s/33s)          
+                                                                                
+[GPT-4o-mini] Error: Error code: 400 - {'error': {'message': 'audio duration 1446.84 seconds is longer than 1400 seconds which is the maximum for this model', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_value'}}
+[Hybrid] Warning: GPT transcription failed, using YouTube transcript only
+[GPT-4o-mini] Streaming transcription...
+------------------------------------------------------------
+[00:00] [Episode1] What was your biggest takeaway from the overall
+atmosphere? [00:02] That Google is firmly in the driver's seat
+now. [00:04] That feeling was undeniable. [00:08] And it was
+clear across the entire product lineup that they're embedding these
+AI technologies [I agree] into absolutely everything. [00:15] It really
+drove home the point that AI is about to become
+a much bigger part of our daily lives. [00:21] That
+was my main takeaway. Welcome to AI Breakfast your Monday
+morning briefing. [00:35] Hello, I'm your host, Choi Chi Young
+a Google Cloud Developer Expert. [00:41] And a very warm
+welcome to our guest today Shin Hang Sik. Thanks for
+joining us. [00:44] It's great to be here. I'm Shin
+Hang Sik, and I work as an AI Specialist at
+Google. [00:50] Today, Hang Sik and I are going to
+unpack the big Cloud AI updates from Google I/O 2025.
+[00:59] We'll be focusing on the heavy hitters like Gemini
+2.5, Project Astra and the new generative media models. [01:05]
+We're going to dive into all the core tech. [01:09]
+[Google I/O 2025 Cloud AI Updates] So, Hang Sik, did
+you get a chance to watch the Cloud AI keynote
+from this year's Google I/O? [01:19] Oh, absolutely. It's our
+flagship event, so of course I was paying close attention.
+[01:24] You know, AI has been evolving at a breakneck
+pace for the past three or four years but this
+particular Google I/O [01:33] it felt like we witnessed a
+monumental leap forward. [01:35] What was your biggest takeaway from
+the overall atmosphere? [01:37] That Google is firmly in the
+driver's seat now. [01:40] That feeling was undeniable. [01:43] You
+have to remember, the I/O conference isn't strictly a Google
+Cloud event. [01:48] It was a showcase for how AI
+is being integrated into the entire Google ecosystem. [01:53] [I
+agree] You could see it across the board. It really
+solidified the idea that AI is no longer a futuristic
+concept. [02:00] It's becoming part of our daily reality. [Q.
+Google I/O 2025] Was there one product or announcement [02:04]
+[What was the most impressive product?] that really stood out
+to you? [02:06] If you had to pick just one,
+what would it be? Of course. [02:10] You know, at
+this year's I/O the team pulled out all the stops
+to show off the entire scope of Google's AI. [02:16]
+A huge amount of work went into that. [02:19] But
+if I had to choose, first up it would have
+to be the Gemini model. [02:22] Specifically, the new Gemini
+2.5. [02:24] It's based on a new "Thinking" architecture and
+has vastly improved multimodal capabilities. [02:30] So for businesses looking
+to use Gemini I expect they'll find it to be
+far more accurate and capable of solving extremely complex problems.
+[02:39] And then, of course, the other thing that had
+everyone talking was Project Astra. [02:45] Project Astra is basically
+a prototype that lays out Google's entire vision for the
+future of AI. [02:52] It’s their roadmap, in a way.
+When you look at Project Astra you're getting a sneak
+peek at the features and AI technologies that Google believes
+[03:01] are just around the corner. A prime example is
+its support for live real-time interaction which is powered by
+the Live API. [03:10] It enables natural, human-like communication. [03:14]
+We refer to this as multimodality. [03:16] It means you
+can speak to it and it can understand what it's
+"seeing" visually. [03:20] AI is now capable of all these
+things. [03:23] And that capability is at the very core
+of Project Astra. [03:26] So that's one major piece. Then
+you have the generative media models which were astounding, especially
+Veo. [03:32] The range of these models has become so
+much more diverse. [03:36] Now we can even generate music.
+[03:38] Of course, there's image generation which we've had for
+a while now with Imagen and now video with the
+release of Veo 3. [03:49] I see these media creation
+tools having a massive impact on the media industry as
+well as advertising and more. [03:56] I mean, the quality
+is just unreal, right? [03:59] [Agreed] Absolutely. It really is.
+[04:01] Next up Code Assistance. [04:04] On June 12th the
+new Code Assistance was released powered by Gemini 2.5. [04:10]
+This is going to be a huge help for developers,
+I think. [04:15] Specifically, it can handle a lot of
+the repetitive, tedious coding tasks. [04:21] With Code Assistance handling
+the grunt work developers can focus more of their time
+on high-level architecture and system design. [04:31] And then there's
+our productivity suite Workspace. [04:34] I'm sure a lot of
+our viewers use Gmail and that's a key part of
+it. [04:40] A whole suite of new AI features has
+been integrated into Workspace. [04:44] Moving forward, and it's already
+happening not just in Workspace but across all of Google's
+products I expect AI will be built right in. [04:53]
+And eventually, we'll see it integrated into our customers' products
+as well. [04:58] To give you a quick example within
+Gmail there's a feature that can reply to emails for
+you. [05:08] It analyzes the existing email thread and you
+just tell it "Reply with this info." It will then
+draft the entire email for you. [05:15] That level of
+personalization is going to be incredibly helpful. [05:20] So those
+features are now live in Workspace. [05:23] Also, it's safe
+to say this is the Year of the Agent. [05:27]
+And Google has to play a part in that. So
+we now have the ADK the Agent Development Kit, for
+A2A. [05:33] This was actually first introduced at Google Next
+the event we held back in April. [05:40] And we've
+open-sourced it. [05:42] The purpose of doing that of open-sourcing
+the kit is to grow the entire ecosystem the whole
+AI Agent ecosystem. [05:51] We see it as a symbiotic
+model a way for everyone to grow together. [05:55] The
+idea is to keep evolving make it easier for anyone
+to build an Agent and provide a helpful framework that
+benefits a wide range of companies. [06:03] That's the best
+way to think about it. And finally and this is
+fantastic news for developers we've released something called Firebase Studio.
+[06:12] It's a prototyping tool. [06:14] Any developer watching knows
+how crucial prototyping is in the development cycle. [06:19] Oh,
+absolutely. Because before the final product is built you need
+to see and interact with something that's close to the
+real thing. [06:27] It's how you communicate effectively. You can
+identify problems, for one and also brainstorm new features. [06:34]
+So that prototyping process which used to take a week,
+maybe ten days you can now do it in a
+matter of minutes. [06:41] That dramatically shortens the feedback loop.
+[06:44] The communication between developers and business teams that has
+always been a time-consuming and difficult process. [06:53] But this
+tool will massively boost productivity. [06:56] So yeah, those seven
+items were the big keywords from the event. [07:02] That's
+how I'd sum it up. Project Astra, in particular was
+a technology that completely blew me away. [07:09] For me
+too. I was just thinking, "I need to have this."
+That's the feeling I got. [07:13] I think you'll have
+it sooner than you think. [07:17] Alright, so now that
+we have the summary let's dive into the details. [07:21]
+Sounds good. [Google I/O: Google's new Gemini 2.5 Model] You
+touched on it earlier but there was a ton of
+news [07:30] about the new Gemini 2.5 Pro and Flash
+models. [07:32] The buzz was pretty significant. Hang Sik, in
+your opinion what was it about the Gemini 2.5 Pro
+announcement [07:41] [Q. Why is Gemini 2.5] that really made
+the world [getting so much attention?] sit up and take
+notice? [07:47] Well, you're right to ask. The 2.5 model
+is incredibly significant for us at Google. [07:53] To put
+it simply a lot of people are probably familiar with
+tools designed for deep research. [08:00] We're talking about tasks
+that require very complex, nuanced reasoning. [08:09] Gemini 2.5 is
+the new foundation the core engine that enables that level
+of deep thought. [08:15] Specifically, with this 2.5 model the
+LLM itself has evolved into what we call a "Thinking
+model." So, what exactly is a Thinking model? [08:25] [A
+framework or process for problem-solving] The models we've used up
+to now [08:28] [decision-making, and creative thinking] have mostly been
+"Instruction models." [There are many types, like Design Thinking, etc.]
+What that means is [08:31] [It helps systematize the thought
+process] when you ask a question [and find efficient solutions]
+or give it an instruction [08:35] you get an immediate
+answer, right? It just generates a direct response. [08:39] A
+Thinking model is different. It's been pre-trained to reason step-by-step
+or to think more deeply about a problem before responding.
+[08:48] That's the best way to understand the shift. [08:50]
+Ultimately it means we now have an AI model that
+can solve far more complex problems with ease. [08:58] So
+for the average person could Gemini 2.5 Pro help them
+with something like studying the stock market? [09:07] Exactly. Not
+just the stock market but it can be used to
+solve a huge variety of problems. [09:14] And if you
+ask why, all of a sudden this "Thinking model" has
+become such a hot topic it's because businesses are now
+looking to use AI [09:25] to boost productivity and efficiency.
+[09:30] Another huge announcement we saw was Code Assistance, right?
+[09:36] Within the enterprise, improving productivity for cost reduction has
+become a key objective. [09:42] And to handle those complex
+business tasks you need a Thinking model like this. [09:47]
+By using this "deep thinking" technology they can achieve much,
+much better results. [09:56] [Google I/O: New capabilities in Google
+Workspace] And through Gemini [Q. What new capabilities are in]
+I heard the personalization features [10:03] [Google Workspace?] have been
+significantly enhanced. Could you tell us a little bit about
+those features as well? [10:08] Of course. Personalization is a
+critical piece of any professional tool. [10:13] It's only through
+personalization that you can really elevate the customer experience. [10:19]
+It's the key to making users feel like the product
+truly understands them. [10:26] And that brings us to our
+product, Workspace. [10:29] Right. We call these collaboration tools. [10:33]
+They help you get work done by communicating with many
+different people. [10:38] And Gmail is just one product in
+the Workspace suite. [10:41] So, for example, a personalization feature
+in Gmail can analyze the emails I've exchanged with someone
+in the past. [10:50] Then, when I ask it to
+draft a new email it references that entire thread and
+crafts a personalized reply that matches my specific writing style.
+[11:01] It literally writes it for me. That's a powerful
+example of personalization in action. [11:06] So, Gemini can just
+draft and send emails for me, just like that? [11:10]
+That's right. But, you know, there's a fine line there.
+[11:13] If it keeps doing my work for me you
+could argue it's replacing me, right? [11:19] And that's why
+the focus of AI's evolution is always on its role
+as an assistant. [11:24] It's meant to augment, not replace.
+[11:30] So it seems the Thinking model was really the
+centerpiece announcement - wouldn't you say? - Absolutely. [11:36] I
+heard that the Thinking model is designed to mimic the
+way a person thinks and plans out a process. [11:44]
+With this new model, people are saying [Q. What enables
+the Thinking model's] "AI has finally started to think." [11:50]
+[self-reasoning process?] What makes this deeper level of reasoning possible
+now? [11:55] Could you explain that in more detail? [11:58]
+The key to all of this lies in the model's
+training process. [12:03] Typically, an instruction model is trained on
+a massive corpus of data and learns to give an
+immediate answer. [12:13] But with this pre-trained model we go
+through a process called supervised fine-tuning. [12:26] And during that
+stage we add data that models the "thinking" process. [12:31]
+So later, when it generates a response and it receives
+a complex query it's been trained to follow that same
+thinking process. [12:40] So if the model gets a certain
+type of request it will follow the appropriate reasoning steps
+to formulate its answer. [12:51] So where it used to
+"think" once it now "thinks" multiple times which ultimately leads
+to a much more accurate and well-reasoned answer. [12:59] That's
+the core of the model. That's genuinely fascinating. [13:02] So,
+in essence, AI models are evolving with enhanced reasoning and
+planning skills advanced multimodality and live communication [13:13] and a
+greater focus on on-device and open-source models. [13:17] Is it
+fair to say [Evolving in a good direction?] it's evolving
+in that positive direction? [13:21] Exactly! So for those who
+might not be familiar with [Q. Explain Multimodality and Thinking
+models] the terms "Thinking model" and "multimodality" [13:28] could you
+break those down for us? Sure. [13:31] The Thinking model,
+as a concept has been a trending topic since the
+beginning of the year. [13:37] As I mentioned it's a
+model that is commanded and trained to think more deeply.
+[13:47] What makes Gemini special is that it combines this
+Thinking model with multimodality. [13:50] It offers both capabilities at
+the same time. [13:53] And that's what we announced with
+2.5. [13:57] So, we've covered the Thinking model. [14:00] It's
+a model specifically trained for deep, reasoned thought. [14:05] So
+then, what is multimodality? [An AI that, like humans perceiving
+objects] Simply put, multimodality [14:09] [through various senses, learns different
+types] allows a user [of sensory or modal information through
+multiple] to interact with AI in the same way [14:13]
+[specialized interfaces and is designed to think] they communicate with
+a person. Just like how we're talking now it incorporates
+voice [14:18] and it can perceive the visual context it
+understands the situation. [14:22] Of course, it can also process
+text and it can read documents. [14:26] These are all
+things humans can do. [14:29] So what should an AI
+be able to do? [14:32] It should be able to
+do the things humans do. [14:35] And that's why multimodality
+is so incredibly important. [14:38] And on top of that
+you add the ability to think deeply. [14:41] These two
+capabilities starting with version 2.5 are now significantly enhanced. [14:47]
+That's the main takeaway. So, it sounds like Google I/O
+2025 marked the moment when AI finally gained the ability
+to truly think for itself. [14:59] Would that be an
+accurate summary? Well, it's had the ability for a while
+but now [15:04] it provides a much more powerful and
+enhanced version of that capability. [15:06] That's the best way
+to see it. The Thinking model was actually first introduced
+with version 2.0. [15:12] Early this year, actually. Back then,
+we didn't have a single representative foundation model so it
+was expressed as [15:23] a separate "Thinking model" for Gemini
+2.0. But now, everything is integrated into a single, unified
+model. [15:29] You know, I've been talking a lot about
+Gemini 2.5 today. [15:34] But if it's just Google saying
+it with no point of comparison it might be hard
+for users to believe. [15:42] So I brought some data
+from a reputable third-party website to share their evaluation. [15:48]
+I've got a couple of links here. [15:50] I'll show
+you two links. [15:52] The first is from a site
+we often talk about in the AI space called LM
+Arena. [15:57] It's a well-known information source in the field.
+[16:00] If we take a quick look at the screen
+you can see the Arena Overview here. [16:05] And right
+at the very top is Gemini 2.5. [16:10] It's number
+one across the board. [16:12] Until early this year whenever
+competitors like OpenAI released a new model this ranking would
+constantly change. [16:22] But since Google Next, it hasn't budged.
+[16:25] For nearly two months now Gemini 2.5 Pro has
+remained at the top. [16:31] And frankly, I think it's
+going to be very difficult to see that change anytime
+soon. [16:35] That's my prediction. [16:37] And I've repeatedly mentioned
+the Thinking model today, right? [16:42] The area where Thinking
+models have been most commonly used is in the domain
+of deep research. [16:48] This can be applied to many
+fields like stock analysis and so on. [16:52] It's a
+model capable of incredibly in-depth analysis. [16:55] And in that
+category too, Gemini 2.5 Pro is consistently ranked at the
+top. [17:02] I think this data reflects the market's more
+positive perception of Google AI since Google Next and I/O.
+[17:11] It's a strong market evaluation. And I believe the
+anticipation for this momentum to continue is only growing stronger.
+[17:21] [Project Astra: A Glimpse into the Future of Google
+AI] One of the products I was keeping an eye
+on [17:28] was Project Astra. It was so incredibly impressive.
+[17:31] It really takes me back to that movie, Her.
+[17:34] Do you remember it? [17:37] It feels like the
+AI from that film is actually starting to become reality.
+[17:42] [Q. A brief explanation of Project Astra] That's the
+thought that crossed my mind. [17:45] - What do you
+think, Hang Sik? - Yes. [17:48] It was truly astonishing.
+And actually, this has been in the works since last
+year. [17:53] To briefly explain Project Astra [As a next-gen
+AI assistant] it's a vision of AI as Google sees
+it. [18:00] [deeply integrated into a user's daily life] It's
+what we call AGI [designed to understand] Artificial General Intelligence.
+[18:05] [and respond to needs in real time] There's a
+level known as the AGI level. [18:07] And once we
+reach that AGI level we'll have an AI that is
+truly identical to humans or perhaps even more advanced. [18:16]
+Maybe "advanced" is the wrong word but certainly, far more
+intelligent than humans. [18:22] These are the kinds of models
+we've only seen in movies. [18:25] Project Astra is the
+prototype for that. [18:28] So, what does Project Astra show
+us? [18:32] It shows us the future of AI that
+Google is dreaming of and building. [18:37] And within that
+vision I have to stress again the ability to communicate
+like a human through multimodality is a given. [18:47] If
+AI can think and act so autonomously then it seems
+to me that the ethical guardrails will have to be
+much stronger. [18:58] I think it was Elon Musk who
+once said that AI is more dangerous than nukes. [19:04]
+What do you make of a comment like that? [19:08]
+It's a valid concern. I mean, throughout human history we've
+faced disruptive new technologies. [19:14] But personally, I'm optimistic that
+we'll find a way to solve these challenges, too. [19:21]
+When we look at AI there's a lot of anxiety,
+isn't there? [19:25] But on the other hand, there's also
+a great deal of excitement. [19:28] After this year's Google
+I/O I think many people feel that AI is much
+closer to home. [19:35] Every technology has had its pros
+and cons and we've always strived to use them in
+a way that benefits humanity. [19:47] It all depends on
+how we choose to use it. That's what I believe.
+[19:51] In that case, could Gemini be used in a
+hospital setting, for example? Are there applications there? [19:58] Healthcare
+is a massive field for this. [20:00] In fact, machine
+learning and AI have been discussed in healthcare for quite
+some time. [20:08] The field deals with enormous amounts of
+data and there are distinct patterns, right? [20:14] Disease patterns,
+for instance. AI can be incredibly helpful in identifying and
+understanding those. [20:21] And personal information would be kept completely
+secure, of course? [20:25] Of course. As I mentioned, the
+major vendors are extremely sensitive about that. [20:31] Because one
+mistake can create a huge societal issue a major societal
+problem. [20:40] Privacy compliance, regulation... [20:45] If you're not meticulous
+about those things it's nearly impossible to gain a leading
+position in the market. [20:57] [Q. Can Project Astra be
+built] You also mentioned something called the Live API. [20:59]
+[using the Live API?] That's right. What is that exactly?
+[21:03] It's actually a technology that's inherent in everything I've
+been discussing. [21:07] [Supports bidirectional voice and video] The Live
+API connects directly to what we call [21:10] [interaction with
+Gemini with low latency] our foundation model. [21:13] [Use the
+Live API to provide end-users with] In this case, that
+would be Gemini. [21:14] [natural voice conversation experiences] We refer
+to something like Gemini [and the ability to interrupt] as
+a foundation model. [21:18] [the model's response using voice commands]
+The Live API allows things like voice or real-time video
+streaming [21:24] to be fed directly into the model in
+real time. It's a technology that allows for a direct
+feed into the model. [21:30] What does that mean in
+practice? It means you can issue commands with your voice
+or you can take what you're seeing through a camera
+[21:36] and send it directly to the model to ask
+a question or to make something happen. [21:42] What do
+we usually call this part? On the whiteboard the user's
+arrow points to "LBP" which stands for the load balancer.
+[21:53] Project Astra, which I mentioned earlier is being built
+on top of this Live API. [21:58] So, you could
+build your own version of Project Astra using the Live
+API? [22:04] Yes, you could develop that kind of experience
+using the Live API. [22:10] If you watch the Project
+Astra demo video you'll see what I mean. [22:16] All
+of these capabilities are already being put into practice. [22:20]
+With enterprise clients in fact, just today I was meeting
+with customers to discuss the Live API. [22:28] This isn't
+some far-off future tech. [22:31] You mentioned the movie Her
+earlier... [22:34] well, that reality is on the verge of
+being commercialized. [22:37] I think it's safe to say that
+now. [22:39] That makes me wonder what kinds of products
+are businesses looking to build with something like Project Astra?
+[22:48] Often, it will be products integrated into hardware. [22:52]
+Like the recently launched Android XR Glasses. [22:58] The video
+feed is on in real-time allowing the device to perceive
+the current situation. [23:04] Based on that situational awareness it
+combines that information with the questions I'm asking to provide
+an answer. [23:12] This is something you can do right
+now. [23:15] Anyone with a laptop can go to "aistudio.google.com"
+right now and use their own camera's live stream to
+try this out for themselves. [23:30] It's free to use
+for now so I highly recommend giving it a try.
+[23:34] Yes, definitely. I'll definitely have to try that. [23:40]
+Here's the response. This is actually an Agent I built
+earlier. [23:43] I'm not kidding, you have to trust me.
+I put it together really quickly which just shows how
+capable these tools are. [23:48] So, who's the best at
+AI? [23:51] [Flustered] Well... That's why Google announced the ADK
+at Google Next back in April. [23:57] I suspect it's
+going to become the easiest tool for developers to use.
+[24:03] That's what I'm thinking.
+------------------------------------------------------------
+
+Transcript saved: /Users/jaesolshin/Documents/GitHub/yt-trans/transcript/AI_Breakfast_S2_Episode_1_-_AI의_판도를_뒤집다_Google_I_O_2025_클라우드_업데이트_Part_1.txt
+
+⚡ Generating summary...
+Generating summary with gpt-5-mini...
+Summary generated successfully
+Summary saved: /Users/jaesolshin/Documents/GitHub/yt-trans/transcript/AI_Breakfast_S2_Episode_1_-_AI의_판도를_뒤집다_Google_I_O_2025_클라우드_업데이트_Part_1_summary.txt
+Summary copied to: /Users/jaesolshin/Downloads/AI_Breakfast_S2_Episode_1_-_AI의_판도를_뒤집다_Google_I_O_2025_클라우드_업데이트_Part_1_summary.txt
+
+Transcript copied to: /Users/jaesolshin/Downloads/AI_Breakfast_S2_Episode_1_-_AI의_판도를_뒤집다_Google_I_O_2025_클라우드_업데이트_Part_1.txt
+
+✅ Transcription completed successfully!

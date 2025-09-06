@@ -29,19 +29,14 @@ class Config:
     BASE_PATH = Path(os.getenv('OPEN_SCRIBE_BASE_PATH', 
                                os.path.expanduser('~/Documents/open-scribe')))
     
-    # Specific paths
-    AUDIO_PATH = Path(os.getenv('OPEN_SCRIBE_AUDIO_PATH', 
-                                BASE_PATH / 'audio'))
-    VIDEO_PATH = Path(os.getenv('OPEN_SCRIBE_VIDEO_PATH', 
-                                BASE_PATH / 'video'))
-    TRANSCRIPT_PATH = Path(os.getenv('OPEN_SCRIBE_TRANSCRIPT_PATH', 
-                                     BASE_PATH / 'transcript'))
-    TEMP_PATH = Path(os.getenv('OPEN_SCRIBE_TEMP_PATH', 
-                               BASE_PATH / 'temp_audio'))
+    # Specific paths: compose from BASE_PATH, allow overrides if defined
+    AUDIO_PATH = Path(os.getenv('OPEN_SCRIBE_AUDIO_PATH') or (BASE_PATH / 'audio'))
+    VIDEO_PATH = Path(os.getenv('OPEN_SCRIBE_VIDEO_PATH') or (BASE_PATH / 'video'))
+    TRANSCRIPT_PATH = Path(os.getenv('OPEN_SCRIBE_TRANSCRIPT_PATH') or (BASE_PATH / 'transcript'))
+    TEMP_PATH = Path(os.getenv('OPEN_SCRIBE_TEMP_PATH') or (BASE_PATH / 'temp_audio'))
     DOWNLOADS_PATH = Path(os.getenv('OPEN_SCRIBE_DOWNLOADS_PATH', 
                                    os.path.expanduser('~/Downloads')))
-    DB_PATH = Path(os.getenv('OPEN_SCRIBE_DB_PATH', 
-                             BASE_PATH / 'transcription_jobs.db'))
+    DB_PATH = Path(os.getenv('OPEN_SCRIBE_DB_PATH') or (BASE_PATH / 'transcription_jobs.db'))
     
     # Whisper.cpp Configuration
     WHISPER_CPP_MODEL = os.getenv('WHISPER_CPP_MODEL', 

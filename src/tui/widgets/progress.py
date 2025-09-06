@@ -109,7 +109,7 @@ class MultiTaskProgressWidget(Widget):
     def compose(self) -> ComposeResult:
         """위젯 구성"""
         with Container(classes="multi-task-progress"):
-            yield Static("📈 전체 진행률", classes="section-title")
+            yield Static("▲ 전체 진행률", classes="section-title")
             
             with Container(classes="overall-progress"):
                 yield Label("전체 진행률", classes="overall-label")
@@ -120,7 +120,7 @@ class MultiTaskProgressWidget(Widget):
                 )
                 yield Static("대기 중", id="overall-status", classes="overall-status")
             
-            yield Static("📋 작업 목록", classes="section-title")
+            yield Static("≡ 작업 목록", classes="section-title")
             with Vertical(id="task-list", classes="task-list"):
                 pass  # 동적으로 작업 추가됨
     
@@ -221,7 +221,7 @@ class RealTimeLogWidget(Widget):
         
         # 레벨에 따른 색상 및 아이콘
         level_styles = {
-            "debug": ("🔍", "dim"),
+            "debug": ("○", "dim"),
             "info": ("ℹ️", "blue"),
             "warning": ("⚠️", "yellow"),
             "error": ("❌", "red"),

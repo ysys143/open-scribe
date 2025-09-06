@@ -1,0 +1,237 @@
+[youtube] Extracting URL: https://youtu.be/7d7-etf-wNI?si=mtH18wWlkrklgMuR
+🎥 Starting transcription: https://youtu.be/7d7-etf-wNI?si=mtH18wWlkrklgMuR
+Engine: gpt-4o-mini-transcribe
+
+Extracting video information...
+Title: COBOL in 100 seconds
+Duration: 123 seconds
+Uploader: Fireship
+
+Downloading audio...
+Downloading audio from YouTube...
+[youtube] 7d7-etf-wNI: Downloading webpage
+[youtube] 7d7-etf-wNI: Downloading tv simply player API JSON
+[youtube] 7d7-etf-wNI: Downloading tv client config
+[youtube] 7d7-etf-wNI: Downloading tv player API JSON
+[info] 7d7-etf-wNI: Downloading 1 format(s): 251
+[download] Sleeping 5.00 seconds as required by the site...
+[download] Destination: /Users/jaesolshin/Documents/GitHub/yt-trans/audio/COBOL in 100 seconds [7d7-etf-wNI].webm
+
+[download]   0.0% of    2.12MiB at  186.36KiB/s ETA 00:11
+[download]   0.1% of    2.12MiB at  516.60KiB/s ETA 00:04
+[download]   0.3% of    2.12MiB at    1.12MiB/s ETA 00:01
+[download]   0.7% of    2.12MiB at    2.30MiB/s ETA 00:00
+[download]   1.4% of    2.12MiB at  819.32KiB/s ETA 00:02
+[download]   2.9% of    2.12MiB at  912.32KiB/s ETA 00:02
+[download]   5.8% of    2.12MiB at    1.20MiB/s ETA 00:01
+[download]  11.7% of    2.12MiB at    1.80MiB/s ETA 00:01
+[download]  23.5% of    2.12MiB at    2.84MiB/s ETA 00:00
+[download]  47.1% of    2.12MiB at    4.66MiB/s ETA 00:00
+[download]  94.2% of    2.12MiB at    7.87MiB/s ETA 00:00
+[download] 100.0% of    2.12MiB at    8.24MiB/s ETA 00:00
+[download] 100% of    2.12MiB in 00:00:00 at 4.47MiB/s   
+[ExtractAudio] Destination: /Users/jaesolshin/Documents/GitHub/yt-trans/audio/COBOL in 100 seconds [7d7-etf-wNI].mp3
+Audio downloaded: COBOL in 100 seconds [7d7-etf-wNI].mp3
+
+Transcribing with gpt-4o-mini-transcribe...
+[GPT-4o-mini] Processing: /Users/jaesolshin/Documents/GitHub/yt-trans/audio/COBOL in 100 seconds [7d7-etf-wNI].mp3
+[GPT-4o-mini] Using hybrid mode for accurate timestamps...
+[Hybrid] Step 1: Fetching YouTube transcript with timestamps...
+Found auto-generated transcript in en
+[Hybrid] Step 2: Getting high-quality transcription from gpt-4o-mini-transcribe...
+[GPT-4o-mini] Processing: /Users/jaesolshin/Documents/GitHub/yt-trans/audio/COBOL in 100 seconds [7d7-etf-wNI].mp3
+
+[GPT-4o-mini] Transcribing: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0.0% (0s/10s)          
+[GPT-4o-mini] Transcribing: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 1.0% (0s/10s)          
+[GPT-4o-mini] Transcribing: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 1.9% (0s/10s)          
+[GPT-4o-mini] Transcribing: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 2.8% (0s/10s)          
+[GPT-4o-mini] Transcribing: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 3.7% (0s/10s)          
+[GPT-4o-mini] Transcribing: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 4.6% (0s/10s)          
+[GPT-4o-mini] Transcribing: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 5.6% (0s/10s)          
+[GPT-4o-mini] Transcribing: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 6.5% (0s/10s)          
+[GPT-4o-mini] Transcribing: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 7.4% (0s/10s)          
+[GPT-4o-mini] Transcribing: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 8.4% (0s/10s)          
+[GPT-4o-mini] Transcribing: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 9.3% (1s/10s)          
+[GPT-4o-mini] Transcribing: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░] 10.2% (1s/10s)          
+[GPT-4o-mini] Transcribing: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░] 11.2% (1s/10s)          
+[GPT-4o-mini] Transcribing: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░] 12.1% (1s/10s)          
+[GPT-4o-mini] Transcribing: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░] 13.1% (1s/10s)          
+[GPT-4o-mini] Transcribing: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 14.0% (1s/10s)          
+[GPT-4o-mini] Transcribing: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 14.9% (1s/10s)          
+[GPT-4o-mini] Transcribing: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 15.8% (1s/10s)          
+[GPT-4o-mini] Transcribing: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 16.8% (1s/10s)          
+[GPT-4o-mini] Transcribing: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 17.7% (1s/10s)          
+[GPT-4o-mini] Transcribing: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 18.6% (2s/10s)          
+[GPT-4o-mini] Transcribing: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 19.5% (2s/10s)          
+[GPT-4o-mini] Transcribing: [██████░░░░░░░░░░░░░░░░░░░░░░░░] 20.5% (2s/10s)          
+[GPT-4o-mini] Transcribing: [██████░░░░░░░░░░░░░░░░░░░░░░░░] 21.4% (2s/10s)          
+[GPT-4o-mini] Transcribing: [██████░░░░░░░░░░░░░░░░░░░░░░░░] 22.4% (2s/10s)          
+[GPT-4o-mini] Transcribing: [██████░░░░░░░░░░░░░░░░░░░░░░░░] 23.3% (2s/10s)          
+[GPT-4o-mini] Transcribing: [███████░░░░░░░░░░░░░░░░░░░░░░░] 24.3% (2s/10s)          
+[GPT-4o-mini] Transcribing: [███████░░░░░░░░░░░░░░░░░░░░░░░] 25.2% (2s/10s)          
+[GPT-4o-mini] Transcribing: [███████░░░░░░░░░░░░░░░░░░░░░░░] 26.1% (2s/10s)          
+[GPT-4o-mini] Transcribing: [████████░░░░░░░░░░░░░░░░░░░░░░] 27.1% (3s/10s)          
+[GPT-4o-mini] Transcribing: [████████░░░░░░░░░░░░░░░░░░░░░░] 28.0% (3s/10s)          
+[GPT-4o-mini] Transcribing: [████████░░░░░░░░░░░░░░░░░░░░░░] 28.9% (3s/10s)          
+[GPT-4o-mini] Transcribing: [████████░░░░░░░░░░░░░░░░░░░░░░] 29.8% (3s/10s)          
+[GPT-4o-mini] Transcribing: [█████████░░░░░░░░░░░░░░░░░░░░░] 30.8% (3s/10s)          
+[GPT-4o-mini] Transcribing: [█████████░░░░░░░░░░░░░░░░░░░░░] 31.7% (3s/10s)          
+[GPT-4o-mini] Transcribing: [█████████░░░░░░░░░░░░░░░░░░░░░] 32.7% (3s/10s)          
+[GPT-4o-mini] Transcribing: [██████████░░░░░░░░░░░░░░░░░░░░] 33.6% (3s/10s)          
+[GPT-4o-mini] Transcribing: [██████████░░░░░░░░░░░░░░░░░░░░] 34.5% (3s/10s)          
+[GPT-4o-mini] Transcribing: [██████████░░░░░░░░░░░░░░░░░░░░] 35.5% (3s/10s)          
+[GPT-4o-mini] Transcribing: [██████████░░░░░░░░░░░░░░░░░░░░] 36.4% (4s/10s)          
+[GPT-4o-mini] Transcribing: [███████████░░░░░░░░░░░░░░░░░░░] 37.4% (4s/10s)          
+[GPT-4o-mini] Transcribing: [███████████░░░░░░░░░░░░░░░░░░░] 38.3% (4s/10s)          
+[GPT-4o-mini] Transcribing: [███████████░░░░░░░░░░░░░░░░░░░] 39.2% (4s/10s)          
+[GPT-4o-mini] Transcribing: [████████████░░░░░░░░░░░░░░░░░░] 40.2% (4s/10s)          
+[GPT-4o-mini] Transcribing: [████████████░░░░░░░░░░░░░░░░░░] 41.1% (4s/10s)          
+[GPT-4o-mini] Transcribing: [████████████░░░░░░░░░░░░░░░░░░] 42.0% (4s/10s)          
+[GPT-4o-mini] Transcribing: [████████████░░░░░░░░░░░░░░░░░░] 43.0% (4s/10s)          
+[GPT-4o-mini] Transcribing: [█████████████░░░░░░░░░░░░░░░░░] 43.9% (4s/10s)          
+[GPT-4o-mini] Transcribing: [█████████████░░░░░░░░░░░░░░░░░] 44.8% (4s/10s)          
+[GPT-4o-mini] Transcribing: [█████████████░░░░░░░░░░░░░░░░░] 45.8% (5s/10s)          
+[GPT-4o-mini] Transcribing: [██████████████░░░░░░░░░░░░░░░░] 46.7% (5s/10s)          
+[GPT-4o-mini] Transcribing: [██████████████░░░░░░░░░░░░░░░░] 47.6% (5s/10s)          
+[GPT-4o-mini] Transcribing: [██████████████░░░░░░░░░░░░░░░░] 48.5% (5s/10s)          
+[GPT-4o-mini] Transcribing: [██████████████░░░░░░░░░░░░░░░░] 49.4% (5s/10s)          
+[GPT-4o-mini] Transcribing: [███████████████░░░░░░░░░░░░░░░] 50.4% (5s/10s)          
+[GPT-4o-mini] Transcribing: [███████████████░░░░░░░░░░░░░░░] 51.3% (5s/10s)          
+[GPT-4o-mini] Transcribing: [███████████████░░░░░░░░░░░░░░░] 52.2% (5s/10s)          
+[GPT-4o-mini] Transcribing: [███████████████░░░░░░░░░░░░░░░] 53.1% (5s/10s)          
+[GPT-4o-mini] Transcribing: [████████████████░░░░░░░░░░░░░░] 54.1% (6s/10s)          
+[GPT-4o-mini] Transcribing: [████████████████░░░░░░░░░░░░░░] 55.0% (6s/10s)          
+[GPT-4o-mini] Transcribing: [████████████████░░░░░░░░░░░░░░] 55.9% (6s/10s)          
+[GPT-4o-mini] Transcribing: [█████████████████░░░░░░░░░░░░░] 56.9% (6s/10s)          
+[GPT-4o-mini] Transcribing: [█████████████████░░░░░░░░░░░░░] 57.8% (6s/10s)          
+[GPT-4o-mini] Transcribing: [█████████████████░░░░░░░░░░░░░] 58.8% (6s/10s)          
+[GPT-4o-mini] Transcribing: [█████████████████░░░░░░░░░░░░░] 59.7% (6s/10s)          
+[GPT-4o-mini] Transcribing: [██████████████████░░░░░░░░░░░░] 60.6% (6s/10s)          
+[GPT-4o-mini] Transcribing: [██████████████████░░░░░░░░░░░░] 61.6% (6s/10s)          
+[GPT-4o-mini] Transcribing: [██████████████████░░░░░░░░░░░░] 62.5% (6s/10s)          
+[GPT-4o-mini] Transcribing: [███████████████████░░░░░░░░░░░] 63.5% (7s/10s)          
+[GPT-4o-mini] Transcribing: [███████████████████░░░░░░░░░░░] 64.4% (7s/10s)          
+[GPT-4o-mini] Transcribing: [███████████████████░░░░░░░░░░░] 65.3% (7s/10s)          
+[GPT-4o-mini] Transcribing: [███████████████████░░░░░░░░░░░] 66.3% (7s/10s)          
+[GPT-4o-mini] Transcribing: [████████████████████░░░░░░░░░░] 67.2% (7s/10s)          
+[GPT-4o-mini] Transcribing: [████████████████████░░░░░░░░░░] 68.1% (7s/10s)          
+[GPT-4o-mini] Transcribing: [████████████████████░░░░░░░░░░] 69.1% (7s/10s)          
+[GPT-4o-mini] Transcribing: [████████████████████░░░░░░░░░░] 70.0% (7s/10s)          
+[GPT-4o-mini] Transcribing: [█████████████████████░░░░░░░░░] 70.9% (7s/10s)          
+[GPT-4o-mini] Transcribing: [█████████████████████░░░░░░░░░] 71.9% (7s/10s)          
+[GPT-4o-mini] Transcribing: [█████████████████████░░░░░░░░░] 72.8% (8s/10s)          
+[GPT-4o-mini] Transcribing: [██████████████████████░░░░░░░░] 73.8% (8s/10s)          
+[GPT-4o-mini] Transcribing: [██████████████████████░░░░░░░░] 74.7% (8s/10s)          
+[GPT-4o-mini] Transcribing: [██████████████████████░░░░░░░░] 75.6% (8s/10s)          
+[GPT-4o-mini] Transcribing: [██████████████████████░░░░░░░░] 76.6% (8s/10s)          
+[GPT-4o-mini] Transcribing: [███████████████████████░░░░░░░] 77.5% (8s/10s)          
+[GPT-4o-mini] Transcribing: [███████████████████████░░░░░░░] 78.4% (8s/10s)          
+[GPT-4o-mini] Transcribing: [███████████████████████░░░░░░░] 79.3% (8s/10s)          
+[GPT-4o-mini] Transcribing: [████████████████████████░░░░░░] 80.3% (8s/10s)          
+[GPT-4o-mini] Transcribing: [████████████████████████░░░░░░] 81.2% (9s/10s)          
+[GPT-4o-mini] Transcribing: [████████████████████████░░░░░░] 82.1% (9s/10s)          
+[GPT-4o-mini] Transcribing: [████████████████████████░░░░░░] 83.1% (9s/10s)          
+[GPT-4o-mini] Transcribing: [█████████████████████████░░░░░] 84.0% (9s/10s)          
+[GPT-4o-mini] Transcribing: [█████████████████████████░░░░░] 85.0% (9s/10s)          
+[GPT-4o-mini] Transcribing: [█████████████████████████░░░░░] 85.9% (9s/10s)          
+[GPT-4o-mini] Transcribing: [██████████████████████████░░░░] 86.8% (9s/10s)          
+[GPT-4o-mini] Transcribing: [██████████████████████████░░░░] 87.8% (9s/10s)          
+[GPT-4o-mini] Transcribing: [██████████████████████████░░░░] 88.7% (9s/10s)          
+[GPT-4o-mini] Transcribing: [██████████████████████████░░░░] 89.6% (9s/10s)          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 98.9% (10s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 98.6% (10s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 98.4% (10s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 98.2% (10s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 97.9% (10s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 97.7% (10s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 97.5% (10s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 97.2% (10s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 97.0% (10s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 96.8% (10s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 96.5% (11s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 96.3% (11s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 96.1% (11s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.8% (11s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.6% (11s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.4% (11s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.1% (11s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 94.9% (11s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 94.7% (11s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 94.6% (12s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 94.8% (12s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.0% (12s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.3% (12s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.5% (12s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.7% (12s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 96.0% (12s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 96.2% (12s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 96.4% (12s (overtime))          
+[GPT-4o-mini] Transcribing: [██████████████████████████████] 100.0% (12s (overtime))          
+[GPT-4o-mini] Transcribing: [██████████████████████████████] 100.0% (13s)
+[Hybrid] Step 3: Correcting with gpt-5-mini...
+[Subtitle Corrector] Found 19 segments from YouTube
+[Subtitle Corrector] Using gpt-5-mini for correction
+[Subtitle Corrector] Error during correction: Error code: 400 - {'error': {'message': "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}
+[Subtitle Corrector] Falling back to YouTube transcript
+[GPT-4o-mini] Streaming transcription...
+------------------------------------------------------------
+[00:00] common business oriented language or COBOL is a weak
+verbose and flabby language used by coat grinders to do
+boring things on dinosaur mainframes it [00:07] was developed over
+100 years ago in 1959 but is still in demand
+today in 2020 because it's the language used on many
+[00:14] mainframe computer systems you know those things we call
+big iron usually built by IBM to handle massive amounts
+of throughput to handle things like [00:21] credit card transactions
+airline ticketing and most recently the massive spike in unemployment
+claims so if you want to be a programmer in
+2020 COBOL [00:29] might be your best bet it's a
+high-level imperative language which means it's very easy to learn
+the syntax is [00:34] extremely verbose by design because it's
+self documenting and it contains over 600 reserved words for
+you to memorize [00:39] to take advantage of and every
+COBOL program is structured with an easy-to-follow hierarchy your program
+contains many divisions which contain [00:46] many sections which contain
+many paragraphs which contain many sentences that contain your statements
+which of course contain many characters when you [00:52] start
+writing some COBOL code you'll notice these vertical lines in
+your IDE the first six characters are your line [00:57]
+numbers start at zero zero zero one hundred and increment
+by 100 for each line column seven is where you
+identify comments or the continuation of a [01:04] previous line
+if we're identifying a new division section or paragraph we
+can use columns 8 through 11 and notice how [01:10]
+every line ends with a period that's what's known as
+readable code now columns 12 through 72 are where you
+write your actual statements the reason [01:17] you don't go
+beyond 72 columns is because your code needs to fit
+onto a physical punch card and it ensures your [01:22]
+program is responsive on mobile devices we can define our
+variables in the data division first we name the variable
+then [01:28] we define its data type with the picture
+keyword then assign a value to it we can then
+work with this data in the procedure division we display
+the [01:34] variable then tell our program to stop from
+there we can pile our program to a binary run
+it and everything should work [01:39] perfectly and now you're
+qualified for a six-figure salary maintaining the world's most critical
+legacy systems this has been COBOL in 100 seconds hit
+[01:47] the like button if you want to see more
+short videos like this thanks for watching and I will
+see you in the next one oh hey there thanks
+for sticking [01:54] around this is the part of the
+video where we go beyond 100 seconds to learned some
+more advanced features of COBOL
+------------------------------------------------------------
+
+Transcript saved: /Users/jaesolshin/Documents/GitHub/yt-trans/transcript/COBOL_in_100_seconds.txt
+
+⚡ Generating summary...
+Generating summary with gpt-5-mini...
+Summary generated successfully
+Summary saved: /Users/jaesolshin/Documents/GitHub/yt-trans/transcript/COBOL_in_100_seconds_summary.txt
+Summary copied to: /Users/jaesolshin/Downloads/COBOL_in_100_seconds_summary.txt
+
+Transcript copied to: /Users/jaesolshin/Downloads/COBOL_in_100_seconds.txt
+
+✅ Transcription completed successfully!

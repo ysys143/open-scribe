@@ -1,6 +1,6 @@
 """메인 메뉴 화면"""
 
-from textual.containers import Vertical, Horizontal
+from textual.containers import Vertical, Horizontal, ScrollableContainer
 from textual.widgets import Button, Static, Input, Label
 from textual.events import Key, Click
 from rich.text import Text
@@ -11,6 +11,16 @@ import subprocess
 import os
 import sys
 import threading
+from datetime import datetime
+import time
+from ...config import Config
+from ...database import TranscriptionDatabase
+from ...downloader import YouTubeDownloader
+from pathlib import Path
+import json
+from .database import DatabaseScreen
+from ..utils.config_manager import ConfigManager
+import asyncio
 
 
 class URLInput(Input):
@@ -74,18 +84,25 @@ class MainMenuScreen(Widget):
         # Store URL input widget
         self.url_input = None
         # Store option states (simple boolean values)
-        self.timestamp_enabled = False
-        self.summary_enabled = False
+        self.timestamp_enabled = True
+        self.summary_enabled = True
         self.translate_enabled = False
         self.video_enabled = False
         self.srt_enabled = False
         self.srt_translate_enabled = False
+        self.force_enabled = False
+        self.background_enabled = False
         self.selected_engine = "gpt-4o-mini-transcribe"  # default
         # Store option widgets for updating display
         self.option_widgets = {}
         # Current focused option index (for arrow key navigation)
         self.focused_option = 0
-        self.total_options = 11  # 6 checkboxes + 5 engines
+        self.total_options = 13  # 8 checkboxes + 5 engines
+        # 재처리 확인용 보류 URL
+        self._pending_url = None
+        # 설정/키 관리자
+        self.cfg_manager = ConfigManager()
+        self._validating_api_key = False
     
     def compose(self) -> ComposeResult:
         """UI 구성"""
@@ -105,7 +122,7 @@ class MainMenuScreen(Widget):
                     with Vertical(classes="menu-buttons"):
                         yield Button("1. Transcribe", id="transcribe", classes="menu-button")
                         yield Button("2. Database", id="database", classes="menu-button")
-                        yield Button("3. API Keys", id="api_keys", classes="menu-button")
+                        yield Button("3. API Key", id="api_keys", classes="menu-button")
                         yield Button("4. Settings", id="settings", classes="menu-button")
                         yield Button("5. Monitoring", id="monitor", classes="menu-button")
                         yield Button("H. Help", id="help", classes="menu-button")
@@ -124,9 +141,21 @@ class MainMenuScreen(Widget):
         # 콘텐츠 영역 저장
         self.content_area = self.query_one("#content_area", Vertical)
         
-        # 첫 번째 버튼에 포커스
+        # 초기 진입 시 Transcribe 화면을 기본 표시하고 메뉴 강조
         self.current_focus = 0
-        self.menu_buttons[self.current_focus].focus()
+        self.selected_button_id = "transcribe"
+        self.show_transcribe_interface()
+        try:
+            self.app.set_focus(self)
+        except Exception:
+            pass
+        # 메뉴 강조 클래스 적용
+        try:
+            for btn in self.menu_buttons:
+                btn.remove_class("selected")
+            self.menu_buttons[0].add_class("selected")
+        except Exception:
+            pass
     
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """버튼 클릭 이벤트 처리"""
@@ -148,18 +177,40 @@ class MainMenuScreen(Widget):
         elif button_id == "clear_url":
             self.clear_url_input()
             return
+        elif button_id == "confirm_yes":
+            self._remove_confirm_dialog()
+            if self._pending_url:
+                self._launch_transcription_process(self._pending_url, force=True)
+                self._pending_url = None
+            return
+        elif button_id == "confirm_no":
+            self._remove_confirm_dialog()
+            try:
+                out = self.content_area.query_one(".transcribe-output", Static)
+                out.update("Cancelled by user.")
+            except Exception:
+                pass
+            self._pending_url = None
+            return
         elif button_id == "stop_transcribe":
             # 현재는 백그라운드 스레드/프로세스 중지 미구현 - 안내만 표시
             self.app.notify("Stop is not implemented yet", severity="warning")
             return
         elif button_id == "database":
-            self.show_content("Database Management", "Database management features will be implemented in Phase 4.")
+            try:
+                self.app.push_screen(DatabaseScreen())
+            except Exception:
+                self.show_content("Database Management", "Database screen failed to open.")
             self.set_timer(0.01, lambda btn_id="database": self._update_button_selection(btn_id))
         elif button_id == "api_keys":
-            self.show_content("API Keys Management", "API keys management features will be implemented in Phase 4.")
+            self.selected_button_id = "api_keys"
+            self.show_api_keys_interface()
+            self.focus_area = "content"
             self.set_timer(0.01, lambda btn_id="api_keys": self._update_button_selection(btn_id))
         elif button_id == "settings":
-            self.show_content("Settings", "Settings features will be implemented in Phase 4.")
+            self.selected_button_id = "settings"
+            self.show_settings_interface()
+            self.focus_area = "content"
             self.set_timer(0.01, lambda btn_id="settings": self._update_button_selection(btn_id))
         elif button_id == "monitor":
             self.show_content("Monitoring", "Monitoring screen will be implemented in Phase 4.")
@@ -168,6 +219,17 @@ class MainMenuScreen(Widget):
             self.show_help()
         elif button_id == "quit":
             self.app.exit()
+        # API Keys 영역 버튼
+        elif button_id == "save_api_key":
+            self._save_api_key_inline()
+            return
+        elif button_id == "validate_api_key":
+            self._validate_api_key_inline()
+            return
+        # Settings 영역 저장
+        elif button_id == "settings_save":
+            self._save_settings_inline()
+            return
     
     def show_help(self) -> None:
         """도움말 표시"""
@@ -184,21 +246,53 @@ General Keyboard Shortcuts:
 - Ctrl+C: Exit
 - F1: Help
 - F2: Toggle theme
-- Esc/ㅂ: Quit"""
+- Esc: Quit"""
         self.show_content("Help", help_text)
     
     def _update_button_selection(self, selected_id: str) -> None:
-        """버튼 선택 상태 업데이트 ((*) 표시 제거)"""
+        """버튼 선택 상태 업데이트"""
         self.selected_button_id = selected_id
-        # (*) 표시 기능 제거 - 선택 상태만 내부적으로 추적
+        # 메뉴 강조 클래스 업데이트
+        try:
+            for btn in self.menu_buttons:
+                btn.remove_class("selected")
+            mapping = {"transcribe":0,"database":1,"api_keys":2,"settings":3,"monitor":4,"help":5,"quit":6}
+            idx = mapping.get(selected_id)
+            if idx is not None and 0 <= idx < len(self.menu_buttons):
+                self.menu_buttons[idx].add_class("selected")
+        except Exception:
+            pass
     
     def show_error(self, message: str) -> None:
         """에러 메시지 표시"""
-        self.app.notify(f"❌ {message}", severity="error")
+        # 알림 + 섹션 상태라인 모두 갱신 (알림 미표시 환경 대비)
+        try:
+            self.app.notify(f"✗ {message}", severity="error")
+        except Exception:
+            pass
+        self._update_any_status_lines(f"✗ {message}")
     
     def show_success(self, message: str) -> None:
         """성공 메시지 표시"""
-        self.app.notify(f"✅ {message}", severity="information")
+        try:
+            self.app.notify(f"✓ {message}", severity="information")
+        except Exception:
+            pass
+        self._update_any_status_lines(f"✓ {message}")
+
+    def _update_any_status_lines(self, text: str) -> None:
+        """현재 섹션에 존재하는 상태 라인을 모두 업데이트"""
+        try:
+            if self.content_area:
+                for sid in ("#api_status_line", "#settings_status_line", "#spinner_line"):
+                    try:
+                        w = self.content_area.query_one(sid, Static)
+                        if w:
+                            w.update(text)
+                    except Exception:
+                        pass
+        except Exception:
+            pass
     
     def show_content(self, title: str, content: str) -> None:
         """콘텐츠 영역에 내용 표시"""
@@ -254,6 +348,8 @@ General Keyboard Shortcuts:
             self.option_widgets['video'] = Button(Text(self._get_option_display(3, "Download video", self.video_enabled)), id="opt_video", classes="content-text option-button")
             self.option_widgets['srt'] = Button(Text(self._get_option_display(4, "Generate SRT (timestamps)", self.srt_enabled)), id="opt_srt", classes="content-text option-button")
             self.option_widgets['srt_translate'] = Button(Text(self._get_option_display(5, "Translate SRT", self.srt_translate_enabled)), id="opt_srt_translate", classes="content-text option-button")
+            self.option_widgets['force'] = Button(Text(self._get_option_display(6, "Force (retry)", self.force_enabled)), id="opt_force", classes="content-text option-button")
+            self.option_widgets['background'] = Button(Text(self._get_option_display(7, "Background", self.background_enabled)), id="opt_background", classes="content-text option-button")
             
             form.mount(self.option_widgets['timestamp'])
             form.mount(self.option_widgets['summary'])
@@ -261,16 +357,18 @@ General Keyboard Shortcuts:
             form.mount(self.option_widgets['video'])
             form.mount(self.option_widgets['srt'])
             form.mount(self.option_widgets['srt_translate'])
+            form.mount(self.option_widgets['force'])
+            form.mount(self.option_widgets['background'])
             
             # 엔진 선택
             form.mount(Static("", classes="line-spacer"))
             form.mount(Static("Engine:", classes="options-title section-gap"))
             
-            self.option_widgets['engine_mini'] = Button(Text(self._get_engine_display(6, "GPT-4o-mini (default, fast)", "gpt-4o-mini-transcribe")), id="eng_mini", classes="content-text option-button")
-            self.option_widgets['engine_gpt4o'] = Button(Text(self._get_engine_display(7, "GPT-4o (high quality)", "gpt-4o-transcribe")), id="eng_gpt4o", classes="content-text option-button")
-            self.option_widgets['engine_whisper_api'] = Button(Text(self._get_engine_display(8, "Whisper API (OpenAI cloud)", "whisper-api")), id="eng_whisper_api", classes="content-text option-button")
-            self.option_widgets['engine_whisper_cpp'] = Button(Text(self._get_engine_display(9, "Whisper-cpp (local)", "whisper-cpp")), id="eng_whisper_cpp", classes="content-text option-button")
-            self.option_widgets['engine_youtube'] = Button(Text(self._get_engine_display(10, "YouTube native", "youtube-transcript-api")), id="eng_youtube", classes="content-text option-button")
+            self.option_widgets['engine_mini'] = Button(Text(self._get_engine_display(8, "GPT-4o-mini (default, fast)", "gpt-4o-mini-transcribe")), id="eng_mini", classes="content-text option-button")
+            self.option_widgets['engine_gpt4o'] = Button(Text(self._get_engine_display(9, "GPT-4o (high quality)", "gpt-4o-transcribe")), id="eng_gpt4o", classes="content-text option-button")
+            self.option_widgets['engine_whisper_api'] = Button(Text(self._get_engine_display(10, "Whisper API (OpenAI cloud)", "whisper-api")), id="eng_whisper_api", classes="content-text option-button")
+            self.option_widgets['engine_whisper_cpp'] = Button(Text(self._get_engine_display(11, "Whisper-cpp (local)", "whisper-cpp")), id="eng_whisper_cpp", classes="content-text option-button")
+            self.option_widgets['engine_youtube'] = Button(Text(self._get_engine_display(12, "YouTube native", "youtube-transcript-api")), id="eng_youtube", classes="content-text option-button")
             
             form.mount(self.option_widgets['engine_mini'])
             form.mount(self.option_widgets['engine_gpt4o'])
@@ -284,13 +382,290 @@ General Keyboard Shortcuts:
             form.mount(Static("", classes="line-spacer"))
             form.mount(Static("Output:", classes="options-title section-gap"))
             form.mount(Static("─" * 60, classes="divider-line"))
-            form.mount(Static("Ready to transcribe...", classes="transcribe-output content-text"))
+            # 상단 로딩/상태 라인과 스트림 라인(실시간 1줄)
+            form.mount(Static("", classes="output-text progress-line", id="spinner_line"))
+            form.mount(Static("Ready to transcribe...", classes="transcribe-output content-text", id="stream_line"))
             
             # URL 입력에 포커스
             self.url_input.focus()
             # 초기 포커스 설정
             self.focused_option = 0
             self.update_option_displays()
+
+    def show_api_keys_interface(self) -> None:
+        """메인 영역에 API 키 관리 UI 표시 (싱글 페이지)"""
+        if not self.content_area:
+            return
+        self.content_area.remove_children()
+        scroller = ScrollableContainer(classes="tab-content", id="api_scroller")
+        # 고정 높이 컨테이너 안에서만 스크롤이 동작하도록 명시
+        try:
+            scroller.styles.height = "1fr"
+            scroller.styles.min_height = 0
+            scroller.styles.overflow_y = "auto"
+        except Exception:
+            pass
+        self.content_area.mount(scroller)
+        form = Vertical(classes="form-stack")
+        scroller.mount(form)
+        form.mount(Static("API Keys", classes="options-title"))
+        form.mount(Static("OPENAI_API_KEY", classes="options-title"))
+        # 입력
+        key_input_row = Horizontal(classes="input-container")
+        form.mount(key_input_row)
+        api_input = Input(placeholder="OpenAI API Key (sk-...)", id="openai_key_inline", classes="url-input")
+        try:
+            from ...config import Config as _Cfg
+            api_input.value = _Cfg.OPENAI_API_KEY or ""
+        except Exception:
+            pass
+        key_input_row.mount(api_input)
+        # 버튼 바
+        actions = Horizontal(classes="actions-bar")
+        form.mount(actions)
+        actions.mount(Button("Save", id="save_api_key", classes="action-button"))
+        actions.mount(Button("Validate", id="validate_api_key", classes="utility-button"))
+        actions.mount(Button("Back", id="transcribe", classes="warning-button"))
+        # 상태 메시지 위에 빈 줄 추가
+        form.mount(Static("", classes="line-spacer"))
+        # 상태 (초기 텍스트로 높이 확보)
+        form.mount(Static("Status: Ready", id="api_status_line", classes="output-text"))
+
+    def _set_api_status(self, msg: str) -> None:
+        try:
+            if self.content_area:
+                st = self.content_area.query_one("#api_status_line", Static)
+                st.update(msg)
+                try:
+                    st.scroll_visible(animate=False)
+                except Exception:
+                    pass
+        except Exception:
+            pass
+
+    def _call_ui(self, func, *args, **kwargs) -> None:
+        """백그라운드 스레드에서 안전하게 UI 업데이트 호출"""
+        try:
+            self.call_from_thread(lambda: func(*args, **kwargs))
+        except Exception:
+            # fallback: 다음 틱에서 실행
+            try:
+                self.set_timer(0, lambda: func(*args, **kwargs))
+            except Exception:
+                pass
+
+    def _end_api_validation(self) -> None:
+        """검증 종료 처리"""
+        self._validating_api_key = False
+
+    def _save_api_key_inline(self) -> None:
+        try:
+            val = self.content_area.query_one("#openai_key_inline", Input).value.strip()
+            if not val:
+                self.show_error("키 값을 입력하세요")
+                return
+            ok = self.cfg_manager.save_api_key("OpenAI API Key", val)
+            if ok:
+                try:
+                    from dotenv import load_dotenv
+                    load_dotenv(override=True)
+                except Exception:
+                    pass
+                self._set_api_status("✓ 저장되었습니다")
+                self.show_success("API 키 저장 완료")
+            else:
+                self._set_api_status("✗ 저장 실패")
+                self.show_error("저장 실패")
+        except Exception as e:
+            self._set_api_status(str(e))
+            self.show_error(str(e))
+
+    def _validate_api_key_inline(self) -> None:
+        """API 키 검증 (인라인)"""
+        if self._validating_api_key:
+            return
+        
+        try:
+            val = self.content_area.query_one("#openai_key_inline", Input).value.strip()
+            if not val:
+                self.show_error("키 값을 입력하세요")
+                return
+            
+            # 검증 시작
+            self._set_api_status("◆ 키 검증 중...")
+            self.app.notify("API 키 검증 중...", severity="information")
+            self._validating_api_key = True
+            
+            # 스레드로 검증 실행
+            import threading
+            
+            def validate_in_thread():
+                ok = False
+                err = ""
+                
+                try:
+                    if not val.startswith("sk-") or len(val) <= 20:
+                        err = "Invalid key format"  
+                    else:
+                        import urllib.request
+                        import urllib.error
+                        req = urllib.request.Request(
+                            "https://api.openai.com/v1/models",
+                            headers={"Authorization": f"Bearer {val}"}
+                        )
+                        with urllib.request.urlopen(req, timeout=2) as response:
+                            ok = (response.status == 200)
+                except urllib.error.HTTPError as e:
+                    err = f"HTTP {e.code}"
+                except Exception as e:
+                    err = str(e)[:30]
+                
+                # UI 업데이트를 메인 스레드에서 실행
+                def update_ui():
+                    if ok:
+                        self._set_api_status("✓ 키가 유효합니다")
+                        self.app.notify("키 검증 성공", severity="information")
+                    else:
+                        msg = f"✗ 키 검증 실패: {err}" if err else "✗ 키 검증 실패"
+                        self._set_api_status(msg)
+                        self.app.notify(f"키 검증 실패: {err}" if err else "키 검증 실패", severity="error")
+                    self._validating_api_key = False
+                
+                # 메인 스레드에서 UI 업데이트 실행
+                self.app.call_from_thread(update_ui)
+            
+            # 스레드 시작
+            thread = threading.Thread(target=validate_in_thread, daemon=True)
+            thread.start()
+            
+        except Exception as e:
+            self._validating_api_key = False
+            self.show_error(str(e))
+
+    def show_settings_interface(self) -> None:
+        """메인 영역에 Settings UI 표시 (싱글 페이지)"""
+        if not self.content_area:
+            return
+        self.content_area.remove_children()
+        scroller = ScrollableContainer(classes="tab-content", id="settings_scroller")
+        try:
+            scroller.styles.height = "1fr"
+            scroller.styles.min_height = 0
+            scroller.styles.overflow_y = "auto"
+        except Exception:
+            pass
+        self.content_area.mount(scroller)
+        form = Vertical(classes="form-stack")
+        scroller.mount(form)
+        form.mount(Static("Settings", classes="options-title"))
+        # 1) 언어/모델/엔진 (가장 중요)
+        form.mount(Static("OPENAI_TRANSLATE_LANGUAGE", classes="options-title"))
+        tl = Input(placeholder="Korean / English / Japanese / Chinese / auto", id="set_translate_language", classes="url-input")
+        form.mount(tl)
+        form.mount(Static("OPENAI_TRANSLATE_MODEL", classes="options-title"))
+        tm = Input(placeholder="gpt-5-mini", id="set_translate_model", classes="url-input")
+        form.mount(tm)
+        form.mount(Static("OPENAI_SUMMARY_LANGUAGE", classes="options-title"))
+        sl = Input(placeholder="Korean / English / auto", id="set_summary_language", classes="url-input")
+        form.mount(sl)
+        form.mount(Static("OPENAI_SUMMARY_MODEL", classes="options-title"))
+        sm = Input(placeholder="gpt-5-mini", id="set_summary_model", classes="url-input")
+        form.mount(sm)
+        form.mount(Static("OPEN_SCRIBE_ENGINE", classes="options-title"))
+        eg = Input(placeholder="gpt-4o-mini-transcribe", id="set_engine", classes="url-input")
+        form.mount(eg)
+        try:
+            from ...config import Config as _Cfg
+            tl.value = str(_Cfg.OPENAI_TRANSLATE_LANGUAGE)
+            tm.value = str(_Cfg.OPENAI_TRANSLATE_MODEL)
+            sl.value = str(_Cfg.OPENAI_SUMMARY_LANGUAGE)
+            sm.value = str(_Cfg.OPENAI_SUMMARY_MODEL)
+            eg.value = str(_Cfg.ENGINE)
+        except Exception:
+            pass
+        # 2) 경로 (자주 쓰는 것)
+        form.mount(Static("OPEN_SCRIBE_BASE_PATH", classes="options-title"))
+        bp = Input(placeholder="/path/to/base", id="set_base_path", classes="url-input")
+        form.mount(bp)
+        form.mount(Static("OPEN_SCRIBE_DOWNLOADS_PATH", classes="options-title"))
+        dl = Input(placeholder="/path/to/Downloads", id="set_downloads_path", classes="url-input")
+        form.mount(dl)
+        try:
+            from ...config import Config as _Cfg
+            bp.value = str(_Cfg.BASE_PATH)
+            dl.value = str(_Cfg.DOWNLOADS_PATH)
+        except Exception:
+            pass
+        # 3) 워커 (비기능 설정은 하단)
+        form.mount(Static("MIN_WORKER", classes="options-title"))
+        min_i = Input(placeholder="MIN_WORKER", id="set_min_worker", classes="url-input")
+        form.mount(min_i)
+        form.mount(Static("MAX_WORKER", classes="options-title"))
+        max_i = Input(placeholder="MAX_WORKER", id="set_max_worker", classes="url-input")
+        form.mount(max_i)
+        try:
+            from ...config import Config as _Cfg
+            min_i.value = str(_Cfg.MIN_WORKER)
+            max_i.value = str(_Cfg.MAX_WORKER)
+        except Exception:
+            pass
+        # 버튼 바
+        actions = Horizontal(classes="actions-bar")
+        form.mount(actions)
+        actions.mount(Button("Save", id="settings_save", classes="action-button"))
+        actions.mount(Button("Back", id="transcribe", classes="warning-button"))
+        form.mount(Static("", id="settings_status_line", classes="output-text"))
+
+    def _set_settings_status(self, msg: str) -> None:
+        try:
+            if self.content_area:
+                self.content_area.query_one("#settings_status_line", Static).update(msg)
+        except Exception:
+            pass
+
+    def _save_settings_inline(self) -> None:
+        try:
+            # 값 읽기
+            min_w = int(self.content_area.query_one("#set_min_worker", Input).value or "1")
+            max_w = int(self.content_area.query_one("#set_max_worker", Input).value or "5")
+            if min_w < 1 or max_w < 1 or min_w > max_w:
+                self.show_error("MIN/MAX 값이 올바르지 않습니다")
+                return
+            base_path = self.content_area.query_one("#set_base_path", Input).value
+            downloads_path = self.content_area.query_one("#set_downloads_path", Input).value
+            engine = self.content_area.query_one("#set_engine", Input).value
+            translate_lang = self.content_area.query_one("#set_translate_language", Input).value
+            translate_model = self.content_area.query_one("#set_translate_model", Input).value
+            summary_lang = self.content_area.query_one("#set_summary_language", Input).value
+            summary_model = self.content_area.query_one("#set_summary_model", Input).value
+            # .env 업데이트
+            self.cfg_manager.update_env_file("MIN_WORKER", str(min_w))
+            self.cfg_manager.update_env_file("MAX_WORKER", str(max_w))
+            if base_path:
+                self.cfg_manager.update_env_file("OPEN_SCRIBE_BASE_PATH", base_path)
+            if downloads_path:
+                self.cfg_manager.update_env_file("OPEN_SCRIBE_DOWNLOADS_PATH", downloads_path)
+            if engine:
+                self.cfg_manager.update_env_file("OPEN_SCRIBE_ENGINE", engine)
+            if translate_lang:
+                self.cfg_manager.update_env_file("OPENAI_TRANSLATE_LANGUAGE", translate_lang)
+            if translate_model:
+                self.cfg_manager.update_env_file("OPENAI_TRANSLATE_MODEL", translate_model)
+            if summary_lang:
+                self.cfg_manager.update_env_file("OPENAI_SUMMARY_LANGUAGE", summary_lang)
+            if summary_model:
+                self.cfg_manager.update_env_file("OPENAI_SUMMARY_MODEL", summary_model)
+            # 런타임 반영
+            try:
+                from dotenv import load_dotenv
+                load_dotenv(override=True)
+            except Exception:
+                pass
+            self._set_settings_status("✓ 저장되었습니다")
+            self.show_success("설정 저장 완료")
+        except Exception as e:
+            self._set_settings_status(str(e))
+            self.show_error(str(e))
     
     def _get_option_display(self, index: int, label: str, enabled: bool) -> str:
         """체크박스 스타일 옵션 표시 생성"""
@@ -320,18 +695,22 @@ General Keyboard Shortcuts:
             self.option_widgets['srt'].label = Text(self._get_option_display(4, "Generate SRT (timestamps)", self.srt_enabled))
         if 'srt_translate' in self.option_widgets:
             self.option_widgets['srt_translate'].label = Text(self._get_option_display(5, "Translate SRT", self.srt_translate_enabled))
+        if 'force' in self.option_widgets:
+            self.option_widgets['force'].label = Text(self._get_option_display(6, "Force (retry)", self.force_enabled))
+        if 'background' in self.option_widgets:
+            self.option_widgets['background'].label = Text(self._get_option_display(7, "Background", self.background_enabled))
         
         # 엔진 옵션 업데이트
         if 'engine_mini' in self.option_widgets:
-            self.option_widgets['engine_mini'].label = Text(self._get_engine_display(6, "GPT-4o-mini (default, fast)", "gpt-4o-mini-transcribe"))
+            self.option_widgets['engine_mini'].label = Text(self._get_engine_display(8, "GPT-4o-mini (default, fast)", "gpt-4o-mini-transcribe"))
         if 'engine_gpt4o' in self.option_widgets:
-            self.option_widgets['engine_gpt4o'].label = Text(self._get_engine_display(7, "GPT-4o (high quality)", "gpt-4o-transcribe"))
+            self.option_widgets['engine_gpt4o'].label = Text(self._get_engine_display(9, "GPT-4o (high quality)", "gpt-4o-transcribe"))
         if 'engine_whisper_api' in self.option_widgets:
-            self.option_widgets['engine_whisper_api'].label = Text(self._get_engine_display(8, "Whisper API (OpenAI cloud)", "whisper-api"))
+            self.option_widgets['engine_whisper_api'].label = Text(self._get_engine_display(10, "Whisper API (OpenAI cloud)", "whisper-api"))
         if 'engine_whisper_cpp' in self.option_widgets:
-            self.option_widgets['engine_whisper_cpp'].label = Text(self._get_engine_display(9, "Whisper-cpp (local)", "whisper-cpp"))
+            self.option_widgets['engine_whisper_cpp'].label = Text(self._get_engine_display(11, "Whisper-cpp (local)", "whisper-cpp"))
         if 'engine_youtube' in self.option_widgets:
-            self.option_widgets['engine_youtube'].label = Text(self._get_engine_display(10, "YouTube native", "youtube-transcript-api"))
+            self.option_widgets['engine_youtube'].label = Text(self._get_engine_display(12, "YouTube native", "youtube-transcript-api"))
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """버튼 클릭 이벤트 처리 (메뉴/옵션/엔진 모두 포함)"""
@@ -351,15 +730,22 @@ General Keyboard Shortcuts:
                 self.set_timer(0.01, lambda btn_id="transcribe": self._update_button_selection(btn_id))
                 return
             elif button_id == "database":
-                self.show_content("Database Management", "Database management features will be implemented in Phase 4.")
+                try:
+                    self.app.push_screen(DatabaseScreen())
+                except Exception:
+                    self.show_content("Database Management", "Database screen failed to open.")
                 self.set_timer(0.01, lambda btn_id="database": self._update_button_selection(btn_id))
                 return
             elif button_id == "api_keys":
-                self.show_content("API Keys Management", "API keys management features will be implemented in Phase 4.")
+                self.selected_button_id = "api_keys"
+                self.show_api_keys_interface()
+                self.focus_area = "content"
                 self.set_timer(0.01, lambda btn_id="api_keys": self._update_button_selection(btn_id))
                 return
             elif button_id == "settings":
-                self.show_content("Settings", "Settings features will be implemented in Phase 4.")
+                self.selected_button_id = "settings"
+                self.show_settings_interface()
+                self.focus_area = "content"
                 self.set_timer(0.01, lambda btn_id="settings": self._update_button_selection(btn_id))
                 return
             elif button_id == "monitor":
@@ -390,6 +776,15 @@ General Keyboard Shortcuts:
         elif button_id == "clear_url":
             self.clear_url_input()
             return
+        elif button_id == "save_api_key":
+            self._save_api_key_inline()
+            return
+        elif button_id == "validate_api_key":
+            self._validate_api_key_inline()
+            return
+        elif button_id == "settings_save":
+            self._save_settings_inline()
+            return
         # 옵션 토글
         if button_id == 'opt_timestamp':
             self.focused_option = 0
@@ -411,21 +806,27 @@ General Keyboard Shortcuts:
             self.srt_translate_enabled = not self.srt_translate_enabled
             if self.srt_translate_enabled:
                 self.srt_enabled = True
+        elif button_id == 'opt_force':
+            self.focused_option = 6
+            self.force_enabled = not self.force_enabled
+        elif button_id == 'opt_background':
+            self.focused_option = 7
+            self.background_enabled = not self.background_enabled
         # 엔진 선택
         elif button_id == 'eng_mini':
-            self.focused_option = 6
+            self.focused_option = 8
             self.selected_engine = 'gpt-4o-mini-transcribe'
         elif button_id == 'eng_gpt4o':
-            self.focused_option = 7
+            self.focused_option = 9
             self.selected_engine = 'gpt-4o-transcribe'
         elif button_id == 'eng_whisper_api':
-            self.focused_option = 8
+            self.focused_option = 10
             self.selected_engine = 'whisper-api'
         elif button_id == 'eng_whisper_cpp':
-            self.focused_option = 9
+            self.focused_option = 11
             self.selected_engine = 'whisper-cpp'
         elif button_id == 'eng_youtube':
-            self.focused_option = 10
+            self.focused_option = 12
             self.selected_engine = 'youtube-transcript-api'
         else:
             return
@@ -444,11 +845,18 @@ General Keyboard Shortcuts:
             except Exception:
                 pass
         elif menu_id == "database":
-            self.show_content("Database Management", "Database management features will be implemented in Phase 4.")
+            try:
+                self.app.push_screen(DatabaseScreen())
+            except Exception:
+                self.show_content("Database Management", "Database screen failed to open.")
         elif menu_id == "api_keys":
-            self.show_content("API Keys Management", "API keys management features will be implemented in Phase 4.")
+            self.selected_button_id = "api_keys"
+            self.show_api_keys_interface()
+            self.focus_area = "content"
         elif menu_id == "settings":
-            self.show_content("Settings", "Settings features will be implemented in Phase 4.")
+            self.selected_button_id = "settings"
+            self.show_settings_interface()
+            self.focus_area = "content"
         elif menu_id == "monitor":
             self.show_content("Monitoring", "Monitoring screen will be implemented in Phase 4.")
         elif menu_id == "help":
@@ -474,9 +882,9 @@ General Keyboard Shortcuts:
             elif button_id == "database":
                 self.show_content("Database Management", "Database management features will be implemented in Phase 4.")
             elif button_id == "api_keys":
-                self.show_content("API Keys Management", "API keys management features will be implemented in Phase 4.")
+                self.show_api_keys_interface()
             elif button_id == "settings":
-                self.show_content("Settings", "Settings features will be implemented in Phase 4.")
+                self.show_settings_interface()
             elif button_id == "monitor":
                 self.show_content("Monitoring", "Monitoring screen will be implemented in Phase 4.")
             elif button_id == "help":
@@ -585,42 +993,13 @@ General Keyboard Shortcuts:
             options_str = ", ".join(options_text) if options_text else "none"
             output.update(f"🔄 Starting transcription...\nURL: {url[:50]}...\nEngine: {self.selected_engine}\nOptions: {options_str}")
             
-            # 실제 전사 실행: trans.py 호출 구성
-            def run_worker():
-                try:
-                    args = [sys.executable, "trans.py", url, "--engine", self.selected_engine]
-                    if self.timestamp_enabled:
-                        args.append("--timestamp")
-                    if self.summary_enabled:
-                        args.append("--summary")
-                    if self.translate_enabled:
-                        args.append("--translate")
-                    if self.video_enabled:
-                        args.append("--video")
-                    if self.srt_enabled:
-                        args.append("--srt")
-                    if self.srt_translate_enabled:
-                        # SRT 번역은 --srt와 함께 동작. translate 옵션을 함께 전달
-                        if "--srt" not in args:
-                            args.append("--srt")
-                        if "--translate" not in args:
-                            args.append("--translate")
-                    # 진행상황(선택): 옵션 영역에서 추후 추가 가능
-                    proc = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, cwd=os.getcwd())
-                    for line in proc.stdout:
-                        try:
-                            out = self.content_area.query_one(".transcribe-output", Static)
-                            out.update((out.renderable or "") + f"\n{line.rstrip()}" )
-                        except Exception:
-                            pass
-                    proc.wait()
-                    if proc.returncode == 0:
-                        self.show_success("Transcription finished")
-                    else:
-                        self.show_error(f"Transcription failed (code {proc.returncode})")
-                except Exception as e:
-                    self.show_error(str(e))
-            threading.Thread(target=run_worker, daemon=True).start()
+            # Background 모드면 큐에 적재 후 종료
+            if self.background_enabled:
+                self._enqueue_background_job(url, force=self.force_enabled)
+                return
+            # 기존 결과 존재 여부 확인 또는 즉시 실행
+            self._pending_url = url
+            self._precheck_and_maybe_confirm(url)
             
         except Exception as e:
             print(f"DEBUG: Exception occurred: {e}")
@@ -732,7 +1111,7 @@ General Keyboard Shortcuts:
     
     def toggle_current_option(self) -> None:
         """현재 포커스된 옵션 토글"""
-        if self.focused_option < 4:
+        if self.focused_option < 8:
             # 체크박스 옵션
             if self.focused_option == 0:
                 self.timestamp_enabled = not self.timestamp_enabled
@@ -749,18 +1128,202 @@ General Keyboard Shortcuts:
                 self.srt_translate_enabled = not self.srt_translate_enabled
                 if self.srt_translate_enabled:
                     self.srt_enabled = True
+            elif self.focused_option == 6:
+                self.force_enabled = not self.force_enabled
+            elif self.focused_option == 7:
+                self.background_enabled = not self.background_enabled
         else:
             # 엔진 옵션 (라디오 버튼)
-            if self.focused_option == 6:
+            if self.focused_option == 8:
                 self.selected_engine = "gpt-4o-mini-transcribe"
-            elif self.focused_option == 7:
-                self.selected_engine = "gpt-4o-transcribe"
-            elif self.focused_option == 8:
-                self.selected_engine = "whisper-api"
             elif self.focused_option == 9:
-                self.selected_engine = "whisper-cpp"
+                self.selected_engine = "gpt-4o-transcribe"
             elif self.focused_option == 10:
+                self.selected_engine = "whisper-api"
+            elif self.focused_option == 11:
+                self.selected_engine = "whisper-cpp"
+            elif self.focused_option == 12:
                 self.selected_engine = "youtube-transcript-api"
         
         # UI 업데이트
         self.update_option_displays()
+
+    def _enqueue_background_job(self, url: str, force: bool) -> None:
+        """작업을 큐로 등록하고 모니터링 탭에서 관리되도록 한다."""
+        try:
+            config = Config()
+            db = TranscriptionDatabase(config.DB_PATH)
+            downloader = YouTubeDownloader(config.AUDIO_PATH, config.VIDEO_PATH, config.TEMP_PATH)
+            info = downloader.get_video_info(url)
+            if not info:
+                self.show_error("Could not extract video information")
+                return
+            video_id = info.get('id')
+            title = info.get('title') or url
+            job_id = db.create_job(video_id, url, title, self.selected_engine)
+            db.update_job_status(job_id, 'queued')
+            # 큐 파일 작성
+            root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+            queue_dir = Path(root_dir) / 'queue'
+            queue_dir.mkdir(parents=True, exist_ok=True)
+            payload = {
+                "job_id": job_id,
+                "video_id": video_id,
+                "url": url,
+                "title": title,
+                "engine": self.selected_engine,
+                "force": force,
+                "timestamp": datetime.now().isoformat(timespec='seconds')
+            }
+            qfile = queue_dir / f"{datetime.now().strftime('%Y%m%d-%H%M%S')}-{video_id}.json"
+            qfile.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding='utf-8')
+            try:
+                out = self.content_area.query_one(".transcribe-output", Static)
+                out.update(f"📝 Enqueued background job (ID: {job_id}).\nSee Monitoring for status.")
+            except Exception:
+                pass
+            self.show_success("Job added to queue")
+        except Exception as e:
+            self.show_error(f"Queue error: {e}")
+
+    def _show_confirm_dialog(self, message: str) -> None:
+        """재처리 확인 다이얼로그 표시"""
+        try:
+            self._remove_confirm_dialog()
+            dialog = Vertical(classes="confirmation-dialog", id="confirm_dialog")
+            dialog.mount(Static(message))
+            buttons = Horizontal(classes="dialog-buttons")
+            buttons.mount(Button("Yes", id="confirm_yes", variant="primary"))
+            buttons.mount(Button("No", id="confirm_no", variant="default"))
+            dialog.mount(buttons)
+            self.content_area.mount(dialog)
+        except Exception:
+            pass
+
+    def _remove_confirm_dialog(self) -> None:
+        try:
+            dialog = self.content_area.query_one("#confirm_dialog", Vertical)
+            dialog.remove()
+        except Exception:
+            pass
+
+    def _precheck_and_maybe_confirm(self, url: str) -> None:
+        """DB와 파일을 확인해 재처리 여부를 묻거나 바로 실행"""
+        try:
+            config = Config()
+            db = TranscriptionDatabase(config.DB_PATH)
+            downloader = YouTubeDownloader(config.AUDIO_PATH, config.VIDEO_PATH, config.TEMP_PATH)
+            info = downloader.get_video_info(url)
+            if not info:
+                self._launch_transcription_process(url, force=False)
+                return
+            video_id = info.get('id')
+            existing = db.get_job_progress(video_id, self.selected_engine)
+            if existing and existing.get('status') == 'completed' and existing.get('transcription_completed'):
+                self._show_confirm_dialog("이미 처리된 영상입니다. 다시 처리하시겠습니까?")
+            else:
+                self._launch_transcription_process(url, force=False)
+        except Exception:
+            self._launch_transcription_process(url, force=False)
+
+    def _launch_transcription_process(self, url: str, force: bool = False) -> None:
+        """백그라운드 스레드로 전사 프로세스 실행"""
+        def run_worker():
+            try:
+                root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+                main_path = os.path.join(root_dir, "main.py")
+                logs_dir = os.path.join(root_dir, "logs")
+                os.makedirs(logs_dir, exist_ok=True)
+                timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+                log_file_path = os.path.join(logs_dir, f"tui-run-{timestamp}.log")
+
+                args = [sys.executable, main_path, url, "--engine", self.selected_engine]
+                if force:
+                    args.append("--force")
+                if self.timestamp_enabled:
+                    args.append("--timestamp")
+                if self.summary_enabled:
+                    args.append("--summary")
+                if self.translate_enabled:
+                    args.append("--translate")
+                if self.video_enabled:
+                    args.append("--video")
+                if self.srt_enabled:
+                    args.append("--srt")
+                if self.srt_translate_enabled:
+                    if "--srt" not in args:
+                        args.append("--srt")
+                    if "--translate" not in args:
+                        args.append("--translate")
+                env = os.environ.copy()
+                env["OPEN_SCRIBE_TUI_LOG"] = log_file_path
+                proc = subprocess.Popen(
+                    args,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                    cwd=root_dir,
+                    env=env,
+                    bufsize=1,
+                )
+                try:
+                    info_line = self.content_area.query_one("#spinner_line", Static)
+                    info_line.update(f"[log] Writing to: {log_file_path}")
+                except Exception:
+                    pass
+                loader_stop = threading.Event()
+                def _animate_loader():
+                    frames = ["⠋","⠙","⠹","⠸","⠼","⠴","⠦","⠧","⠇","⠏"]
+                    i = 0
+                    while not loader_stop.is_set():
+                        try:
+                            spinner = self.content_area.query_one("#spinner_line", Static)
+                            spinner.update(f"{frames[i % len(frames)]} Processing...")
+                        except Exception:
+                            pass
+                        i += 1
+                        time.sleep(0.08)
+                loader_thread = threading.Thread(target=_animate_loader, daemon=True)
+                loader_thread.start()
+                with open(log_file_path, "a", encoding="utf-8") as log_fp:
+                    current_line = ""
+                    while True:
+                        ch = proc.stdout.read(1)
+                        if ch == "" and proc.poll() is not None:
+                            break
+                        if not ch:
+                            continue
+                        try:
+                            log_fp.write(ch)
+                            log_fp.flush()
+                        except Exception:
+                            pass
+                        if ch == "\r":
+                            try:
+                                out = self.content_area.query_one(".transcribe-output", Static)
+                                out.update(current_line.rstrip())
+                            except Exception:
+                                pass
+                            continue
+                        if ch == "\n":
+                            try:
+                                out = self.content_area.query_one(".transcribe-output", Static)
+                                out.update(current_line.rstrip())
+                            except Exception:
+                                pass
+                            current_line = ""
+                        else:
+                            current_line += ch
+                proc.wait()
+                try:
+                    loader_stop.set()
+                    loader_thread.join(timeout=0.2)
+                except Exception:
+                    pass
+                if proc.returncode == 0:
+                    self.show_success("Transcription finished")
+                else:
+                    self.show_error(f"Transcription failed (code {proc.returncode}) — see log: {log_file_path}")
+            except Exception as e:
+                self.show_error(str(e))
+        threading.Thread(target=run_worker, daemon=True).start()

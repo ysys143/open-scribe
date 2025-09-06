@@ -25,7 +25,7 @@ def create_argument_parser():
     
     parser = argparse.ArgumentParser(
         prog='open-scribe',
-        description='🎥 Open-Scribe: YouTube Video Transcription Tool',
+        description='Open-Scribe: YouTube Video Transcription Tool',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog='''
 Examples:
@@ -207,9 +207,9 @@ def process_single_video(url: str, args, config: Config) -> bool:
             print("\n[DB] Checking existing progress...")
             # If fully completed, just return
             if existing_job['status'] == 'completed' and existing_job['transcription_completed']:
-                print(f"✓ Transcription already completed: {existing_job['transcript_path']}")
+                print(f"[OK] Transcription already completed: {existing_job['transcript_path']}")
                 if not args.summary or existing_job['summary_completed']:
-                    print("✓ All requested tasks already completed")
+                    print("[OK] All requested tasks already completed")
                     return True
     else:
         # Create new job
@@ -227,10 +227,10 @@ def process_single_video(url: str, args, config: Config) -> bool:
     if args.engine != 'youtube-transcript-api':
         if existing_job and existing_job.get('download_completed') and not args.force:
             if existing_job.get('download_path') and Path(existing_job['download_path']).exists():
-                print("\n✓ Download already completed (using cached file)")
+                print("\n[OK] Download already completed (using cached file)")
                 audio_file = existing_job['download_path']
             else:
-                print("\n⚠ Previous download missing, re-downloading...")
+                print("\n[WARNING] Previous download missing, re-downloading...")
         
         if not audio_file:
             print("\nDownloading audio...")
@@ -242,7 +242,7 @@ def process_single_video(url: str, args, config: Config) -> bool:
             # Update download status
             db.update_download_status(job_id, True, audio_file)
     else:
-        print("\n✓ Skipping audio download (using YouTube Transcript API)")
+        print("\n[OK] Skipping audio download (using YouTube Transcript API)")
     
     # Transcribe (check if already transcribed)
     transcription = None
@@ -251,11 +251,11 @@ def process_single_video(url: str, args, config: Config) -> bool:
     
     if existing_job and existing_job.get('transcription_completed') and not args.force:
         if existing_job.get('transcript_path') and Path(existing_job['transcript_path']).exists():
-            print("\n✓ Transcription already completed (using cached result)")
+            print("\n[OK] Transcription already completed (using cached result)")
             transcript_path = Path(existing_job['transcript_path'])
             transcription = transcript_path.read_text(encoding='utf-8')
         else:
-            print("\n⚠ Previous transcription missing, re-transcribing...")
+            print("\n[WARNING] Previous transcription missing, re-transcribing...")
     
     if not transcription:
         print(f"\nTranscribing with {args.engine}...")
@@ -297,10 +297,10 @@ def process_single_video(url: str, args, config: Config) -> bool:
     summary_text = None
     if args.summary:
         if existing_job and existing_job.get('summary_completed') and not args.force:
-            print("\n✓ Summary already generated")
+            print("\n[OK] Summary already generated")
             summary_text = existing_job.get('summary')
         else:
-            print("\n⚡ Generating summary...")
+            print("\n[SUMMARY] Generating summary...")
             summary_text = generate_summary(transcription, verbose=args.verbose)
             if summary_text:
                 # Save summary to file
@@ -324,7 +324,7 @@ def process_single_video(url: str, args, config: Config) -> bool:
     srt_path = None
     if args.srt and transcript_path:
         try:
-            print("\n🎞 Generating SRT subtitles...")
+            print("\n[SRT] Generating SRT subtitles...")
             srt_path = convert_transcript_to_srt(transcript_path)
             print(f"SRT saved: {srt_path}")
             try:
@@ -344,7 +344,7 @@ def process_single_video(url: str, args, config: Config) -> bool:
             translator = SubtitleTranslator(config)
             # Prefer SRT translation when available
             if srt_path and srt_path.exists():
-                print("\n🌐 Translating SRT...")
+                print("\n[TRANSLATE] Translating SRT...")
                 translated_srt, ok = translator.translate_srt(srt_path.read_text(encoding='utf-8'), verbose=args.verbose)
                 if ok:
                     srt_ko_path = srt_path.with_name(f"{srt_path.stem}.ko.srt")
@@ -355,7 +355,7 @@ def process_single_video(url: str, args, config: Config) -> bool:
                         if srt_ko_download:
                             print(f"Translated SRT copied to: {srt_ko_download}")
             else:
-                print("\n🌐 Translating transcript...")
+                print("\n[TRANSLATE] Translating transcript...")
                 translated_text, ok = translator.translate_text(transcription, preserve_timestamps=True, verbose=args.verbose)
                 if ok:
                     ko_path = config.TRANSCRIPT_PATH / f"{safe_title}.ko.txt"
@@ -387,10 +387,10 @@ def process_single_video(url: str, args, config: Config) -> bool:
     
     # Only show success message if transcription actually succeeded
     if transcription and transcription.strip():  # Check for non-empty transcription
-        print("\n✅ Transcription completed successfully!")
+        print("\n[SUCCESS] Transcription completed successfully!")
         return True
     else:
-        print("\n❌ Transcription failed!")
+        print("\n[ERROR] Transcription failed!")
         return False
 
 def main():
@@ -411,14 +411,14 @@ def main():
         config.validate()
         
         # Process URL
-        print(f"🎥 Starting transcription: {args.url}")
+        print(f"[START] Starting transcription: {args.url}")
         print(f"Engine: {args.engine}")
         
         # Check if playlist
         downloader = YouTubeDownloader(config.AUDIO_PATH, config.VIDEO_PATH, config.TEMP_PATH)
         
         if downloader.is_playlist(args.url):
-            print("\n🎵 Playlist detected!")
+            print("\n[PLAYLIST] Playlist detected!")
             playlist_items = downloader.get_playlist_items(args.url)
             
             if not playlist_items:
@@ -442,7 +442,7 @@ def main():
                 if process_single_video(item['url'], args, config):
                     success_count += 1
             
-            print(f"\n✅ Processed {success_count}/{len(playlist_items)} videos successfully")
+            print(f"\n[COMPLETE] Processed {success_count}/{len(playlist_items)} videos successfully")
             
         else:
             # Single video

@@ -1,0 +1,460 @@
+[youtube] Extracting URL: https://youtu.be/tosLBcAX1vk?si=7S9MXZokEzrHyh4x
+[START] Starting transcription: https://youtu.be/tosLBcAX1vk?si=7S9MXZokEzrHyh4x
+Engine: gpt-4o-mini-transcribe
+
+Extracting video information...
+Title: 세션 vs 토큰 vs 쿠키? 기초개념 잡아드림. 10분 순삭!
+Duration: 705 seconds
+Uploader: 노마드 코더 Nomad Coders
+
+Downloading audio...
+Downloading audio from YouTube...
+[youtube] tosLBcAX1vk: Downloading webpage
+[youtube] tosLBcAX1vk: Downloading tv simply player API JSON
+[youtube] tosLBcAX1vk: Downloading tv client config
+[youtube] tosLBcAX1vk: Downloading tv player API JSON
+[info] tosLBcAX1vk: Downloading 1 format(s): 251
+[download] Sleeping 5.00 seconds as required by the site...
+[download] Destination: /Users/jaesolshin/Documents/GitHub/yt-trans/audio/세션 vs 토큰 vs 쿠키？ 기초개념 잡아드림. 10분 순삭! [tosLBcAX1vk].webm
+
+[download]   0.0% of   10.60MiB at  Unknown B/s ETA Unknown
+[download]   0.0% of   10.60MiB at    2.70MiB/s ETA 00:03  
+[download]   0.1% of   10.60MiB at    4.89MiB/s ETA 00:02
+[download]   0.1% of   10.60MiB at    7.69MiB/s ETA 00:01
+[download]   0.3% of   10.60MiB at    6.22MiB/s ETA 00:01
+[download]   0.6% of   10.60MiB at    6.33MiB/s ETA 00:01
+[download]   1.2% of   10.60MiB at    7.78MiB/s ETA 00:01
+[download]   2.4% of   10.60MiB at   11.66MiB/s ETA 00:00
+[download]   4.7% of   10.60MiB at   16.48MiB/s ETA 00:00
+[download]   9.4% of   10.60MiB at   26.14MiB/s ETA 00:00
+[download]  18.9% of   10.60MiB at   35.34MiB/s ETA 00:00
+[download]  37.7% of   10.60MiB at   42.27MiB/s ETA 00:00
+[download]  75.5% of   10.60MiB at   49.45MiB/s ETA 00:00
+[download]  91.9% of   10.60MiB at   50.05MiB/s ETA 00:00
+[download]  91.9% of   10.60MiB at  Unknown B/s ETA Unknown
+[download]  91.9% of   10.60MiB at  Unknown B/s ETA Unknown
+[download]  91.9% of   10.60MiB at  Unknown B/s ETA Unknown
+[download]  92.0% of   10.60MiB at  Unknown B/s ETA Unknown
+[download]  92.2% of   10.60MiB at   29.60MiB/s ETA 00:00  
+[download]  92.5% of   10.60MiB at   47.37MiB/s ETA 00:00
+[download]  93.0% of   10.60MiB at   71.66MiB/s ETA 00:00
+[download]  94.2% of   10.60MiB at   68.68MiB/s ETA 00:00
+[download]  96.6% of   10.60MiB at   15.20MiB/s ETA 00:00
+[download] 100.0% of   10.60MiB at   22.14MiB/s ETA 00:00
+[download] 100% of   10.60MiB in 00:00:00 at 33.64MiB/s  
+[ExtractAudio] Destination: /Users/jaesolshin/Documents/GitHub/yt-trans/audio/세션 vs 토큰 vs 쿠키？ 기초개념 잡아드림. 10분 순삭! [tosLBcAX1vk].mp3
+Audio downloaded: 세션 vs 토큰 vs 쿠키？ 기초개념 잡아드림. 10분 순삭! [tosLBcAX1vk].mp3
+
+Transcribing with gpt-4o-mini-transcribe...
+[GPT-4o-mini] Processing: /Users/jaesolshin/Documents/GitHub/yt-trans/audio/세션 vs 토큰 vs 쿠키？ 기초개념 잡아드림. 10분 순삭! [tosLBcAX1vk].mp3
+[GPT-4o-mini] Using hybrid mode for accurate timestamps...
+[Hybrid] Step 1: Fetching YouTube transcript with timestamps...
+Error: Transcripts are disabled for this video
+[Hybrid] Error: Could not fetch YouTube transcript
+[GPT-4o-mini] Hybrid mode failed, falling back to standard mode
+[GPT-4o-mini] ⚠️  YouTube transcript API를 사용할 수 없어 30초 단위의 타임코드가 생성됩니다
+[GPT-4o-mini] (Live 영상이거나 자막이 없는 영상일 수 있습니다)
+[GPT-4o-mini] ℹ️  Using chunked timestamps for gpt-4o-mini-transcribe
+[GPT-4o-mini] Using chunking for timestamp support...
+[Audio] Using project temp directory: /Users/jaesolshin/Documents/GitHub/yt-trans/temp_audio
+[Audio] Splitting 704.7s audio into 24 chunks of 30s each
+[Audio] Created chunk 1/24: chunk_000.mp3
+[Audio] Created chunk 2/24: chunk_001.mp3
+[Audio] Created chunk 3/24: chunk_002.mp3
+[Audio] Created chunk 4/24: chunk_003.mp3
+[Audio] Created chunk 5/24: chunk_004.mp3
+[Audio] Created chunk 6/24: chunk_005.mp3
+[Audio] Created chunk 7/24: chunk_006.mp3
+[Audio] Created chunk 8/24: chunk_007.mp3
+[Audio] Created chunk 9/24: chunk_008.mp3
+[Audio] Created chunk 10/24: chunk_009.mp3
+[Audio] Created chunk 11/24: chunk_010.mp3
+[Audio] Created chunk 12/24: chunk_011.mp3
+[Audio] Created chunk 13/24: chunk_012.mp3
+[Audio] Created chunk 14/24: chunk_013.mp3
+[Audio] Created chunk 15/24: chunk_014.mp3
+[Audio] Created chunk 16/24: chunk_015.mp3
+[Audio] Created chunk 17/24: chunk_016.mp3
+[Audio] Created chunk 18/24: chunk_017.mp3
+[Audio] Created chunk 19/24: chunk_018.mp3
+[Audio] Created chunk 20/24: chunk_019.mp3
+[Audio] Created chunk 21/24: chunk_020.mp3
+[Audio] Created chunk 22/24: chunk_021.mp3
+[Audio] Created chunk 23/24: chunk_022.mp3
+[Audio] Created chunk 24/24: chunk_023.mp3
+[GPT-4o-mini] Transcribing 24 chunks...
+
+                                                                                                    
+Overall: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0.4% (0.1/24 chunks) | Speed: 16426.78 chunks/min | ETA: 0m 0s
+                                                                                                    
+Overall: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 5.8% (1.4/24 chunks) | Speed: 33.82 chunks/min | ETA: 0m 40s
+[GPT-4o-mini] Chunk 2: 493 chars
+
+                                                                                                    
+Overall: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 6.3% (1.5/24 chunks) | Speed: 36.23 chunks/min | ETA: 0m 37s
+                                                                                                    
+Overall: [████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 10.0% (2.4/24 chunks) | Speed: 54.30 chunks/min | ETA: 0m 23s
+[GPT-4o-mini] Chunk 1: 558 chars
+
+                                                                                                    
+Overall: [████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 10.4% (2.5/24 chunks) | Speed: 56.56 chunks/min | ETA: 0m 22s
+                                                                                                    
+Overall: [█████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 14.2% (3.4/24 chunks) | Speed: 68.68 chunks/min | ETA: 0m 17s
+[GPT-4o-mini] Chunk 5: 512 chars
+
+                                                                                                    
+Overall: [█████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 14.6% (3.5/24 chunks) | Speed: 70.70 chunks/min | ETA: 0m 17s
+                                                                                                    
+Overall: [███████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 18.3% (4.4/24 chunks) | Speed: 84.82 chunks/min | ETA: 0m 13s
+[GPT-4o-mini] Chunk 4: 535 chars
+
+                                                                                                    
+Overall: [███████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 18.7% (4.5/24 chunks) | Speed: 86.74 chunks/min | ETA: 0m 13s
+                                                                                                    
+Overall: [████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 22.5% (5.4/24 chunks) | Speed: 66.42 chunks/min | ETA: 0m 16s
+[GPT-4o-mini] Chunk 6: 472 chars
+
+                                                                                                    
+Overall: [█████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 22.9% (5.5/24 chunks) | Speed: 67.65 chunks/min | ETA: 0m 16s
+                                                                                                    
+Overall: [██████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 26.7% (6.4/24 chunks) | Speed: 72.84 chunks/min | ETA: 0m 14s
+[GPT-4o-mini] Chunk 9: 470 chars
+
+                                                                                                    
+Overall: [██████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 27.1% (6.5/24 chunks) | Speed: 73.97 chunks/min | ETA: 0m 14s
+                                                                                                    
+Overall: [████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 30.8% (7.4/24 chunks) | Speed: 77.56 chunks/min | ETA: 0m 12s
+[GPT-4o-mini] Chunk 8: 479 chars
+
+                                                                                                    
+Overall: [████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 31.2% (7.5/24 chunks) | Speed: 78.61 chunks/min | ETA: 0m 12s
+                                                                                                    
+Overall: [█████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░] 35.0% (8.4/24 chunks) | Speed: 83.44 chunks/min | ETA: 0m 11s
+[GPT-4o-mini] Chunk 7: 527 chars
+
+                                                                                                    
+Overall: [██████████████░░░░░░░░░░░░░░░░░░░░░░░░░░] 35.4% (8.5/24 chunks) | Speed: 84.44 chunks/min | ETA: 0m 11s
+                                                                                                    
+Overall: [███████████████░░░░░░░░░░░░░░░░░░░░░░░░░] 39.2% (9.4/24 chunks) | Speed: 91.75 chunks/min | ETA: 0m 9s
+[GPT-4o-mini] Chunk 3: 479 chars
+
+                                                                                                    
+Overall: [███████████████░░░░░░░░░░░░░░░░░░░░░░░░░] 39.6% (9.5/24 chunks) | Speed: 92.72 chunks/min | ETA: 0m 9s
+                                                                                                    
+Overall: [█████████████████░░░░░░░░░░░░░░░░░░░░░░░] 43.3% (10.4/24 chunks) | Speed: 79.01 chunks/min | ETA: 0m 10s
+[GPT-4o-mini] Chunk 10: 534 chars
+
+                                                                                                    
+Overall: [█████████████████░░░░░░░░░░░░░░░░░░░░░░░] 43.7% (10.5/24 chunks) | Speed: 79.77 chunks/min | ETA: 0m 10s
+                                                                                                    
+Overall: [██████████████████░░░░░░░░░░░░░░░░░░░░░░] 47.5% (11.4/24 chunks) | Speed: 86.19 chunks/min | ETA: 0m 8s
+[GPT-4o-mini] Chunk 12: 502 chars
+
+                                                                                                    
+Overall: [████████████████████░░░░░░░░░░░░░░░░░░░░] 51.7% (12.4/24 chunks) | Speed: 87.59 chunks/min | ETA: 0m 7s
+[GPT-4o-mini] Chunk 13: 390 chars
+
+                                                                                                    
+Overall: [████████████████████░░░░░░░░░░░░░░░░░░░░] 52.1% (12.5/24 chunks) | Speed: 88.30 chunks/min | ETA: 0m 7s
+                                                                                                    
+Overall: [██████████████████████░░░░░░░░░░░░░░░░░░] 55.8% (13.4/24 chunks) | Speed: 94.34 chunks/min | ETA: 0m 6s
+[GPT-4o-mini] Chunk 11: 441 chars
+
+                                                                                                    
+Overall: [████████████████████████░░░░░░░░░░░░░░░░] 60.0% (14.4/24 chunks) | Speed: 82.00 chunks/min | ETA: 0m 7s
+[GPT-4o-mini] Chunk 15: 487 chars
+
+                                                                                                    
+Overall: [████████████████████████░░░░░░░░░░░░░░░░] 60.4% (14.5/24 chunks) | Speed: 82.57 chunks/min | ETA: 0m 6s
+                                                                                                    
+Overall: [█████████████████████████░░░░░░░░░░░░░░░] 64.2% (15.4/24 chunks) | Speed: 87.09 chunks/min | ETA: 0m 5s
+[GPT-4o-mini] Chunk 16: 388 chars
+
+                                                                                                    
+Overall: [███████████████████████████░░░░░░░░░░░░░] 68.3% (16.4/24 chunks) | Speed: 89.80 chunks/min | ETA: 0m 5s
+[GPT-4o-mini] Chunk 17: 541 chars
+
+                                                                                                    
+Overall: [███████████████████████████░░░░░░░░░░░░░] 68.8% (16.5/24 chunks) | Speed: 90.35 chunks/min | ETA: 0m 4s
+                                                                                                    
+Overall: [█████████████████████████████░░░░░░░░░░░] 72.5% (17.4/24 chunks) | Speed: 95.28 chunks/min | ETA: 0m 4s
+[GPT-4o-mini] Chunk 18: 558 chars
+
+                                                                                                    
+Overall: [██████████████████████████████░░░░░░░░░░] 76.7% (18.4/24 chunks) | Speed: 93.76 chunks/min | ETA: 0m 3s
+[GPT-4o-mini] Chunk 14: 473 chars
+
+                                                                                                    
+Overall: [██████████████████████████████░░░░░░░░░░] 77.1% (18.5/24 chunks) | Speed: 94.27 chunks/min | ETA: 0m 3s
+                                                                                                    
+Overall: [████████████████████████████████░░░░░░░░] 80.8% (19.4/24 chunks) | Speed: 93.94 chunks/min | ETA: 0m 2s
+[GPT-4o-mini] Chunk 20: 497 chars
+
+                                                                                                    
+Overall: [████████████████████████████████░░░░░░░░] 81.3% (19.5/24 chunks) | Speed: 94.43 chunks/min | ETA: 0m 2s
+                                                                                                    
+Overall: [██████████████████████████████████░░░░░░] 85.0% (20.4/24 chunks) | Speed: 90.72 chunks/min | ETA: 0m 2s
+[GPT-4o-mini] Chunk 22: 515 chars
+
+                                                                                                    
+Overall: [███████████████████████████████████░░░░░] 88.8% (21.3/24 chunks) | Speed: 92.70 chunks/min | ETA: 0m 1s
+[GPT-4o-mini] Chunk 23: 587 chars
+
+                                                                                                    
+Overall: [█████████████████████████████████████░░░] 92.5% (22.2/24 chunks) | Speed: 96.44 chunks/min | ETA: 0m 1s
+[GPT-4o-mini] Chunk 19: 615 chars
+
+                                                                                                    
+Overall: [██████████████████████████████████████░░] 96.2% (23.1/24 chunks) | Speed: 96.74 chunks/min | ETA: 0m 0s
+[GPT-4o-mini] Chunk 24: 228 chars
+
+                                                                                                    
+Overall: [████████████████████████████████████████] 100.0% (24.0/24 chunks) | Speed: 97.39 chunks/min | ETA: calculating...
+[GPT-4o-mini] Chunk 21: 505 chars
+
+[WorkerPool] Completed 24 chunks in 0m 14s
+[WorkerPool] Worker 13455405056: Processed 5 chunks, avg time: 2.8s
+[WorkerPool] Worker 13438578688: Processed 5 chunks, avg time: 3.0s
+[WorkerPool] Worker 13505884160: Processed 6 chunks, avg time: 2.4s
+[WorkerPool] Worker 13489057792: Processed 5 chunks, avg time: 2.7s
+[WorkerPool] Worker 13472231424: Processed 3 chunks, avg time: 4.6s
+[GPT-4o-mini] Completed: 24/24 chunks
+[GPT-4o-mini] Streaming transcription...
+------------------------------------------------------------
+[00:00] Hello, Nicholas here. Authentication is how your application knows
+who your users are and is something that you're going
+to eventually have to make in your full stack career.
+If you ever need to implement authentication, you're going to
+see words like cookies, sessions, tokens, or JWTs. Because the
+difference between them could be confusing, on this video we're
+going to see how they are related to each other
+and how do they work. So by the end of
+this video, you will know what everything means and when
+is the best time to use it. Now, let's... [00:30]
+Let's start with a question that I've seen many times
+online and a question that I had before, and that
+is cookies versus tokens. This question is in itself sort
+of wrong, and I think it comes from not actually
+knowing how cookies work. So let's start there. Let's talk
+about cookies. Cookies are how a server can put data
+on your browser to remember something about you. When you
+go to a website, your browser will make a request
+to a server. Their server will reply with a response.
+[01:00] The response will have all the data and the
+code required to show you the page you are looking
+for. And also on that response, the server can give
+to the browser some cookies to save. From now on,
+after you get the cookies in your browser, every time
+that you go to that website, the cookies are going
+to also be sent on that request. Cookies are limited
+by domain. So for example, all the cookies that youtube.com
+will give you are only going to be sent to
+youtube.com. [01:30] to have an expiration date. Some of them
+can expire in a day, in a week or whenever
+the server wants to. Cookies can be used to remember
+all sorts of things, they are not actually only related
+to authentication. For example, if you change the language of
+your website, the server can give you a cookie that
+will remember what language you chose. So then, the next
+time that you visit that website again, the cookie is
+going to go with that request so the server will
+be able to give you the page in the language
+that you want. [02:00] Now let's talk about sessions and
+tokens. To understand why we need sessions and tokens, we
+need to remember that HTTP, the protocol that we use
+to go to a website, http://youtube.com, that protocol is stateless.
+Stateless means that every request that goes to the server
+is treated independently from the previous ones. There is no
+link between requests, there is no memory. After the request
+is finished, the server will forget about who you are.
+Because the server forgets everything about who we are [02:30]
+Once the request is finished, we have to remind to
+the server who we are with every request we make.
+One way to do this is by using sessions. So
+if we have a username called Nico let's say, and
+we want to login, we're going to send the username
+and the password to the server. If the password is
+correct, the server will create a record in a sessions
+database for the Nico user. That session will have a
+unique ID. That session ID will be sent back to
+our browser [03:00] send cookies as a transportation method and
+there it will be saved. So when we navigate to
+another page on that same website, our browser is going
+to send the cookie that has the session ID back
+to the server. Because as we know, cookies are sent
+automatically. The server is going to look at the cookies
+that are coming in and will see that there is
+an incoming cookie with a session ID. Still, at this
+point the server doesn't know who we are. The server
+only knows that there is somebody making a request and
+that's [03:30] has a cookie with a session ID. With
+that session ID, the server will go and look on
+the sessions database. There, the server will find that this
+ID belongs to Nico, user, and only then the server
+will know who we are, so then the server will
+be able to show us a message saying, welcome, Nico.
+And again, after the response is over, everything is finished,
+and if we navigate to another page, the whole process
+will happen again. The important thing to remember here is
+[04:00] that all the information about the user is on
+the server side, is on the database. The user only
+has a session ID, that's it. As you can see,
+the cookie is just the transportation method that we use
+to send and receive the session ID that is on
+our database. We can still use sessions when making iOS
+or Android applications, but we cannot use cookies, of course,
+because cookies only exist on browsers, not on native apps.
+In this context, people will refer to [04:30] as a
+token. We would be sending a token to the server.
+But the token is just a string. It's just a
+string that looks really weird and that we have to
+send to the server and the server is going to
+take that token and then it's going to look in
+the session database for the person that has that token.
+The most important thing to remember about sessions is that
+the server has to use database resources to keep track
+of all the people that are logged in. That also
+means that with every request that comes in, the server
+has to [05:00] has to look at the session ID,
+has to search in the session ID for the user,
+and then it can continue. That means hitting the database
+or hitting the sessions database every time there is a
+request. That means that the more users are logged in,
+the more database resources we need. And this is when
+we introduce JWT. JWT is a token format, and if
+you use JWT to authenticate your users, there is no
+need to have a sessions database. [05:30] database and the
+server doesn't have to work that hard to authenticate a
+user. Remember, a token is just a very weird-looking text
+that we get from the server and that we have
+to send on every request. Let's see the difference between
+JWT and sessions by looking at the login example one
+more time. If we have a username Nico and we
+want to log in, we will send the username and
+the password to the server. That is the same as
+before. If the username and password are correct, the server
+won't [06:00] create anything on the database. Instead, the server
+will take the ID of the user, for example, and
+it will sign it using a signature algorithm. Then the
+server will send us the signed information as a string.
+Here is how a JWT looks like. As you can
+see, it's very long, longer than an average session ID
+that we use when we send cookies. This is also
+because cookies have a space [06:30] JWTs don't have a
+space limit. They can be very big. So, as you
+can see, we log in just like before, but instead
+of hitting the database, all the server is doing is
+signing some information and giving that to us. Now, if
+we want to make a request to the server, just
+like when we were using session IDs, we have to
+send that token or signed information to the server to
+remind the server who we are. When the server receives
+our token, the server is going to check [07:00] The
+signature is valid, which basically means that nobody modified the
+token, and if it is, then the server will trust
+the token and it will see who we are. And
+that right there is the biggest difference between making user
+authentication with sessions or with JWT. With sessions, the server
+just gives us a session ID. All the information about
+the session and the user is contained on the sessions
+database. And when we request a page to the server,
+the server will search for [07:30] that station ID on
+the stations database. With JWT, the server will put the
+information needed to identify us in the token itself and
+then give it to us. When we request a page,
+the server will just verify the signature to see that
+we haven't modified the token. No need to search on
+the database. Also, keep in mind that the JWT is
+not encrypted. It is signed but not encrypted. [08:00] means
+that nobody can see the content, nobody can understand what's
+going on. In the case of JWT, anybody could open
+up the JWT and look at the content it has
+inside, so we shouldn't put any secret information in the
+JWT. And again, this is okay. The point is not
+to keep the information secret. The point is just to
+sign the token and verify that nobody has modified it.
+So now let's talk about pros and cons between doing
+authentication with sessions and authentication with JWT. As we know,
+when we use sessions, the server keeps [08:30] track of
+all the people that are logged in on this session's
+database. Having the sessions in our sessions database allows us
+to build features that applications need. For example, if you
+need to force a logout, if you need to kick
+a user out of your application, you can just delete
+the session from the database. Or you can do what
+Instagram does. In Instagram they show you a list of
+all the devices that you have logged in from, so
+you can delete or force logout of the devices that
+you don't recognize anymore. Or Netflix that limits the amount
+[09:00] people that can share an account in order to
+know how many people are currently logged in and watching.
+All these features are possible because the server is keeping
+track of who is logged in. All these features are
+possible because we have a sessions database. But remember, if
+we want to do this, if we want to keep
+track of all the people that are logged in in
+our application, we have to have a database and that
+is one more thing that you're going to have to
+maintain and one more thing that you're going to have
+to pay for. And also, the more users you get,
+the more database speed you need. But most [09:30] people
+solve this problem by using Redis, which is a very
+cheap and fast database for exactly this kind of case.
+Now with JWT, the server doesn't keep track of the
+tokens that it has created by default. All the server
+knows is if a token is valid or not. That's
+it. With JWT, you don't have to pay for an
+extra sessions database, but also that means that you cannot
+build those accounts features that we talked about. You cannot
+force somebody out because their token is going to be
+valid [10:00] As long as it hasn't expired. This doesn't
+mean that JWT sucks. JWT is actually pretty good. It's
+a great way of signing data and giving that data
+to the user, and then when receiving the data back,
+we can verify if the data has been modified or
+not without having to need a database. That is a
+super cool feature. For example, here in South Korea, this
+application that we use when we have to go to
+a cafe or a restaurant to check in, this is
+actually a JWT encoded in a QR code. So JWT
+has many [10:30] One of them could be to help
+you authenticate your users without the need for a sessions
+database. And that is all good as long as we
+are aware of the limits and the ceiling that we
+might find. I personally start all my applications using JWT
+because it's so easy, it takes five minutes to implement.
+But if the application grows and maybe I feel like
+I need some more power over the user account system,
+then I will move on to sessions. And that's it
+for this video. I hope that you learned something new.
+[11:00] and I hope that maybe if you were confused,
+this video helped you a little bit to organize what
+you had in your mind. Cookies are just a transportation
+system. Tokens are just very weird strings that the server
+remembers, so you have to send that to the server
+so the server can check who you are, like an
+ID card. JWTs are just a token system that has
+self-contained information that we can verify without the need for
+a database. Sometimes we're going to use JWTs for authentication,
+sometimes we're going to use sessions. That's it. Thank you
+so much for watching this video. [11:30] If you have
+any questions, let me know on the comments. I hope
+I see you on the next one. If you like
+this content, don't forget to like, subscribe, stay healthy, be
+happy. 감사합니다. 사랑해요. See you on the next one. Bye
+bye.
+------------------------------------------------------------
+[Audio] Keeping 24 chunk files for debugging
+[Audio] Chunks location: /Users/jaesolshin/Documents/GitHub/yt-trans/temp_audio
+
+Transcript saved: /Users/jaesolshin/Documents/GitHub/yt-trans/transcript/세션_vs_토큰_vs_쿠키_기초개념_잡아드림._10분_순삭!.txt
+
+[SUMMARY] Generating summary...
+Generating summary with gpt-5-mini...
+Summary generated successfully
+Summary saved: /Users/jaesolshin/Documents/GitHub/yt-trans/transcript/세션_vs_토큰_vs_쿠키_기초개념_잡아드림._10분_순삭!_summary.txt
+Summary copied to: /Users/jaesolshin/Downloads/세션_vs_토큰_vs_쿠키_기초개념_잡아드림._10분_순삭!_summary.txt
+
+Transcript copied to: /Users/jaesolshin/Downloads/세션_vs_토큰_vs_쿠키_기초개념_잡아드림._10분_순삭!.txt
+
+[SUCCESS] Transcription completed successfully!

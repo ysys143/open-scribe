@@ -33,7 +33,7 @@ class YouTubeTranscriberTUI(App):
     .main-scroll {
         height: 100%;
         width: 100%;
-        overflow-y: auto;
+        overflow: hidden;
     }
 
     .header-section {
@@ -55,6 +55,7 @@ class YouTubeTranscriberTUI(App):
 
     .main-section {
         height: 90%;
+        min-height: 0;
     }
 
     .menu-section {
@@ -77,7 +78,7 @@ class YouTubeTranscriberTUI(App):
     .content-area {
         width: 1fr; padding: 0 1 0 1; margin: 0 1;
         border: solid #45475a;
-        height: 100%; overflow-y: auto; scrollbar-size: 1 1;
+        height: 1fr; min-height: 0; overflow: hidden; /* 내부 컨테이너에서만 스크롤 */
         align: left top; content-align: left top;
     }
 
@@ -140,6 +141,11 @@ class YouTubeTranscriberTUI(App):
 
     .menu-button:focus {
         background: #45475a;
+    }
+    .menu-button.selected {
+        background: #45475a;
+        color: #f9e2af;
+        text-style: bold;
     }
     
     /* Input container styles */
@@ -206,7 +212,10 @@ class YouTubeTranscriberTUI(App):
 
     .tab-content {
         padding: 1;
-        height: auto;
+        height: 1fr;
+        min-height: 0;
+        overflow-y: auto;
+        scrollbar-size: 1 1;
     }
 
     .input-group {
@@ -257,20 +266,29 @@ class YouTubeTranscriberTUI(App):
 
     .utility-button {
         margin: 0 1;
-        background: #89b4fa;
-        color: #1e1e2e; min-width: 14; height: 3; min-height: 3;
-        border: none;                /* 기본 보더 제거 */
+        background: #7aa7f0;          /* 차분한 하늘색 */
+        color: #0b1020; min-width: 14; height: 3; min-height: 3;
+        border: none; text-style: bold;
     }
 
+    /* 경고: 테두리 제거, 은은한 솔리드 앰버 */
     .warning-button {
         margin: 0 1;
-        background: #f28fad; color: #1e1e2e; min-width: 14; height: 3; min-height: 3;
-        border: none;                /* 기본 보더 제거 */
+        background: #f59e0b; color: #0f0f10; min-width: 14; height: 3; min-height: 3;
+        border: none; text-style: bold;
     }
-    .warning-button:hover { background: #ee7fa0 }
+    .warning-button:hover { background: #fbbf24 }
 
-    .utility-button:hover { background: #7aa7f0 }
-    .utility-button:focus, .action-button:focus, .warning-button:focus { outline: none }
+    /* 치명: 가시성 높은 솔리드 레드 */
+    .danger-button {
+        margin: 0 1;
+        background: #ef4444; color: #0f0f10; min-width: 14; height: 3; min-height: 3;
+        border: none; text-style: bold;
+    }
+    .danger-button:hover { background: #dc2626 }
+
+    .utility-button:hover { background: #6a98e6 }
+    .utility-button:focus, .action-button:focus, .warning-button:focus, .danger-button:focus { outline: none }
 
     /* Bottom action bar & spacer */
     .actions-bar {
@@ -311,9 +329,9 @@ class YouTubeTranscriberTUI(App):
         content-align: left top;
     }
 
-    /* Input focus styles */
-    Input { background: transparent; border: solid #f9e2af }
-    Input:focus { outline: solid #f9e2af }
+    /* Input focus styles - remove yellow borders */
+    Input { background: transparent; border: none }
+    Input:focus { outline: none }
 
     /* --- Optional theme override (cosmic) --- */
     .theme--cosmic Screen, Screen.theme--cosmic { background:#12141a; color:#f3f6ff }
@@ -322,25 +340,11 @@ class YouTubeTranscriberTUI(App):
     .theme--cosmic .warning-button, .warning-button.theme--cosmic { background:#fb7185; color:#101318 }
     .theme--cosmic .utility-button, .utility-button.theme--cosmic { background:#7dd3fc; color:#101318 }
     .theme--cosmic Input, Input.theme--cosmic { border: solid #a78bfa }
-    Select:focus {
-        border: solid #f9e2af;
-    }
-
-    Checkbox:focus {
-        border: solid #f9e2af;
-    }
-
-    Switch:focus {
-        border: solid #f9e2af;
-    }
-
-    Slider:focus {
-        border: solid #f9e2af;
-    }
-
-    RadioButton:focus {
-        border: solid #f9e2af;
-    }
+    Select:focus { border: none }
+    Checkbox:focus { border: none }
+    Switch:focus { border: none }
+    Slider:focus { border: none }
+    RadioButton:focus { border: none }
 
     /* Settings screen */
     .settings-container {
@@ -374,6 +378,21 @@ class YouTubeTranscriberTUI(App):
         height: 100%;
         overflow-y: auto;
     }
+
+    /* Database screen: 상단 정렬 강제 */
+    .db-container {
+        padding: 1;
+        height: 1fr;            /* 가용 영역을 채움 */
+        align: left top;        /* 위쪽 정렬 */
+        content-align: left top;
+        dock: top;
+    }
+
+    .db-container > Horizontal { margin: 0; padding: 0; }
+    .db-container Button { margin: 0; }
+    /* Database table wrapper and table fill rules */
+    #db_table_wrap { height: 1fr; min-height: 0; margin: 0; padding: 0; }
+    #db_table_wrap DataTable { height: 100%; margin: 0; dock: top; }
     
     .screen-title {
         text-style: bold;
@@ -423,7 +442,19 @@ class YouTubeTranscriberTUI(App):
     
     .output-text {
         color: #cdd6f4;
-        margin: 0;
+        margin: 0 0 1 0; /* 하단 여백으로 시각적 구분 */
+    }
+    
+    .output-text.success {
+        color: #a6e3a1;
+    }
+    
+    .output-text.warning {
+        color: #f9e2af;
+    }
+    
+    .output-text.progress-line {
+        color: #89b4fa;
     }
 
     /* Progress widgets */
@@ -550,12 +581,28 @@ class YouTubeTranscriberTUI(App):
         background: #313244;
         border: solid #89b4fa;
         padding: 2;
-        max-width: 50;
+        width: auto;
+        max-width: 40;   /* 너무 넓지 않게 조정 */
+        min-width: 30;
     }
 
     .dialog-buttons {
         align: center middle;
         margin-top: 1;
+    }
+    
+    /* Settings container - enable scrolling */
+    .settings-container {
+        height: 100%;
+        max-height: 100%;
+        min-height: 0;
+        overflow-y: auto;
+        scrollbar-size: 1 1;
+        padding: 1;
+    }
+    
+    .setting-group {
+        margin-bottom: 1;
     }
     """
 

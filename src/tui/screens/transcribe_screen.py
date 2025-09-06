@@ -266,8 +266,21 @@ class TranscribeScreen(Widget):
             for p in placeholder:
                 p.remove()
         
-        # 새 텍스트 추가
-        self.output_display.mount(Static(text.rstrip(), classes="output-text"))
+        # 텍스트 처리 - 여러 줄인 경우 각 줄을 별도로 추가
+        lines = text.rstrip().split('\n')
+        for line in lines:
+            if line:  # 빈 줄 제외
+                # 진행 상황 표시줄이나 특별한 출력 스타일링
+                if "%" in line and ("━" in line or "=" in line or "-" in line):  # Progress bar
+                    self.output_display.mount(Static(line, classes="output-text progress-line"))
+                elif line.startswith("Error:") or "failed" in line.lower():
+                    self.output_display.mount(Static(line, classes="output-text error"))
+                elif "completed" in line.lower() or "success" in line.lower():
+                    self.output_display.mount(Static(line, classes="output-text success"))
+                elif line.startswith("Warning:"):
+                    self.output_display.mount(Static(line, classes="output-text warning"))
+                else:
+                    self.output_display.mount(Static(line, classes="output-text"))
         
         # 스크롤을 맨 아래로
         self.output_display.scroll_end()

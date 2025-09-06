@@ -24,8 +24,8 @@ class BaseScreen(Screen):
     
     def show_error(self, message: str) -> None:
         """에러 메시지 표시"""
-        self.notify(f"❌ {message}", severity="error")
+        self.app.notify(f"✗ {message}", severity="error")
     
     def show_success(self, message: str) -> None:
         """성공 메시지 표시"""
-        self.notify(f"✅ {message}", severity="information")
+        self.app.notify(f"✓ {message}", severity="information")

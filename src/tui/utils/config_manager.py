@@ -111,6 +111,43 @@ class ConfigManager:
             
         except Exception:
             return False
+
+    def validate_api_key_sync(self, api_key: str, env_key: str = "OPENAI_API_KEY") -> bool:
+        """동기 API 키 검증 (이벤트 루프 이슈 대비)"""
+        try:
+            # 0) 경량 HTTP 검증 (SDK 이슈 회피, 5초 타임아웃)
+            try:
+                import urllib.request as _u
+                import urllib.error as _ue
+                req = _u.Request(
+                    "https://api.openai.com/v1/models",
+                    headers={"Authorization": f"Bearer {api_key}"}
+                )
+                with _u.urlopen(req, timeout=5) as resp:
+                    if resp.status == 200:
+                        self._save_validation_time(env_key)
+                        return True
+            except Exception:
+                pass
+            # 우선 신 SDK (>=1.x)
+            try:
+                from openai import OpenAI  # type: ignore
+                client = OpenAI(api_key=api_key)
+                _ = client.models.list()
+                self._save_validation_time(env_key)
+                return True
+            except Exception:
+                # 구 SDK (<=0.x) 폴백
+                try:
+                    import openai  # type: ignore
+                    openai.api_key = api_key
+                    _ = openai.Model.list()
+                    self._save_validation_time(env_key)
+                    return True
+                except Exception:
+                    return False
+        except Exception:
+            return False
     
     def update_env_file(self, key: str, value: str) -> None:
         """환경 변수 파일 업데이트"""
