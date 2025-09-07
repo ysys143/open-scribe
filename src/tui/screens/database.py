@@ -11,6 +11,7 @@ from textual.coordinate import Coordinate
 
 from .base import BaseScreen
 from ..utils.db_manager import DatabaseManager
+from ...config import Config
 
 
 class DatabaseScreen(BaseScreen):
@@ -34,6 +35,7 @@ class DatabaseScreen(BaseScreen):
         self._selected_ids: set[int] = set()
         self._viewer_open = False
         self._last_jobs_snapshot: list[dict] = []
+        self._debug = Config.DEBUG
     
     def compose(self) -> ComposeResult:
         """UI 구성"""
@@ -174,7 +176,8 @@ class DatabaseScreen(BaseScreen):
             return
         try:
             row_index = event.coordinate.row
-            self.app.notify(f"Cell clicked at row {row_index}, opening viewer", severity="information")
+            if self._debug:
+                self.app.notify(f"Cell clicked at row {row_index}, opening viewer", severity="information")
             self._open_viewer_by_index(row_index)
             event.stop()  # 이벤트 전파 중지
         except Exception as e:
@@ -194,7 +197,8 @@ class DatabaseScreen(BaseScreen):
             table = self.query_one("#jobs_table", DataTable)
             # cursor_row를 사용하여 현재 선택된 행 처리
             if table.cursor_row is not None and table.cursor_row >= 0:
-                self.app.notify(f"Opening viewer for row {table.cursor_row}", severity="information")
+                if self._debug:
+                    self.app.notify(f"Opening viewer for row {table.cursor_row}", severity="information")
                 self._open_viewer_by_index(table.cursor_row)
         except Exception as e:
             self.app.notify(f"Row selection error: {e}", severity="error")
@@ -204,15 +208,18 @@ class DatabaseScreen(BaseScreen):
             table = self.query_one("#jobs_table", DataTable)
             row = table.get_row_at(row_index)
             if not row:
-                self.app.notify(f"No row data at index {row_index}", severity="error")
+                if self._debug:
+                    self.app.notify(f"No row data at index {row_index}", severity="error")
                 return
             job_id = int(row[0])
-            self.app.notify(f"Found job_id {job_id}, opening viewer", severity="information")
+            if self._debug:
+                self.app.notify(f"Found job_id {job_id}, opening viewer", severity="information")
             self._open_transcript_viewer(job_id)
         except Exception as e:
             import traceback
-            self.app.notify(f"Error in _open_viewer_by_index: {e}", severity="error")
-            self.show_error(f"Failed to open viewer: {traceback.format_exc()}")
+            if self._debug:
+                self.app.notify(f"Error in _open_viewer_by_index: {e}", severity="error")
+                self.show_error(f"Failed to open viewer: {traceback.format_exc()}")
     
     def _format_size(self, size: int) -> str:
         units = ["B", "KB", "MB", "GB", "TB"]
@@ -364,7 +371,8 @@ class DatabaseScreen(BaseScreen):
             self.load_data()
             table.focus()
             
-            self.app.notify("Returned to database list", severity="information")
+            if self._debug:
+                self.app.notify("Returned to database list", severity="information")
             
         except Exception as e:
             import traceback
@@ -451,14 +459,16 @@ class DatabaseScreen(BaseScreen):
     def _open_transcript_viewer(self, job_id: int) -> None:
         try:
             # 디버깅을 위한 로그
-            self.app.notify(f"_open_transcript_viewer called with job_id {job_id}", severity="information")
+            if self._debug:
+                self.app.notify(f"_open_transcript_viewer called with job_id {job_id}", severity="information")
             
             job = self.db.get_job_by_id(job_id)
             if not job:
                 self.show_error(f"Job {job_id} not found in database")
                 return
             
-            self.app.notify(f"Job found: {job.get('title', 'No title')[:30]}", severity="information")
+            if self._debug:
+                self.app.notify(f"Job found: {job.get('title', 'No title')[:30]}", severity="information")
             # 파일 경로 결정
             orig_path = job.get("transcript_path") or job.get("translation_path")
             summary_path = None
@@ -488,16 +498,19 @@ class DatabaseScreen(BaseScreen):
             summary_text = _read_text(summary_path)
 
             # 테이블 대신 뷰어 표시
-            self.app.notify("Clearing container for viewer", severity="information")
+            if self._debug:
+                self.app.notify("Clearing container for viewer", severity="information")
             container = self.query_one(".db-container", Vertical)
             container.remove_children()
-            self.app.notify("Container cleared", severity="information")
+            if self._debug:
+                self.app.notify("Container cleared", severity="information")
             
             # 제목과 정보 표시
             title = job.get("title", "제목 없음")
             container.mount(Static(f"[T] Transcript Viewer - {title[:50]}{'...' if len(title) > 50 else ''}", classes="screen-title"))
             # 버튼 바와 정보 표시
-            self.app.notify("Mounting button bar", severity="information")
+            if self._debug:
+                self.app.notify("Mounting button bar", severity="information")
             btns = Horizontal(id="viewer_button_bar")
             # 먼저 컨테이너에 mount한 후에 자식 위젯 추가
             container.mount(btns)
@@ -505,7 +518,8 @@ class DatabaseScreen(BaseScreen):
             btns.mount(Static(f"Engine: {job.get('engine', 'N/A')} | Status: {job.get('status', 'N/A')}", classes="viewer-info"))
             btns.styles.height = 3
             btns.styles.min_height = 3
-            self.app.notify("Button bar mounted", severity="information")
+            if self._debug:
+                self.app.notify("Button bar mounted", severity="information")
             # 본문 영역
             if summary_text:
                 split = Horizontal()
@@ -542,14 +556,17 @@ class DatabaseScreen(BaseScreen):
                 back_btn = self.query_one("#viewer_back", Button)
                 back_btn.focus()
             except Exception as e:
-                self.app.notify(f"Could not focus back button: {e}", severity="warning")
+                if self._debug:
+                    self.app.notify(f"Could not focus back button: {e}", severity="warning")
             
-            self.app.notify("Transcript viewer opened successfully - Press Back button or ESC to return", severity="success")
+            if self._debug:
+                self.app.notify("Transcript viewer opened successfully - Press Back button or ESC to return", severity="success")
         except Exception as e:
             import traceback
             error_msg = f"Viewer error: {e}\nTraceback:\n{traceback.format_exc()}"
             self.show_error(error_msg)
-            self.app.notify(f"Failed to open viewer: {e}", severity="error")
+            if self._debug:
+                self.app.notify(f"Failed to open viewer: {e}", severity="error")
             self._viewer_open = False
 
     def action_open_viewer(self) -> None:
@@ -644,14 +661,16 @@ class ConfirmDialog(ModalScreen[bool]):
     def _open_transcript_viewer(self, job_id: int) -> None:
         try:
             # 디버깅을 위한 로그
-            self.app.notify(f"_open_transcript_viewer called with job_id {job_id}", severity="information")
+            if self._debug:
+                self.app.notify(f"_open_transcript_viewer called with job_id {job_id}", severity="information")
             
             job = self.db.get_job_by_id(job_id)
             if not job:
                 self.show_error(f"Job {job_id} not found in database")
                 return
             
-            self.app.notify(f"Job found: {job.get('title', 'No title')[:30]}", severity="information")
+            if self._debug:
+                self.app.notify(f"Job found: {job.get('title', 'No title')[:30]}", severity="information")
             # 파일 경로 결정
             orig_path = job.get("transcript_path") or job.get("translation_path")
             summary_path = None
@@ -681,16 +700,19 @@ class ConfirmDialog(ModalScreen[bool]):
             summary_text = _read_text(summary_path)
 
             # 테이블 대신 뷰어 표시
-            self.app.notify("Clearing container for viewer", severity="information")
+            if self._debug:
+                self.app.notify("Clearing container for viewer", severity="information")
             container = self.query_one(".db-container", Vertical)
             container.remove_children()
-            self.app.notify("Container cleared", severity="information")
+            if self._debug:
+                self.app.notify("Container cleared", severity="information")
             
             # 제목과 정보 표시
             title = job.get("title", "제목 없음")
             container.mount(Static(f"[T] Transcript Viewer - {title[:50]}{'...' if len(title) > 50 else ''}", classes="screen-title"))
             # 버튼 바와 정보 표시
-            self.app.notify("Mounting button bar", severity="information")
+            if self._debug:
+                self.app.notify("Mounting button bar", severity="information")
             btns = Horizontal(id="viewer_button_bar")
             # 먼저 컨테이너에 mount한 후에 자식 위젯 추가
             container.mount(btns)
@@ -698,7 +720,8 @@ class ConfirmDialog(ModalScreen[bool]):
             btns.mount(Static(f"Engine: {job.get('engine', 'N/A')} | Status: {job.get('status', 'N/A')}", classes="viewer-info"))
             btns.styles.height = 3
             btns.styles.min_height = 3
-            self.app.notify("Button bar mounted", severity="information")
+            if self._debug:
+                self.app.notify("Button bar mounted", severity="information")
             # 본문 영역
             if summary_text:
                 split = Horizontal()
@@ -735,14 +758,17 @@ class ConfirmDialog(ModalScreen[bool]):
                 back_btn = self.query_one("#viewer_back", Button)
                 back_btn.focus()
             except Exception as e:
-                self.app.notify(f"Could not focus back button: {e}", severity="warning")
+                if self._debug:
+                    self.app.notify(f"Could not focus back button: {e}", severity="warning")
             
-            self.app.notify("Transcript viewer opened successfully - Press Back button or ESC to return", severity="success")
+            if self._debug:
+                self.app.notify("Transcript viewer opened successfully - Press Back button or ESC to return", severity="success")
         except Exception as e:
             import traceback
             error_msg = f"Viewer error: {e}\nTraceback:\n{traceback.format_exc()}"
             self.show_error(error_msg)
-            self.app.notify(f"Failed to open viewer: {e}", severity="error")
+            if self._debug:
+                self.app.notify(f"Failed to open viewer: {e}", severity="error")
             self._viewer_open = False
 
     def action_open_viewer(self) -> None:

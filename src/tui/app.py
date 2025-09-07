@@ -43,14 +43,7 @@ class YouTubeTranscriberTUI(App):
         padding: 0;
     }
 
-    .divider-line {
-        width: 100%;
-        height: 1;
-        color: #45475a;
-        text-align: center;
-        margin: 0;
-        padding: 0;
-    }
+    .divider-line { width: 100%; color: #45475a; margin: 0 1; padding: 0 }
 
 
     .main-section {

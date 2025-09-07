@@ -87,7 +87,6 @@ class TranscribeScreen(Widget):
                 yield Static("Transcription output will appear here...", classes="output-placeholder")
             
             # 버튼들 (하단에 위치)
-            yield Static("─" * 80, classes="divider-line")
             with Horizontal(classes="button-group"):
                 yield Button("Start Transcription", id="start_btn", variant="primary", classes="action-button")
                 yield Button("Clear", id="clear_btn", variant="default", classes="utility-button")

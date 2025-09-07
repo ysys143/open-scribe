@@ -1,7 +1,7 @@
 """메인 메뉴 화면"""
 
 from textual.containers import Vertical, Horizontal, ScrollableContainer
-from textual.widgets import Button, Static, Input, Label
+from textual.widgets import Button, Static, Input, Label, Rule
 from textual.events import Key, Click
 from rich.text import Text
 from textual.widget import Widget
@@ -112,8 +112,8 @@ class MainMenuScreen(Widget):
                 yield Static("Open-Scribe Youtube Transcriber", classes="title")
                 yield Static("(c) Jaesol Shin 2025", classes="subtitle")
             
-            # 구분선 (1줄로 통합)
-            yield Static("═" * 120, classes="divider-line")
+            # 구분선 (동적 너비)
+            yield Rule(classes="divider-line")
             
             # 하단 메뉴와 콘텐츠 영역
             with Horizontal(classes="main-section"):
@@ -234,19 +234,45 @@ class MainMenuScreen(Widget):
     def show_help(self) -> None:
         """도움말 표시"""
         self._update_button_selection("help")
-        help_text = """YouTube Transcriber TUI Help
+        help_text = """Open-Scribe TUI Help
 
-Menu Navigation:
-- ↑/↓ or K/J: Move menu
-- Enter: Select
-- 1-5: Direct selection by number
-- H: Help, Q: Quit
+Navigation:
+- Left/Right: Focus menu ↔ content
+- ↑/↓ or K/J: Move selection
+- Enter: Select / Toggle
+- Space: Toggle option (content 영역)
+- 1-5: Menu shortcuts (1: Transcribe, 2: Database, 3: Monitor, 4: API Key, 5: Settings)
+- H: Help, Q : Quit, Esc: Quit
+- S: Start transcription (Transcribe 화면)
+- C: Clear form (Transcribe 화면)
 
-General Keyboard Shortcuts:
-- Ctrl+C: Exit
-- F1: Help
+Transcribe:
+- URL 입력 후 Run(또는 S)으로 시작, Clr(또는 C)로 초기화
+- 옵션은 화살표/Space로 토글, 엔진은 라디오 스타일로 선택
+- Output 위 구분선과 상태 라인이 표시되며, 실시간 진행은 스트림 라인에 1줄로 갱신됨
+- Background 활성화 시 작업이 큐에 등록되고 모니터 탭에서 상태 확인
+- 실행 로그는 logs/ 디렉터리에 저장됨 (화면에 경로 표시)
+
+API Keys:
+- 키 입력 후 Save/Validate 버튼 제공, 결과는 상태 라인에 표시
+
+Settings:
+- 값 수정 후 Save로 .env 갱신, 가능한 항목은 즉시 런타임에 반영 시도
+
+Database:
+- 최근 작업 목록/통계 확인, 항목 선택 시 상세 보기와 요약/원문 뷰 제공
+
+Monitor:
+- 진행 중이거나 대기 중인 작업, 그리고 최근 작업 위주로 표시
+- 오래된 항목은 보존 기간이 지나면 목록에서 자동으로 숨김/정리됨
+- 주기적으로 자동 새로고침되어 최신 상태를 반영
+
+Theme:
 - F2: Toggle theme
-- Esc: Quit"""
+
+Tips:
+- 메뉴로 돌아가려면 Left, 콘텐츠 조작으로 가려면 Right
+- 포커스가 애매할 때는 Enter를 한 번 누르고 방향키로 이동"""
         self.show_content("Help", help_text)
     
     def _update_button_selection(self, selected_id: str) -> None:
@@ -380,8 +406,9 @@ General Keyboard Shortcuts:
             
             # 출력 영역 (액션 바 아래) - 타이틀과 박스 간 여백 최소화
             form.mount(Static("", classes="line-spacer"))
-            form.mount(Static("Output:", classes="options-title section-gap"))
-            form.mount(Static("─" * 60, classes="divider-line"))
+            form.mount(Rule(classes="divider-line"))
+            form.mount(Static("", classes="line-spacer"))
+            form.mount(Static("Output:", classes="options-title"))
             # 상단 로딩/상태 라인과 스트림 라인(실시간 1줄)
             form.mount(Static("", classes="output-text progress-line", id="spinner_line"))
             form.mount(Static("Ready to transcribe...", classes="transcribe-output content-text", id="stream_line"))
