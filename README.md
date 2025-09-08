@@ -1,10 +1,20 @@
 # Open-Scribe v2.0
 
-YouTube 비디오를 다양한 엔진으로 전사하고 요약하는 모듈화된 오픈소스 CLI 도구입니다.
+YouTube 비디오를 다양한 엔진으로 전사하고 요약하는 모듈화된 오픈소스 도구입니다. CLI와 현대적인 TUI 인터페이스를 모두 지원합니다.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Textual TUI](https://img.shields.io/badge/TUI-Textual-brightgreen.svg)](https://github.com/Textualize/textual)
 [![Code style: modular](https://img.shields.io/badge/code%20style-modular-green.svg)](https://github.com/open-scribe/open-scribe)
+
+## 주요 기능
+
+* **멀티 인터페이스**: CLI, TUI (Terminal UI), Shell 통합 지원
+* **다양한 전사 엔진**: GPT-4o, Whisper API, whisper.cpp, YouTube 자막 API
+* **실시간 작업 모니터링**: 백그라운드 작업 추적 및 진행률 표시
+* **데이터베이스 관리**: SQLite 기반 전사 히스토리 및 검색
+* **AI 요약 및 번역**: GPT 모델을 활용한 지능형 요약 및 한국어 번역
+* **재생목록 병렬 처리**: 다중 워커를 통한 효율적인 일괄 처리
 
 ## 설치
 
@@ -27,18 +37,25 @@ source scribe.zsh
 
 ## 사용법
 
-### 새로운 모듈화 구조 (권장)
+### TUI 인터페이스 (NEW! 🎨)
 ```sh
+python tui.py
+```
+현대적인 터미널 UI로 모든 기능을 직관적으로 사용할 수 있습니다:
+- 전사 작업 실행 및 모니터링
+- 데이터베이스 검색 및 관리
+- 설정 및 API 키 관리
+- 실시간 진행률 표시
+
+### CLI 명령어
+```sh
+# 모듈화된 구조 (권장)
 python main.py [url] [options]
-```
 
-### Scribe 명령어 사용
-```sh
+# Scribe 명령어 (zsh 통합)
 scribe [url] [options]
-```
 
-### 기존 스크립트 (호환성 유지)
-```sh
+# 레거시 스크립트 (호환성)
 python trans.py [url] [options]
 ```
 
@@ -143,7 +160,20 @@ export OPEN_SCRIBE_TRANSCRIPT_PATH=~/my-texts  # 전사 경로 변경
 
 ## 사용 예시
 
-### Scribe 명령어 사용
+### TUI 인터페이스 사용
+```sh
+# TUI 실행
+python tui.py
+
+# TUI 내에서:
+# - F1: 새 전사 작업
+# - F2: 데이터베이스 검색
+# - F3: 작업 모니터
+# - F4: 설정
+# - ESC/q: 종료
+```
+
+### CLI 명령어 사용
 ```sh
 # 기본 전사 (YouTube 자막 API)
 scribe "https://www.youtube.com/watch?v=VIDEO_ID" --engine youtube
@@ -228,6 +258,7 @@ MAX_WORKER=5                               # 최대 워커 수 (시스템 리소
 
 * Python 3.8+
 * OpenAI API 키 (`.env` 파일에 설정)
+* Textual 6.0+ (TUI 인터페이스)
 * whisper.cpp (로컬 전사 시)
 * ffmpeg (미디어 처리용)
 
@@ -251,12 +282,22 @@ echo 'source ~/.oh-my-zsh/custom/scribe.zsh' >> ~/.zshrc
 ### 모듈화된 아키텍처 (v2.0)
 ```
 open-scribe/
-├── main.py                 # 메인 진입점
+├── main.py                 # CLI 메인 진입점
+├── tui.py                  # TUI 메인 진입점
 ├── src/                    # 핵심 모듈
 │   ├── cli.py             # CLI 인터페이스
 │   ├── config.py          # 설정 관리
 │   ├── database.py        # SQLite 데이터베이스
 │   ├── downloader.py      # YouTube 다운로드
+│   ├── tui/               # TUI 인터페이스 모듈
+│   │   ├── app.py        # TUI 애플리케이션
+│   │   ├── screens/      # TUI 화면 모듈
+│   │   │   ├── main_menu.py     # 메인 메뉴
+│   │   │   ├── database.py      # DB 브라우저
+│   │   │   ├── monitor.py       # 작업 모니터
+│   │   │   └── settings.py      # 설정 화면
+│   │   ├── widgets/      # 커스텀 위젯
+│   │   └── utils/        # TUI 유틸리티
 │   ├── transcribers/      # 전사 엔진 모듈
 │   │   ├── base.py       # 추상 기본 클래스
 │   │   ├── openai.py     # OpenAI/Whisper API
@@ -272,6 +313,10 @@ open-scribe/
 │       └── validators.py # URL 검증
 ├── trans.py               # 레거시 스크립트 (호환성)
 └── docs/                  # 문서
+    ├── architecture.md    # 시스템 아키텍처
+    ├── tui-features.md    # TUI 기능 가이드
+    ├── api-reference.md   # API 레퍼런스
+    └── troubleshooting.md # 문제 해결 가이드
 ```
 
 ### 핵심 적용 기술 및 기법
