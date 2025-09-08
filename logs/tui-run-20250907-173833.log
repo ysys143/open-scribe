@@ -1,0 +1,753 @@
+[youtube] Extracting URL: https://www.youtube.com/watch?v=bW31xiNB8Nc
+[START] Starting transcription: https://www.youtube.com/watch?v=bW31xiNB8Nc
+Engine: gpt-4o-mini-transcribe
+
+Extracting video information...
+Title: 웹개발 짜증유발자! CORS가 뭔가요?
+Duration: 609 seconds
+Uploader: 얄팍한 코딩사전
+
+Downloading audio...
+Downloading audio from YouTube...
+[youtube] bW31xiNB8Nc: Downloading webpage
+[youtube] bW31xiNB8Nc: Downloading tv simply player API JSON
+[youtube] bW31xiNB8Nc: Downloading tv client config
+[youtube] bW31xiNB8Nc: Downloading tv player API JSON
+[info] bW31xiNB8Nc: Downloading 1 format(s): 251
+[download] Sleeping 5.00 seconds as required by the site...
+[download] Destination: /Users/jaesolshin/Documents/GitHub/yt-trans/audio/웹개발 짜증유발자! CORS가 뭔가요？ [bW31xiNB8Nc].webm
+
+[download]   0.0% of    8.69MiB at  Unknown B/s ETA Unknown
+[download]   0.0% of    8.69MiB at  Unknown B/s ETA Unknown
+[download]   0.1% of    8.69MiB at    5.94MiB/s ETA 00:01  
+[download]   0.2% of    8.69MiB at   10.78MiB/s ETA 00:00
+[download]   0.3% of    8.69MiB at    4.37MiB/s ETA 00:01
+[download]   0.7% of    8.69MiB at    5.18MiB/s ETA 00:01
+[download]   1.4% of    8.69MiB at    6.33MiB/s ETA 00:01
+[download]   2.9% of    8.69MiB at    9.98MiB/s ETA 00:00
+[download]   5.7% of    8.69MiB at   15.15MiB/s ETA 00:00
+[download]  11.5% of    8.69MiB at   23.35MiB/s ETA 00:00
+[download]  23.0% of    8.69MiB at   29.18MiB/s ETA 00:00
+[download]  46.0% of    8.69MiB at   40.80MiB/s ETA 00:00
+[download]  92.0% of    8.69MiB at   34.43MiB/s ETA 00:00
+[download] 100.0% of    8.69MiB at   34.85MiB/s ETA 00:00
+[download] 100% of    8.69MiB in 00:00:00 at 30.75MiB/s  
+[ExtractAudio] Destination: /Users/jaesolshin/Documents/GitHub/yt-trans/audio/웹개발 짜증유발자! CORS가 뭔가요？ [bW31xiNB8Nc].mp3
+Audio downloaded: 웹개발 짜증유발자! CORS가 뭔가요？ [bW31xiNB8Nc].mp3
+
+Transcribing with gpt-4o-mini-transcribe...
+[GPT-4o-mini] Processing: /Users/jaesolshin/Documents/GitHub/yt-trans/audio/웹개발 짜증유발자! CORS가 뭔가요？ [bW31xiNB8Nc].mp3
+[GPT-4o-mini] Using hybrid mode for accurate timestamps...
+[Hybrid] Step 1: Fetching YouTube transcript with timestamps...
+Found auto-generated transcript in ko
+[Hybrid] Step 2: Getting high-quality transcription from gpt-4o-mini-transcribe...
+[GPT-4o-mini] Processing: /Users/jaesolshin/Documents/GitHub/yt-trans/audio/웹개발 짜증유발자! CORS가 뭔가요？ [bW31xiNB8Nc].mp3
+
+[GPT-4o-mini] Transcribing: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0.0% (0s/41s)          
+[GPT-4o-mini] Transcribing: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0.2% (0s/41s)          
+[GPT-4o-mini] Transcribing: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0.4% (0s/41s)          
+[GPT-4o-mini] Transcribing: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0.7% (0s/41s)          
+[GPT-4o-mini] Transcribing: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0.9% (0s/41s)          
+[GPT-4o-mini] Transcribing: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 1.1% (0s/41s)          
+[GPT-4o-mini] Transcribing: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 1.3% (0s/41s)          
+[GPT-4o-mini] Transcribing: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 1.6% (0s/41s)          
+[GPT-4o-mini] Transcribing: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 1.8% (0s/41s)          
+[GPT-4o-mini] Transcribing: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 2.0% (0s/41s)          
+[GPT-4o-mini] Transcribing: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 2.2% (1s/41s)          
+[GPT-4o-mini] Transcribing: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 2.5% (1s/41s)          
+[GPT-4o-mini] Transcribing: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 2.7% (1s/41s)          
+[GPT-4o-mini] Transcribing: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 2.9% (1s/41s)          
+[GPT-4o-mini] Transcribing: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 3.1% (1s/41s)          
+[GPT-4o-mini] Transcribing: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 3.3% (1s/41s)          
+[GPT-4o-mini] Transcribing: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 3.6% (1s/41s)          
+[GPT-4o-mini] Transcribing: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 3.8% (1s/41s)          
+[GPT-4o-mini] Transcribing: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 4.0% (1s/41s)          
+[GPT-4o-mini] Transcribing: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 4.2% (1s/41s)          
+[GPT-4o-mini] Transcribing: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 4.5% (2s/41s)          
+[GPT-4o-mini] Transcribing: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 4.7% (2s/41s)          
+[GPT-4o-mini] Transcribing: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 4.9% (2s/41s)          
+[GPT-4o-mini] Transcribing: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 5.1% (2s/41s)          
+[GPT-4o-mini] Transcribing: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 5.4% (2s/41s)          
+[GPT-4o-mini] Transcribing: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 5.6% (2s/41s)          
+[GPT-4o-mini] Transcribing: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 5.8% (2s/41s)          
+[GPT-4o-mini] Transcribing: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 6.0% (2s/41s)          
+[GPT-4o-mini] Transcribing: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 6.3% (2s/41s)          
+[GPT-4o-mini] Transcribing: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 6.5% (3s/41s)          
+[GPT-4o-mini] Transcribing: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 6.7% (3s/41s)          
+[GPT-4o-mini] Transcribing: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 6.9% (3s/41s)          
+[GPT-4o-mini] Transcribing: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 7.2% (3s/41s)          
+[GPT-4o-mini] Transcribing: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 7.4% (3s/41s)          
+[GPT-4o-mini] Transcribing: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 7.6% (3s/41s)          
+[GPT-4o-mini] Transcribing: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 7.8% (3s/41s)          
+[GPT-4o-mini] Transcribing: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 8.0% (3s/41s)          
+[GPT-4o-mini] Transcribing: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 8.3% (3s/41s)          
+[GPT-4o-mini] Transcribing: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 8.5% (3s/41s)          
+[GPT-4o-mini] Transcribing: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 8.7% (4s/41s)          
+[GPT-4o-mini] Transcribing: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 8.9% (4s/41s)          
+[GPT-4o-mini] Transcribing: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 9.2% (4s/41s)          
+[GPT-4o-mini] Transcribing: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 9.4% (4s/41s)          
+[GPT-4o-mini] Transcribing: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 9.6% (4s/41s)          
+[GPT-4o-mini] Transcribing: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 9.8% (4s/41s)          
+[GPT-4o-mini] Transcribing: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░] 10.0% (4s/41s)          
+[GPT-4o-mini] Transcribing: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░] 10.3% (4s/41s)          
+[GPT-4o-mini] Transcribing: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░] 10.5% (4s/41s)          
+[GPT-4o-mini] Transcribing: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░] 10.7% (4s/41s)          
+[GPT-4o-mini] Transcribing: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░] 10.9% (5s/41s)          
+[GPT-4o-mini] Transcribing: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░] 11.2% (5s/41s)          
+[GPT-4o-mini] Transcribing: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░] 11.4% (5s/41s)          
+[GPT-4o-mini] Transcribing: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░] 11.6% (5s/41s)          
+[GPT-4o-mini] Transcribing: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░] 11.8% (5s/41s)          
+[GPT-4o-mini] Transcribing: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░] 12.0% (5s/41s)          
+[GPT-4o-mini] Transcribing: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░] 12.3% (5s/41s)          
+[GPT-4o-mini] Transcribing: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░] 12.5% (5s/41s)          
+[GPT-4o-mini] Transcribing: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░] 12.7% (5s/41s)          
+[GPT-4o-mini] Transcribing: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░] 12.9% (6s/41s)          
+[GPT-4o-mini] Transcribing: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░] 13.2% (6s/41s)          
+[GPT-4o-mini] Transcribing: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 13.4% (6s/41s)          
+[GPT-4o-mini] Transcribing: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 13.6% (6s/41s)          
+[GPT-4o-mini] Transcribing: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 13.8% (6s/41s)          
+[GPT-4o-mini] Transcribing: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 14.1% (6s/41s)          
+[GPT-4o-mini] Transcribing: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 14.3% (6s/41s)          
+[GPT-4o-mini] Transcribing: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 14.5% (6s/41s)          
+[GPT-4o-mini] Transcribing: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 14.7% (6s/41s)          
+[GPT-4o-mini] Transcribing: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 15.0% (6s/41s)          
+[GPT-4o-mini] Transcribing: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 15.2% (7s/41s)          
+[GPT-4o-mini] Transcribing: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 15.4% (7s/41s)          
+[GPT-4o-mini] Transcribing: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 15.6% (7s/41s)          
+[GPT-4o-mini] Transcribing: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 15.9% (7s/41s)          
+[GPT-4o-mini] Transcribing: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 16.1% (7s/41s)          
+[GPT-4o-mini] Transcribing: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 16.3% (7s/41s)          
+[GPT-4o-mini] Transcribing: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 16.5% (7s/41s)          
+[GPT-4o-mini] Transcribing: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 16.7% (7s/41s)          
+[GPT-4o-mini] Transcribing: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 17.0% (7s/41s)          
+[GPT-4o-mini] Transcribing: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 17.2% (7s/41s)          
+[GPT-4o-mini] Transcribing: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 17.4% (8s/41s)          
+[GPT-4o-mini] Transcribing: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 17.6% (8s/41s)          
+[GPT-4o-mini] Transcribing: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 17.9% (8s/41s)          
+[GPT-4o-mini] Transcribing: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 18.1% (8s/41s)          
+[GPT-4o-mini] Transcribing: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 18.3% (8s/41s)          
+[GPT-4o-mini] Transcribing: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 18.5% (8s/41s)          
+[GPT-4o-mini] Transcribing: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 18.8% (8s/41s)          
+[GPT-4o-mini] Transcribing: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 19.0% (8s/41s)          
+[GPT-4o-mini] Transcribing: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 19.2% (8s/41s)          
+[GPT-4o-mini] Transcribing: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 19.4% (9s/41s)          
+[GPT-4o-mini] Transcribing: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 19.7% (9s/41s)          
+[GPT-4o-mini] Transcribing: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 19.9% (9s/41s)          
+[GPT-4o-mini] Transcribing: [██████░░░░░░░░░░░░░░░░░░░░░░░░] 20.1% (9s/41s)          
+[GPT-4o-mini] Transcribing: [██████░░░░░░░░░░░░░░░░░░░░░░░░] 20.3% (9s/41s)          
+[GPT-4o-mini] Transcribing: [██████░░░░░░░░░░░░░░░░░░░░░░░░] 20.6% (9s/41s)          
+[GPT-4o-mini] Transcribing: [██████░░░░░░░░░░░░░░░░░░░░░░░░] 20.8% (9s/41s)          
+[GPT-4o-mini] Transcribing: [██████░░░░░░░░░░░░░░░░░░░░░░░░] 21.0% (9s/41s)          
+[GPT-4o-mini] Transcribing: [██████░░░░░░░░░░░░░░░░░░░░░░░░] 21.2% (9s/41s)          
+[GPT-4o-mini] Transcribing: [██████░░░░░░░░░░░░░░░░░░░░░░░░] 21.5% (9s/41s)          
+[GPT-4o-mini] Transcribing: [██████░░░░░░░░░░░░░░░░░░░░░░░░] 21.7% (10s/41s)          
+[GPT-4o-mini] Transcribing: [██████░░░░░░░░░░░░░░░░░░░░░░░░] 21.9% (10s/41s)          
+[GPT-4o-mini] Transcribing: [██████░░░░░░░░░░░░░░░░░░░░░░░░] 22.1% (10s/41s)          
+[GPT-4o-mini] Transcribing: [██████░░░░░░░░░░░░░░░░░░░░░░░░] 22.4% (10s/41s)          
+[GPT-4o-mini] Transcribing: [██████░░░░░░░░░░░░░░░░░░░░░░░░] 22.6% (10s/41s)          
+[GPT-4o-mini] Transcribing: [██████░░░░░░░░░░░░░░░░░░░░░░░░] 22.8% (10s/41s)          
+[GPT-4o-mini] Transcribing: [██████░░░░░░░░░░░░░░░░░░░░░░░░] 23.0% (10s/41s)          
+[GPT-4o-mini] Transcribing: [██████░░░░░░░░░░░░░░░░░░░░░░░░] 23.2% (10s/41s)          
+[GPT-4o-mini] Transcribing: [███████░░░░░░░░░░░░░░░░░░░░░░░] 23.5% (10s/41s)          
+[GPT-4o-mini] Transcribing: [███████░░░░░░░░░░░░░░░░░░░░░░░] 23.7% (11s/41s)          
+[GPT-4o-mini] Transcribing: [███████░░░░░░░░░░░░░░░░░░░░░░░] 23.9% (11s/41s)          
+[GPT-4o-mini] Transcribing: [███████░░░░░░░░░░░░░░░░░░░░░░░] 24.1% (11s/41s)          
+[GPT-4o-mini] Transcribing: [███████░░░░░░░░░░░░░░░░░░░░░░░] 24.4% (11s/41s)          
+[GPT-4o-mini] Transcribing: [███████░░░░░░░░░░░░░░░░░░░░░░░] 24.6% (11s/41s)          
+[GPT-4o-mini] Transcribing: [███████░░░░░░░░░░░░░░░░░░░░░░░] 24.8% (11s/41s)          
+[GPT-4o-mini] Transcribing: [███████░░░░░░░░░░░░░░░░░░░░░░░] 25.0% (11s/41s)          
+[GPT-4o-mini] Transcribing: [███████░░░░░░░░░░░░░░░░░░░░░░░] 25.3% (11s/41s)          
+[GPT-4o-mini] Transcribing: [███████░░░░░░░░░░░░░░░░░░░░░░░] 25.5% (11s/41s)          
+[GPT-4o-mini] Transcribing: [███████░░░░░░░░░░░░░░░░░░░░░░░] 25.7% (11s/41s)          
+[GPT-4o-mini] Transcribing: [███████░░░░░░░░░░░░░░░░░░░░░░░] 25.9% (12s/41s)          
+[GPT-4o-mini] Transcribing: [███████░░░░░░░░░░░░░░░░░░░░░░░] 26.1% (12s/41s)          
+[GPT-4o-mini] Transcribing: [███████░░░░░░░░░░░░░░░░░░░░░░░] 26.4% (12s/41s)          
+[GPT-4o-mini] Transcribing: [███████░░░░░░░░░░░░░░░░░░░░░░░] 26.6% (12s/41s)          
+[GPT-4o-mini] Transcribing: [████████░░░░░░░░░░░░░░░░░░░░░░] 26.8% (12s/41s)          
+[GPT-4o-mini] Transcribing: [████████░░░░░░░░░░░░░░░░░░░░░░] 27.0% (12s/41s)          
+[GPT-4o-mini] Transcribing: [████████░░░░░░░░░░░░░░░░░░░░░░] 27.3% (12s/41s)          
+[GPT-4o-mini] Transcribing: [████████░░░░░░░░░░░░░░░░░░░░░░] 27.5% (12s/41s)          
+[GPT-4o-mini] Transcribing: [████████░░░░░░░░░░░░░░░░░░░░░░] 27.7% (12s/41s)          
+[GPT-4o-mini] Transcribing: [████████░░░░░░░░░░░░░░░░░░░░░░] 27.9% (12s/41s)          
+[GPT-4o-mini] Transcribing: [████████░░░░░░░░░░░░░░░░░░░░░░] 28.2% (13s/41s)          
+[GPT-4o-mini] Transcribing: [████████░░░░░░░░░░░░░░░░░░░░░░] 28.4% (13s/41s)          
+[GPT-4o-mini] Transcribing: [████████░░░░░░░░░░░░░░░░░░░░░░] 28.6% (13s/41s)          
+[GPT-4o-mini] Transcribing: [████████░░░░░░░░░░░░░░░░░░░░░░] 28.8% (13s/41s)          
+[GPT-4o-mini] Transcribing: [████████░░░░░░░░░░░░░░░░░░░░░░] 29.1% (13s/41s)          
+[GPT-4o-mini] Transcribing: [████████░░░░░░░░░░░░░░░░░░░░░░] 29.3% (13s/41s)          
+[GPT-4o-mini] Transcribing: [████████░░░░░░░░░░░░░░░░░░░░░░] 29.5% (13s/41s)          
+[GPT-4o-mini] Transcribing: [████████░░░░░░░░░░░░░░░░░░░░░░] 29.7% (13s/41s)          
+[GPT-4o-mini] Transcribing: [████████░░░░░░░░░░░░░░░░░░░░░░] 29.9% (13s/41s)          
+[GPT-4o-mini] Transcribing: [█████████░░░░░░░░░░░░░░░░░░░░░] 30.2% (14s/41s)          
+[GPT-4o-mini] Transcribing: [█████████░░░░░░░░░░░░░░░░░░░░░] 30.4% (14s/41s)          
+[GPT-4o-mini] Transcribing: [█████████░░░░░░░░░░░░░░░░░░░░░] 30.6% (14s/41s)          
+[GPT-4o-mini] Transcribing: [█████████░░░░░░░░░░░░░░░░░░░░░] 30.8% (14s/41s)          
+[GPT-4o-mini] Transcribing: [█████████░░░░░░░░░░░░░░░░░░░░░] 31.1% (14s/41s)          
+[GPT-4o-mini] Transcribing: [█████████░░░░░░░░░░░░░░░░░░░░░] 31.3% (14s/41s)          
+[GPT-4o-mini] Transcribing: [█████████░░░░░░░░░░░░░░░░░░░░░] 31.5% (14s/41s)          
+[GPT-4o-mini] Transcribing: [█████████░░░░░░░░░░░░░░░░░░░░░] 31.7% (14s/41s)          
+[GPT-4o-mini] Transcribing: [█████████░░░░░░░░░░░░░░░░░░░░░] 31.9% (14s/41s)          
+[GPT-4o-mini] Transcribing: [█████████░░░░░░░░░░░░░░░░░░░░░] 32.2% (14s/41s)          
+[GPT-4o-mini] Transcribing: [█████████░░░░░░░░░░░░░░░░░░░░░] 32.4% (15s/41s)          
+[GPT-4o-mini] Transcribing: [█████████░░░░░░░░░░░░░░░░░░░░░] 32.6% (15s/41s)          
+[GPT-4o-mini] Transcribing: [█████████░░░░░░░░░░░░░░░░░░░░░] 32.8% (15s/41s)          
+[GPT-4o-mini] Transcribing: [█████████░░░░░░░░░░░░░░░░░░░░░] 33.1% (15s/41s)          
+[GPT-4o-mini] Transcribing: [█████████░░░░░░░░░░░░░░░░░░░░░] 33.3% (15s/41s)          
+[GPT-4o-mini] Transcribing: [██████████░░░░░░░░░░░░░░░░░░░░] 33.5% (15s/41s)          
+[GPT-4o-mini] Transcribing: [██████████░░░░░░░░░░░░░░░░░░░░] 33.7% (15s/41s)          
+[GPT-4o-mini] Transcribing: [██████████░░░░░░░░░░░░░░░░░░░░] 34.0% (15s/41s)          
+[GPT-4o-mini] Transcribing: [██████████░░░░░░░░░░░░░░░░░░░░] 34.2% (15s/41s)          
+[GPT-4o-mini] Transcribing: [██████████░░░░░░░░░░░░░░░░░░░░] 34.4% (15s/41s)          
+[GPT-4o-mini] Transcribing: [██████████░░░░░░░░░░░░░░░░░░░░] 34.6% (16s/41s)          
+[GPT-4o-mini] Transcribing: [██████████░░░░░░░░░░░░░░░░░░░░] 34.8% (16s/41s)          
+[GPT-4o-mini] Transcribing: [██████████░░░░░░░░░░░░░░░░░░░░] 35.1% (16s/41s)          
+[GPT-4o-mini] Transcribing: [██████████░░░░░░░░░░░░░░░░░░░░] 35.3% (16s/41s)          
+[GPT-4o-mini] Transcribing: [██████████░░░░░░░░░░░░░░░░░░░░] 35.5% (16s/41s)          
+[GPT-4o-mini] Transcribing: [██████████░░░░░░░░░░░░░░░░░░░░] 35.7% (16s/41s)          
+[GPT-4o-mini] Transcribing: [██████████░░░░░░░░░░░░░░░░░░░░] 36.0% (16s/41s)          
+[GPT-4o-mini] Transcribing: [██████████░░░░░░░░░░░░░░░░░░░░] 36.2% (16s/41s)          
+[GPT-4o-mini] Transcribing: [██████████░░░░░░░░░░░░░░░░░░░░] 36.4% (16s/41s)          
+[GPT-4o-mini] Transcribing: [██████████░░░░░░░░░░░░░░░░░░░░] 36.6% (17s/41s)          
+[GPT-4o-mini] Transcribing: [███████████░░░░░░░░░░░░░░░░░░░] 36.9% (17s/41s)          
+[GPT-4o-mini] Transcribing: [███████████░░░░░░░░░░░░░░░░░░░] 37.1% (17s/41s)          
+[GPT-4o-mini] Transcribing: [███████████░░░░░░░░░░░░░░░░░░░] 37.3% (17s/41s)          
+[GPT-4o-mini] Transcribing: [███████████░░░░░░░░░░░░░░░░░░░] 37.5% (17s/41s)          
+[GPT-4o-mini] Transcribing: [███████████░░░░░░░░░░░░░░░░░░░] 37.8% (17s/41s)          
+[GPT-4o-mini] Transcribing: [███████████░░░░░░░░░░░░░░░░░░░] 38.0% (17s/41s)          
+[GPT-4o-mini] Transcribing: [███████████░░░░░░░░░░░░░░░░░░░] 38.2% (17s/41s)          
+[GPT-4o-mini] Transcribing: [███████████░░░░░░░░░░░░░░░░░░░] 38.4% (17s/41s)          
+[GPT-4o-mini] Transcribing: [███████████░░░░░░░░░░░░░░░░░░░] 38.7% (17s/41s)          
+[GPT-4o-mini] Transcribing: [███████████░░░░░░░░░░░░░░░░░░░] 38.9% (18s/41s)          
+[GPT-4o-mini] Transcribing: [███████████░░░░░░░░░░░░░░░░░░░] 39.1% (18s/41s)          
+[GPT-4o-mini] Transcribing: [███████████░░░░░░░░░░░░░░░░░░░] 39.3% (18s/41s)          
+[GPT-4o-mini] Transcribing: [███████████░░░░░░░░░░░░░░░░░░░] 39.5% (18s/41s)          
+[GPT-4o-mini] Transcribing: [███████████░░░░░░░░░░░░░░░░░░░] 39.8% (18s/41s)          
+[GPT-4o-mini] Transcribing: [███████████░░░░░░░░░░░░░░░░░░░] 40.0% (18s/41s)          
+[GPT-4o-mini] Transcribing: [████████████░░░░░░░░░░░░░░░░░░] 40.2% (18s/41s)          
+[GPT-4o-mini] Transcribing: [████████████░░░░░░░░░░░░░░░░░░] 40.4% (18s/41s)          
+[GPT-4o-mini] Transcribing: [████████████░░░░░░░░░░░░░░░░░░] 40.6% (18s/41s)          
+[GPT-4o-mini] Transcribing: [████████████░░░░░░░░░░░░░░░░░░] 40.9% (18s/41s)          
+[GPT-4o-mini] Transcribing: [████████████░░░░░░░░░░░░░░░░░░] 41.1% (19s/41s)          
+[GPT-4o-mini] Transcribing: [████████████░░░░░░░░░░░░░░░░░░] 41.3% (19s/41s)          
+[GPT-4o-mini] Transcribing: [████████████░░░░░░░░░░░░░░░░░░] 41.5% (19s/41s)          
+[GPT-4o-mini] Transcribing: [████████████░░░░░░░░░░░░░░░░░░] 41.8% (19s/41s)          
+[GPT-4o-mini] Transcribing: [████████████░░░░░░░░░░░░░░░░░░] 42.0% (19s/41s)          
+[GPT-4o-mini] Transcribing: [████████████░░░░░░░░░░░░░░░░░░] 42.2% (19s/41s)          
+[GPT-4o-mini] Transcribing: [████████████░░░░░░░░░░░░░░░░░░] 42.4% (19s/41s)          
+[GPT-4o-mini] Transcribing: [████████████░░░░░░░░░░░░░░░░░░] 42.7% (19s/41s)          
+[GPT-4o-mini] Transcribing: [████████████░░░░░░░░░░░░░░░░░░] 42.9% (19s/41s)          
+[GPT-4o-mini] Transcribing: [████████████░░░░░░░░░░░░░░░░░░] 43.1% (20s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████░░░░░░░░░░░░░░░░░] 43.3% (20s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████░░░░░░░░░░░░░░░░░] 43.6% (20s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████░░░░░░░░░░░░░░░░░] 43.8% (20s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████░░░░░░░░░░░░░░░░░] 44.0% (20s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████░░░░░░░░░░░░░░░░░] 44.2% (20s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████░░░░░░░░░░░░░░░░░] 44.5% (20s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████░░░░░░░░░░░░░░░░░] 44.7% (20s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████░░░░░░░░░░░░░░░░░] 44.9% (20s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████░░░░░░░░░░░░░░░░░] 45.1% (20s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████░░░░░░░░░░░░░░░░░] 45.4% (21s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████░░░░░░░░░░░░░░░░░] 45.6% (21s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████░░░░░░░░░░░░░░░░░] 45.8% (21s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████░░░░░░░░░░░░░░░░░] 46.0% (21s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████░░░░░░░░░░░░░░░░░] 46.2% (21s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████░░░░░░░░░░░░░░░░░] 46.5% (21s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████░░░░░░░░░░░░░░░░] 46.7% (21s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████░░░░░░░░░░░░░░░░] 46.9% (21s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████░░░░░░░░░░░░░░░░] 47.1% (21s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████░░░░░░░░░░░░░░░░] 47.3% (21s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████░░░░░░░░░░░░░░░░] 47.6% (22s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████░░░░░░░░░░░░░░░░] 47.8% (22s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████░░░░░░░░░░░░░░░░] 48.0% (22s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████░░░░░░░░░░░░░░░░] 48.2% (22s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████░░░░░░░░░░░░░░░░] 48.4% (22s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████░░░░░░░░░░░░░░░░] 48.7% (22s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████░░░░░░░░░░░░░░░░] 48.9% (22s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████░░░░░░░░░░░░░░░░] 49.1% (22s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████░░░░░░░░░░░░░░░░] 49.3% (22s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████░░░░░░░░░░░░░░░░] 49.6% (23s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████░░░░░░░░░░░░░░░░] 49.8% (23s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████░░░░░░░░░░░░░░░] 50.0% (23s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████░░░░░░░░░░░░░░░] 50.2% (23s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████░░░░░░░░░░░░░░░] 50.4% (23s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████░░░░░░░░░░░░░░░] 50.7% (23s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████░░░░░░░░░░░░░░░] 50.9% (23s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████░░░░░░░░░░░░░░░] 51.1% (23s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████░░░░░░░░░░░░░░░] 51.3% (23s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████░░░░░░░░░░░░░░░] 51.6% (23s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████░░░░░░░░░░░░░░░] 51.8% (24s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████░░░░░░░░░░░░░░░] 52.0% (24s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████░░░░░░░░░░░░░░░] 52.2% (24s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████░░░░░░░░░░░░░░░] 52.4% (24s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████░░░░░░░░░░░░░░░] 52.7% (24s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████░░░░░░░░░░░░░░░] 52.9% (24s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████░░░░░░░░░░░░░░░] 53.1% (24s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████░░░░░░░░░░░░░░] 53.3% (24s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████░░░░░░░░░░░░░░] 53.6% (24s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████░░░░░░░░░░░░░░] 53.8% (24s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████░░░░░░░░░░░░░░] 54.0% (25s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████░░░░░░░░░░░░░░] 54.2% (25s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████░░░░░░░░░░░░░░] 54.4% (25s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████░░░░░░░░░░░░░░] 54.7% (25s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████░░░░░░░░░░░░░░] 54.9% (25s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████░░░░░░░░░░░░░░] 55.1% (25s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████░░░░░░░░░░░░░░] 55.3% (25s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████░░░░░░░░░░░░░░] 55.6% (25s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████░░░░░░░░░░░░░░] 55.8% (25s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████░░░░░░░░░░░░░░] 56.0% (26s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████░░░░░░░░░░░░░░] 56.2% (26s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████░░░░░░░░░░░░░░] 56.5% (26s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████░░░░░░░░░░░░░] 56.7% (26s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████░░░░░░░░░░░░░] 56.9% (26s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████░░░░░░░░░░░░░] 57.1% (26s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████░░░░░░░░░░░░░] 57.4% (26s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████░░░░░░░░░░░░░] 57.6% (26s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████░░░░░░░░░░░░░] 57.8% (26s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████░░░░░░░░░░░░░] 58.0% (26s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████░░░░░░░░░░░░░] 58.2% (27s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████░░░░░░░░░░░░░] 58.5% (27s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████░░░░░░░░░░░░░] 58.7% (27s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████░░░░░░░░░░░░░] 58.9% (27s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████░░░░░░░░░░░░░] 59.1% (27s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████░░░░░░░░░░░░░] 59.4% (27s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████░░░░░░░░░░░░░] 59.6% (27s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████░░░░░░░░░░░░░] 59.8% (27s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████░░░░░░░░░░░░] 60.0% (27s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████░░░░░░░░░░░░] 60.3% (27s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████░░░░░░░░░░░░] 60.5% (28s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████░░░░░░░░░░░░] 60.7% (28s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████░░░░░░░░░░░░] 60.9% (28s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████░░░░░░░░░░░░] 61.2% (28s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████░░░░░░░░░░░░] 61.4% (28s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████░░░░░░░░░░░░] 61.6% (28s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████░░░░░░░░░░░░] 61.8% (28s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████░░░░░░░░░░░░] 62.0% (28s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████░░░░░░░░░░░░] 62.3% (28s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████░░░░░░░░░░░░] 62.5% (29s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████░░░░░░░░░░░░] 62.7% (29s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████░░░░░░░░░░░░] 62.9% (29s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████░░░░░░░░░░░░] 63.2% (29s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████████░░░░░░░░░░░] 63.4% (29s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████████░░░░░░░░░░░] 63.6% (29s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████████░░░░░░░░░░░] 63.8% (29s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████████░░░░░░░░░░░] 64.1% (29s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████████░░░░░░░░░░░] 64.3% (29s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████████░░░░░░░░░░░] 64.5% (29s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████████░░░░░░░░░░░] 64.7% (30s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████████░░░░░░░░░░░] 65.0% (30s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████████░░░░░░░░░░░] 65.2% (30s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████████░░░░░░░░░░░] 65.4% (30s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████████░░░░░░░░░░░] 65.6% (30s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████████░░░░░░░░░░░] 65.8% (30s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████████░░░░░░░░░░░] 66.1% (30s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████████░░░░░░░░░░░] 66.3% (30s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████████░░░░░░░░░░░] 66.5% (30s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████████░░░░░░░░░░] 66.7% (30s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████████░░░░░░░░░░] 67.0% (31s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████████░░░░░░░░░░] 67.2% (31s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████████░░░░░░░░░░] 67.4% (31s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████████░░░░░░░░░░] 67.6% (31s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████████░░░░░░░░░░] 67.9% (31s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████████░░░░░░░░░░] 68.1% (31s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████████░░░░░░░░░░] 68.3% (31s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████████░░░░░░░░░░] 68.5% (31s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████████░░░░░░░░░░] 68.7% (31s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████████░░░░░░░░░░] 69.0% (32s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████████░░░░░░░░░░] 69.2% (32s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████████░░░░░░░░░░] 69.4% (32s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████████░░░░░░░░░░] 69.6% (32s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████████░░░░░░░░░░] 69.9% (32s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████████░░░░░░░░░] 70.1% (32s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████████░░░░░░░░░] 70.3% (32s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████████░░░░░░░░░] 70.5% (32s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████████░░░░░░░░░] 70.8% (32s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████████░░░░░░░░░] 71.0% (32s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████████░░░░░░░░░] 71.2% (33s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████████░░░░░░░░░] 71.4% (33s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████████░░░░░░░░░] 71.7% (33s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████████░░░░░░░░░] 71.9% (33s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████████░░░░░░░░░] 72.1% (33s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████████░░░░░░░░░] 72.3% (33s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████████░░░░░░░░░] 72.5% (33s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████████░░░░░░░░░] 72.8% (33s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████████░░░░░░░░░] 73.0% (33s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████████░░░░░░░░░] 73.2% (34s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████████░░░░░░░░] 73.4% (34s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████████░░░░░░░░] 73.7% (34s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████████░░░░░░░░] 73.9% (34s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████████░░░░░░░░] 74.1% (34s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████████░░░░░░░░] 74.3% (34s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████████░░░░░░░░] 74.6% (34s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████████░░░░░░░░] 74.8% (34s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████████░░░░░░░░] 75.0% (34s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████████░░░░░░░░] 75.2% (34s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████████░░░░░░░░] 75.4% (35s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████████░░░░░░░░] 75.7% (35s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████████░░░░░░░░] 75.9% (35s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████████░░░░░░░░] 76.1% (35s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████████░░░░░░░░] 76.3% (35s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████████░░░░░░░░] 76.6% (35s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████████████░░░░░░░] 76.8% (35s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████████████░░░░░░░] 77.0% (35s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████████████░░░░░░░] 77.2% (35s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████████████░░░░░░░] 77.5% (35s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████████████░░░░░░░] 77.7% (36s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████████████░░░░░░░] 77.9% (36s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████████████░░░░░░░] 78.1% (36s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████████████░░░░░░░] 78.4% (36s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████████████░░░░░░░] 78.6% (36s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████████████░░░░░░░] 78.8% (36s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████████████░░░░░░░] 79.0% (36s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████████████░░░░░░░] 79.3% (36s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████████████░░░░░░░] 79.5% (36s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████████████░░░░░░░] 79.7% (37s/41s)          
+[GPT-4o-mini] Transcribing: [███████████████████████░░░░░░░] 79.9% (37s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████████████░░░░░░] 80.1% (37s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████████████░░░░░░] 80.4% (37s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████████████░░░░░░] 80.6% (37s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████████████░░░░░░] 80.8% (37s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████████████░░░░░░] 81.0% (37s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████████████░░░░░░] 81.3% (37s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████████████░░░░░░] 81.5% (37s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████████████░░░░░░] 81.7% (37s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████████████░░░░░░] 81.9% (38s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████████████░░░░░░] 82.2% (38s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████████████░░░░░░] 82.4% (38s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████████████░░░░░░] 82.6% (38s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████████████░░░░░░] 82.8% (38s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████████████░░░░░░] 83.0% (38s/41s)          
+[GPT-4o-mini] Transcribing: [████████████████████████░░░░░░] 83.3% (38s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████████████░░░░░] 83.5% (38s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████████████░░░░░] 83.7% (38s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████████████░░░░░] 83.9% (38s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████████████░░░░░] 84.2% (39s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████████████░░░░░] 84.4% (39s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████████████░░░░░] 84.6% (39s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████████████░░░░░] 84.8% (39s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████████████░░░░░] 85.1% (39s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████████████░░░░░] 85.3% (39s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████████████░░░░░] 85.5% (39s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████████████░░░░░] 85.7% (39s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████████████░░░░░] 86.0% (39s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████████████░░░░░] 86.2% (40s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████████████░░░░░] 86.4% (40s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████████████░░░░░] 86.6% (40s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████████████░░░░] 86.9% (40s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████████████░░░░] 87.1% (40s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████████████░░░░] 87.3% (40s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████████████░░░░] 87.5% (40s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████████████░░░░] 87.8% (40s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████████████░░░░] 88.0% (40s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████████████░░░░] 88.2% (40s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████████████░░░░] 88.4% (41s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████████████░░░░] 88.6% (41s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████████████░░░░] 88.8% (41s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████████████░░░░] 89.1% (41s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████████████░░░░] 89.3% (41s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████████████░░░░] 89.5% (41s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████████████░░░░] 89.7% (41s/41s)          
+[GPT-4o-mini] Transcribing: [██████████████████████████░░░░] 89.9% (41s/41s)          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 98.8% (41s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 98.6% (41s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 98.4% (42s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 98.1% (42s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 97.9% (42s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 97.7% (42s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 97.4% (42s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 97.2% (42s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 96.9% (42s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 96.7% (42s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 96.5% (42s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 96.3% (43s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 96.0% (43s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.8% (43s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.6% (43s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.3% (43s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.1% (43s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 94.9% (43s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 94.6% (43s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 94.6% (43s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 94.8% (43s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.1% (44s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.3% (44s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.6% (44s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.8% (44s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 96.0% (44s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 96.3% (44s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 96.5% (44s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 96.7% (44s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 97.0% (44s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 97.2% (45s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 97.4% (45s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 97.7% (45s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 97.9% (45s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 98.1% (45s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 98.4% (45s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 98.6% (45s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 98.8% (45s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 98.9% (45s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 98.7% (45s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 98.5% (46s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 98.2% (46s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 98.0% (46s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 97.8% (46s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 97.5% (46s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 97.3% (46s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 97.1% (46s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 96.8% (46s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 96.6% (46s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 96.4% (46s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 96.1% (47s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.9% (47s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.7% (47s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.4% (47s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.2% (47s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.0% (47s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 94.7% (47s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 94.5% (47s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 94.8% (47s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.0% (48s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.2% (48s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.5% (48s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.7% (48s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.9% (48s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 96.2% (48s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 96.4% (48s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 96.6% (48s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 96.8% (48s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 97.1% (48s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 97.3% (49s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 97.5% (49s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 97.8% (49s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 98.0% (49s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 98.2% (49s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 98.5% (49s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 98.7% (49s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 98.9% (49s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 98.8% (49s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 98.6% (49s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 98.4% (50s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 98.1% (50s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 97.9% (50s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 97.7% (50s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 97.5% (50s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 97.2% (50s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 97.0% (50s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 96.8% (50s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 96.5% (50s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 96.3% (51s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 96.1% (51s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.8% (51s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.6% (51s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.4% (51s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.1% (51s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 94.9% (51s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 94.7% (51s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 94.6% (51s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 94.8% (51s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.0% (52s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.3% (52s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.5% (52s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.7% (52s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 95.9% (52s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 96.2% (52s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 96.4% (52s (overtime))          
+[GPT-4o-mini] Transcribing: [████████████████████████████░░] 96.6% (52s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 96.9% (52s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 97.1% (52s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 97.3% (53s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 97.6% (53s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 97.8% (53s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 98.0% (53s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 98.3% (53s (overtime))          
+[GPT-4o-mini] Transcribing: [█████████████████████████████░] 98.5% (53s (overtime))          
+[GPT-4o-mini] Transcribing: [██████████████████████████████] 100.0% (53s (overtime))          
+[GPT-4o-mini] Transcribing: [██████████████████████████████] 100.0% (53s)
+[Hybrid] Step 3: Correcting with gpt-5-mini...
+[Subtitle Corrector] Found 64 segments from YouTube
+[Subtitle Corrector] Using gpt-5-mini for correction
+[Subtitle Corrector] Error during correction: Error code: 400 - {'error': {'message': "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}
+[Subtitle Corrector] Falling back to YouTube transcript
+[GPT-4o-mini] Streaming transcription...
+------------------------------------------------------------
+[00:03] 출근길 지하철에서 드느냐 알코올 라디오 오늘 주제는 corr 코스입니다
+저는 얄팍한 개가 자야 앓고 미친 토끼 m 해 애가
+이 코스가 되면 2와 [00:13] 같이 연승 말 이번 하이디
+콘 산업이 좀 알고 갈 웹 개발할때 많은 초보 개발자
+분들을 다음 스럽게 하는게 2 콜 크로스 올 직물 소셜의
+두죠 [00:22] 아니 내가 미친 특히 작품이라고 내 웹사이트에 만드는데
+팔기에 서식지 정보를 넣으려고 네이버 지도 api 에다가 ax 요청을
+보내 가지고 뭘 [00:30] 하려고 하냐 그냥 계속 뭐가 안
+좋아지고 흐름에 개발자 보고 여러분이 다 2 콜 수가 없
+쪽 1 10화 크겠다 이름하야 그렇죠 [00:38] 한 사이트에서 주소가
+다른 서버 로 요청을 보낼 때 자주 접하게 되는 오르조
+주소가 어쭈 고 닷컴이 웹사이트에서 유아 레리 젖줄 다 법인
+[00:46] 서비스의 api 로 정부를 받아오기 위해 프론티 에서 http
+요청을 보냈을 때 미리 어떤 설정해 주지 않으면 콜스 문제로
+마치려 되요 근데 [00:55] 이 엮인 게 다른걸로 텟사 되는
+탓해 거든요 포트 내가 총을 하다가 똑같은데 초분 해보거나 스핀
+아트웍 뺏기 위해서 [01:02] http 로 요 초월 분양은 각
+해가지고 아 eur 헬로 개교 청 보내면 되게 끝나고 맥키
+에서 번 해보면 주고 단계는 거에요 맨날 아이콜 저쪽 한해서
+왜 어디서는 되고 언어는 한 [01:14] 된거예요 그 어디서 부터
+알아야 겠죠 어디에서 보낸 요청이 코스로 마키 뭔가 웹사이트에서 에이젝스
+요청을 보냈을 때 마다 안된다고 했잖아요 그 말은 웹사이트를 0
+곳 즉 구름 나 엣지 사파리 같은 브라우저에서 [01:26] 일어나는
+문제라는 거죠 프론트엔드 에서요 그냥 하는 2 네이버 치료 같은
+ha 객원 서비스 리 [01:32] 매크로 음을 아니면 거예요 그렇게
+말하면 멜번은 억울한 게 사실 콜스 한 이후로 요청을 막는
+건 바로 이 브라우저 쪽이에요 카아 아니 그 다음에는 [01:42]
+이 크롬이 가라 를 못 믿는 거란 말이에요 먼 날
+시계 피토 수하는 팀의 범위 님의 컴퓨터에 있다는 거 아니에요
+[01:50] 크롬이 b to c 를 못 믿는게 아니라 니토
+씨가 방문은 사이트를 못 믿는 거예요 내가 개발하고 있는 2살
+키레 봄이 더 가지고 거리서 레이버 [01:59] ipa 라가 요청을
+못 통해 그런 크롬 입고 있는거나 시간 뭔데 내가 하니까
+그걸 막고 그런거예요 보통은 미토 씨가 크롬에서 방문하는 사이트 들은
+니토 씨가 만든 게 [02:09] 아니잖아요 그렇죠 파니 만든 이
+새끼가 안에 틀어 내 서도 능하지 2코스 이런게 왜 있는지
+부터 속 시원하게 말해 볼게요 [02:17] 예시를 하나 둘 조
+차 큼 닷컴 이라는 사이트가 있어요 미토 시로우 여기 가입해서
+잘 쓰고 있다고 가정합시다 우리가 보통 어떤 사이트에 로그인을 하면
+다음에 접속했을 때 다시 아이디 비번을 입력할 필요가 없도록 [02:28]
+로그인이 유지되고 있는 경우가 많잖아요 그게 어떤 원리로 그렇게 되는건
+저는 알고 계시죠 예전에 푹 찌 이 패션 첫 c
+반응 영상에서 알려졌죠 [02:36] 4 프로젝트 클릭의 정도가 수치로 저장
+이래가지고 휴거를 녹음에 탄탈 k 에 접속할 때 요청이 다
+실어 보내면 프리 사이트에서 2 [02:44] 수출이 보고 내가 거기에
+요거이 밑에 있다 이렇게 판단을 하는 거 아니야 맞아요 즉
+미토 씨가 착한 다 품에 로그인이 있고 그 상태가 유지되고
+있다는 건 미토 씨가 착함 더컵 에 접속하고 야 [02:55]
+그리고 api 요청 등을 보낼 때마다 해당 요청 들이 미토
+씨로부터 왔음을 증명하기 위해 같이 보내지는 임진 정보가 미토 c
+의 크 맥 저장되어 있다는 얘기죠 [03:03] 자 그런데 착한
+닷컴 으로부터 미토 씨의 정물 빼내기 위해 악당들이 바쁜 닷컴
+이란걸 만들었어요 어떤 싸지 정보를 빼내려고 나가 다른 사이트를 않는다
+그냥 어떤 속살이 [03:15] 인건지 알려주세요 먼저 약 땅들은 미
+2 씨에게 링크가 담긴 메일을 보내거나 그렇단 게시물로 유리나 해서
+m 씨가 자신들이 만든 나쁜 닷컴에 접속하도록 [03:24] 유도해 요
+내가 나쁜 다크 맺어 또 한다는건 걔네가 만든 html css
+그리고 자바스크립트 코드가 내 프라우 저의 받아 진가는 거고 거
+그렇게 [03:35] 말 이 나쁜 나 큰 에서 받아온 자바스크립트
+코드로 하다가 그런데 이게 편하게 있을 시 키 지 모르는
+거네요 코디가 이직 한약을 인정받아 있는데 바로 그거예요 [03:45] 착한
+닥터 무로부터 미토 씨의 개인정보를 조양은 요청에 클럽 에 저장된
+미토 씨의 착한 베컴 토큰을 싫어서 착한 닷컴에 보낸 다음
+그걸로 털 [03:53] 추천정보를 나쁜 작업 서버로 보내 볼 수
+있는 거죠 어 해야 내 2g 랑 상관없이 4 부러져서
+거지 저장된 내정 모델을 [04:00] 가지고 아니자 증거를 할 수가
+있는 거고 필요가 말고도 다른 api 라 가 머든 헬기
+한 짓을 할 수가 있는 거니까 일대 블러 제가 이런거
+뜰의 긍지를 하고 있던거 말 어떤 사이트에서 파는 사이트는 요통의
+못가게 그럼 [04:12] 이 코션 걸 가지고 다 말이야 정확히
+말하자면 코스는 그걸 많은게 아니라 풀어준 역할이 고요 요청을 받고
+있는 것 [04:19] sop 싸이 멀어진 파리 씨가 하는 거예요
+동일 출처 정착이 요 동의의 출처 라는걸 아이 그대로 동일한
+추척 똑같은 u 아래 끼리만 lti 빙의 [04:27] 데이터 접근이
+가능하도록 맞는 거고 개발자 주고 의 걸 어쩌고 시퍼렇게 오류가
+뜨는 것은 이게 되게 아리는 코스로 허해진 더 가야 이런
+이미 야동 하네요 그럼 이 꺼리지만 촉구 예 크로스 오르지
+뉴스 쉐어링 크로스 오리지 [04:41] 입니까 쌤 의 올 지금
+동일 출세의 반대 개념이죠 말그대로 다른 출처가 낼 이 소스를
+공유할 수 있도록 하는 걸 말해요 출 서는 보내고 받는
+각각의 위치 즉 웹 사이트 랑 api 주도 리소스는 [04:53]
+주고 받아지는 데이터 라고 생각하시면 되요 즉 미친 토끼 다
+컴과 네이버 지도 api 이 서로 다른 출처 끼리 정보
+요청 과반이 가능 하도록 하는게 코스라는 [05:03] 거죠 사실 서로
+다른 출저 끼리 요청을 주고 받는것 안되는게 기본값이 였어요 미친
+토끼 닷컴에서 네이버 지도 api 로 요청을 보낼 뻔 [05:12]
+원래 브라우저에서는 애초부터 더듬지 되어 있었던 거란 얘기죠 근데 그게
+계획에 하려고 닫아 컬 땅 걸맞는 거란 얘기 인가 이거
+아냐 [05:19] 맞아요 웹 생태계가 다양해지면서 여러 서비스들을 관해 보다
+자유롭게 데이터가 주고받아 질 필요가 생겼어요 그런데 다른 사이트 간의
+요청 들은 브라우저가 [05:28] 받고 있으니까 개발자들은 요즘 잘 안보이지만
+제이슨 p 등의 방식으로 이를 우회한 꼼수 2를 사용하기 시작했죠
+그래서 이걸 합의된 출처 들간의 합법적 으로 허용해 주기 위해
+어떤 [05:39] 기준을 충족시키면 리 소스 공유 하퇴 좀 만들어진
+매커니즘이 바로 2시고 rs 교차 출처 자원 공유 방식이에요 쿄쿄
+광이 한계 많네요 간단해요 요청을 받는 - & 쪽에서 이걸
+허락하에 다른 출처 들을 미리 [05:52] 명시해 주면 되는 거죠
+백 엔드 서버 르 프로그래밍 할때 쓰는 프레임워크 들 스프링
+이나 장구 익스프레스 등의 문서를 살펴보면 콜드 옵션을 넘은 방법들이
+쉽게 많은 돼 있어요 [06:02] 여기다 미친 오키다 껌 등
+허용할 사이트들을 적어주면 이제 거기서 지정한 사이트에서는 e 서버로 얼마든지
+http 요청을 보낼 수 있는 거예요 [06:11] 아무나 보내도 되는
+요청의 경우 일반적인 방법으로 별표 와일드카드를 적어놓으면 누구나 쓸 수
+있게 되고요 당연히 나쁜 다 것뿐 안 들어가 있을 테니
+거기는 마치 겠죠 [06:20] 네이버 지도 api 등의 서비스들도 콘
+툴의 들어가보면 코수술을 허용해 줄 주소들을 지정하는 페이지를 찾을 수가
+있을 거예요 [06:27] 여기다가 미친 토키 닷컴에 번역하는데 꽉 4회
+이자 이란 말이 진짜 얇게 얘기한 고생한 하는거냐 작 sop
+랑 코스가 왜 있는건지 않았습니까 [06:36] 이제 코스에 대해서 조금
+더 깊이 들어가 볼게요 미친 토끼 닭 엄해서 네이버 지도
+api 로 요청을 보내요 다른 초로의 요청 이니까 크로스 오리진
+조 총회 거죠 [06:45] 브라우즈 는 이처럼 다른 출처 끼리의
+요청이 보낼 때면 요청에 오이지 이라는 헤더 추가요 이해 가
+뭔지 모든 삶이 있을 것 같은데요 [06:53] 간단히 설명하자면 데이터가
+다른 곳으로 전송될 때 데이터에 멘트 쪽에 붙는 부 층
+정보라고 보면 되요 받는 쪽의 ip 주도 상황을 토트 코리나
+옵션 등이 담겨 있는데 우편으로 짓자면 봉투에 적힌 내용이라고 생각할
+수 [07:05] 있죠 약효는 이 헤더에 올린 항목에는 요청한 쪼개
+스팀과 도 맹 그리고 포토 남겨요 여기서 특히 미란 요청할
+자원에 접근할 방법 [07:14] 이를테면 http ftp 텔넷 등을 말여
+푸드 코리 라고도 하죠 http fl 팽팽 쎄씨 쎄씨 이
+미친 특히 아 [07:22] 컴 물어 치매는 https 가 스킴
+미친 특히 닷컴이 보냉 그리고 여기 남부 탔지만 빵야 키에
+탱탱하다 3등이 알려지면 굉장히 코팅 하자 [07:32] 4 이 요청을
+받은 네이버 지도 api 는 박당 이해 다해 지정된 xs
+컨트롤로 얼지 정보를 신어서 보내요 만약 미친 특히 닷컴이 등록된
+상태며 그 유아들도 들어 있겠죠 [07:42] 그런 n 이 제품이
+이불을 비교 해 가지고 나가 오리진에 번인가 또 카시스 나오키
+해 지는 거에요 맞아요 올 집에서 보낸 출처없이 서버에 닭장
+헤더 담긴 액세스 컨트롤러 [07:53] 오르지 4 똑같이 있으면 안전한
+주총 으로 간주하고 은값 데이터를 받아 b 라는 거죠 없으면
+크리스 파가 l 안에 폐지 느껴지는 거 아냐 그렇죠 그리고
+토큰 [08:03] 등 사용자 식별 정보와 당 빈 주총 에
+대해서는 보다 엄격해 요 일단 보낸 측에서는 요청에 옵션의 콜드
+앤 샤리는 항목을 투 룩 세팅해야 [08:10] 하고 다른 쪽에서도
+아무 추천하다 허용하는 와일드카드 아니라 본 왼쪽의 추척 웹페이지 주소를
+정확히 명치 한 다음 액세스 컨트롤러 오크를 된 잘 항목을
+2로 맞춰줘야 해요 [08:20] 그 여제자 장구채 나쁘게 쓸 수
+있는 거니까 뷰렛 않아 보내게 되는 양 쪽이 보다 빡시게
+조건을 갖춘 안 되는 거예요 맞아요 그리고 방금 설명한 방식은
+심플한 퀘스트 라고 해서 계시나 포스트 [08:31] 등 일정 조건에
+요청 들을 사용 되는 거고요 그 조건들은 구정 댓글 링크에서
+확인하실 수 있어요 쿠시나 딜리트 이와 다른 요청 들은 본
+요청을 보내기 전에 프리 플라이 요청 이란 걸 먼저 [08:41]
+보내서 본 요청이 안전한지 확인하고 여기서 허락이 떨어져야 본격적으로 요청을
+보낼 수 있어요 서버 에 데이터에 영향을 줄 수 있는
+요청 드리기 때문에 요청 자체를 보내기 전에 먼저 허용 여부를
+검증하는 거죠 [08:52] 정리하자면 은 코스에서 보내는 요청 들은 두
+종류 심플리 케테 랑 프리 fik 요청도 로 나뉘는데 심플
+있게 쓰면 요청을 [09:00] 보내기 늘 바 보내느냐 통화를 못하는
+답장 안 못 받아 없는 고 프리스 해야 하는것은 요청을
+보내는 것도 일단 팔을 바 날입니다 [09:08] 요청에 따라 써
+봐 데이터가 닦는 될 수 있는 거라서 큰애 심플리 퀘스트로
+보낸 것들도 다른 쪽에서 신경 안 써 놓으면 서버에 잔해
+데에 굉장히 가질 수 있는 거잖아요 [09:17] 맞아요 때문에 이에
+쏘 피면 이렇게 아니라 개발자 측에서도 그런 것들에 다 대비를
+해서 서버를 프로그램이 해야 하는 거죠 안되는데 캔 했다고 웅장
+마칸 안되는 것처럼 야 뭐 하냐 것은 아무리 [09:28] 생각해도
+우발 아닌가 네요 오늘 이렇게 이 코스는 것을 정찰을 알아보는
+시간을 가졌구요 콜스 의 동작에 대한 디테일한 부분들은 고정 댓글
+링크로 mdm 에서 제공하는 [09:37] 한글 페이지에 들어가 보시면 친절은
+3 명물로 보다 자세히 확인하실 수 있습니다 요즘 라디오 로
+만드는 거 나 떨려 가지고 넘은 발락 한 거 아니야
+[09:45] 장편 강의 만들면서 중간중간 뜯고 있는 거예요 미투 씨도
+엔화 가지고 육우 하면서 코디 유튜브 해봐요 아이 듣게 된
+요 특집 안심 말이 얼마나 넘게 나주역 이라 하며 안정을
+후기 올해 아니 통령 우연히 밥 추가되고 [09:56] 있으며 풀어
+쓴 거야 그거 아세요 으 으 4 [음악] 으
+------------------------------------------------------------
+
+Transcript saved: /Users/jaesolshin/Documents/GitHub/yt-trans/transcript/웹개발_짜증유발자!_CORS가_뭔가요.txt
+
+[SUMMARY] Generating summary...
+Generating summary with gpt-5-mini...
+Summary generated successfully
+Summary saved: /Users/jaesolshin/Documents/GitHub/yt-trans/transcript/웹개발_짜증유발자!_CORS가_뭔가요_summary.txt
+Summary copied to: /Users/jaesolshin/Downloads/웹개발_짜증유발자!_CORS가_뭔가요_summary.txt
+
+Transcript copied to: /Users/jaesolshin/Downloads/웹개발_짜증유발자!_CORS가_뭔가요.txt
+
+[SUCCESS] Transcription completed successfully!

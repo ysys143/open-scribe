@@ -11,7 +11,9 @@ from .screens.main_menu import MainMenuScreen
 class YouTubeTranscriberTUI(App):
     """YouTube Transcriber TUI 메인 애플리케이션"""
     
-    CSS = """
+    CSS_PATH = "themes/app.tcss"
+    
+    LEGACY_CSS = """
     /* --- Theme tokens removed: Textual CSS doesn't support custom properties. */
     Screen { background: #1e1e2e; color: #cdd6f4 }
 
@@ -43,7 +45,7 @@ class YouTubeTranscriberTUI(App):
         padding: 0;
     }
 
-    .divider-line { width: 100%; color: #45475a; margin: 0 1; padding: 0 }
+    .divider-line { width: 100%; color: #45475a; margin: 0; padding: 0; visibility: hidden }
 
 
     .main-section {
@@ -103,6 +105,11 @@ class YouTubeTranscriberTUI(App):
         height: 1;       /* 고정 높이 */
     }
 
+    /* URL 헤더 행: 좌측 라벨, 우측 슬림 팁 */
+    .url-header { height: 1; min-height: 1; margin: 0 0 0 0; width: 1fr; }
+    .url-header Static { margin: 0; }
+    .url-tip { color: #a6adc8; text-style: none; width: 1fr; text-align: right }
+
     /* 섹션 사이 간격을 위한 얇은 마진 */
     .section-gap {
         margin: 1 0 0 0;  /* 위쪽으로 1만 부여 */
@@ -154,6 +161,7 @@ class YouTubeTranscriberTUI(App):
         width: 100%;
         margin-right: 0;
     }
+    .inline-button { min-width: 12; margin-left: 1 }
     
     .start-btn {
         width: auto;
@@ -306,6 +314,35 @@ class YouTubeTranscriberTUI(App):
         text-style: bold;
         color: #1e1e2e;
     }
+
+    /* Viewer header/meta */
+    .viewer-header { height: 1; min-height: 1; margin: 0 }
+    .content-area .viewer-header { margin: 0 }
+    .viewer-title { text-style: bold; color: #cdd6f4; width: 1fr }
+    .viewer-meta { color: #a6adc8; width: auto; text-align: right }
+    /* Viewer buttons: 낮은 높이, 넓은 폭 */
+    .viewer-actions {
+        height: 3;                 /* 3줄 높이로 정확한 중앙 */
+        min-height: 3;
+        margin: 1 0 0 0;           /* 버튼 위쪽 여백 한 줄 */
+        content-align: center middle;
+        align: center middle;
+        width: 1fr;
+    }
+    .viewer-actions Button,
+    .viewer-actions .action-button,
+    .viewer-actions .danger-button {
+        height: 3 !important;
+        min-height: 3 !important;
+        width: 1fr;               /* 두 버튼이 영역을 양분 */
+        min-width: 0;
+        margin: 0;                /* 균등 분할 위해 여백 제거 */
+        content-align: center middle;
+        align: center middle;
+        padding: 0;
+    }
+    .viewer-video-title { text-style: bold; color: #cdd6f4; width: 1fr; height: auto; min-height: 1; margin: 0; padding: 0; content-align: left top }
+    .viewer-pane { padding: 0 1 0 0 }
 
     /* 상단 강조 제거로 관련 클래스 미사용 */
 
@@ -574,15 +611,25 @@ class YouTubeTranscriberTUI(App):
         background: #313244;
         border: solid #89b4fa;
         padding: 2;
-        width: auto;
-        max-width: 40;   /* 너무 넓지 않게 조정 */
-        min-width: 30;
+        width: 50;
+        height: auto;
+        layer: dialog;
+        dock: top;
+    }
+    
+    #confirm_dialog {
+        layer: dialog;
     }
 
     .dialog-buttons {
         align: center middle;
         margin-top: 1;
     }
+    /* Flat buttons for inline confirm bars */
+    .flat-button { background: transparent; color: #7aa7f0; border: none; text-style: bold }
+    .flat-button:hover { color: #6a96e0 }
+    .flat-danger { background: transparent; color: #ef4444; border: none; text-style: bold }
+    .flat-danger:hover { color: #dc2626 }
     
     /* Settings container - enable scrolling */
     .settings-container {

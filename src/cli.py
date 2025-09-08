@@ -77,12 +77,24 @@ Environment variables for defaults:
         default=Config.ENABLE_SUMMARY,
         help=f'Generate AI summary (default: {Config.ENABLE_SUMMARY})'
     )
+    parser.add_argument(
+        '--no-summary',
+        action='store_false',
+        dest='summary',
+        help='Disable AI summary'
+    )
 
     parser.add_argument(
         '--translate',
         action='store_true',
         default=Config.ENABLE_TRANSLATE,
         help=f'Translate transcript/SRT (default: {Config.ENABLE_TRANSLATE})'
+    )
+    parser.add_argument(
+        '--no-translate',
+        action='store_false',
+        dest='translate',
+        help='Disable translation'
     )
     
     parser.add_argument(
@@ -98,12 +110,24 @@ Environment variables for defaults:
         default=Config.INCLUDE_TIMESTAMP,
         help=f'Include timestamps (default: {Config.INCLUDE_TIMESTAMP})'
     )
+    parser.add_argument(
+        '--no-timestamp',
+        action='store_false',
+        dest='timestamp',
+        help='Disable timestamps'
+    )
 
     parser.add_argument(
         '--srt',
         action='store_true',
         default=Config.GENERATE_SRT,
         help=f'Generate SRT subtitles (default: {Config.GENERATE_SRT})'
+    )
+    parser.add_argument(
+        '--no-srt',
+        action='store_false',
+        dest='srt',
+        help='Disable SRT generation'
     )
     
     parser.add_argument(
@@ -118,6 +142,12 @@ Environment variables for defaults:
         action='store_true',
         default=Config.DOWNLOAD_VIDEO,
         help=f'Download video (default: {Config.DOWNLOAD_VIDEO})'
+    )
+    parser.add_argument(
+        '--no-video',
+        action='store_false',
+        dest='video',
+        help='Do not download video'
     )
     
     parser.add_argument(

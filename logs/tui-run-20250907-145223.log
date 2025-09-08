@@ -1,0 +1,24 @@
+[START] Starting transcription: https://youtu.be/c-BFPCXbXjA?si=yriqjvhruxRUssKo
+Engine: youtube-transcript-api
+
+Extracting video information...
+Title: 최악의 가뭄으로 48년만에 바닥 드러낸 강릉, 이게 끝이 아니라고?｜크랩
+Duration: 373 seconds
+Uploader: 크랩 KLAB
+
+[OK] Skipping audio download (using YouTube Transcript API)
+
+Transcribing with youtube-transcript-api...
+Found auto-generated transcript in ko
+
+Transcript saved: /Users/jaesolshin/Documents/GitHub/yt-trans/transcript/최악의_가뭄으로_48년만에_바닥_드러낸_강릉,_이게_끝이_아니라고_｜크랩.txt
+
+[SUMMARY] Generating summary...
+Generating summary with gpt-5-mini...
+Summary generated successfully
+Summary saved: /Users/jaesolshin/Documents/GitHub/yt-trans/transcript/최악의_가뭄으로_48년만에_바닥_드러낸_강릉,_이게_끝이_아니라고_｜크랩_summary.txt
+Summary copied to: /Users/jaesolshin/Downloads/최악의_가뭄으로_48년만에_바닥_드러낸_강릉,_이게_끝이_아니라고_｜크랩_summary.txt
+
+Transcript copied to: /Users/jaesolshin/Downloads/최악의_가뭄으로_48년만에_바닥_드러낸_강릉,_이게_끝이_아니라고_｜크랩.txt
+
+[SUCCESS] Transcription completed successfully!

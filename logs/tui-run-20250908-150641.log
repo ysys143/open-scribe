@@ -1,0 +1,392 @@
+[youtube] Extracting URL: https://www.youtube.com/watch?v=H5znnIZ2NH8
+[START] Starting transcription: https://www.youtube.com/watch?v=H5znnIZ2NH8
+Engine: gpt-4o-mini-transcribe
+
+Extracting video information...
+Title: 5 Signs of an Inexperienced, Self-Taught Machine Learning Engineer
+Duration: 546 seconds
+Uploader: Marina Wyss - AI & Machine Learning
+
+Downloading audio...
+Downloading audio from YouTube...
+[youtube] H5znnIZ2NH8: Downloading webpage
+[youtube] H5znnIZ2NH8: Downloading tv simply player API JSON
+[youtube] H5znnIZ2NH8: Downloading tv client config
+[youtube] H5znnIZ2NH8: Downloading tv player API JSON
+[info] H5znnIZ2NH8: Downloading 1 format(s): 251-11
+[download] Sleeping 5.00 seconds as required by the site...
+[download] Destination: /Users/jaesolshin/Documents/GitHub/yt-trans/audio/5 Signs of an Inexperienced, Self-Taught Machine Learning Engineer [H5znnIZ2NH8].webm
+
+[download]   0.0% of    7.91MiB at  Unknown B/s ETA Unknown
+[download]   0.0% of    7.91MiB at    2.69MiB/s ETA 00:02  
+[download]   0.1% of    7.91MiB at    4.81MiB/s ETA 00:01
+[download]   0.2% of    7.91MiB at    8.68MiB/s ETA 00:00
+[download]   0.4% of    7.91MiB at    6.34MiB/s ETA 00:01
+[download]   0.8% of    7.91MiB at    5.04MiB/s ETA 00:01
+[download]   1.6% of    7.91MiB at    7.18MiB/s ETA 00:01
+[download]   3.1% of    7.91MiB at    9.61MiB/s ETA 00:00
+[download]   6.3% of    7.91MiB at   14.85MiB/s ETA 00:00
+[download]  12.6% of    7.91MiB at   21.67MiB/s ETA 00:00
+[download]  25.3% of    7.91MiB at   31.80MiB/s ETA 00:00
+[download]  50.6% of    7.91MiB at   36.02MiB/s ETA 00:00
+[download] 100.0% of    7.91MiB at   45.63MiB/s ETA 00:00
+[download] 100% of    7.91MiB in 00:00:00 at 21.96MiB/s  
+[ExtractAudio] Destination: /Users/jaesolshin/Documents/GitHub/yt-trans/audio/5 Signs of an Inexperienced, Self-Taught Machine Learning Engineer [H5znnIZ2NH8].mp3
+Audio downloaded: 5 Signs of an Inexperienced, Self-Taught Machine Learning Engineer [H5znnIZ2NH8].mp3
+
+Transcribing with gpt-4o-mini-transcribe...
+[GPT-4o-mini] Processing: /Users/jaesolshin/Documents/GitHub/yt-trans/audio/5 Signs of an Inexperienced, Self-Taught Machine Learning Engineer [H5znnIZ2NH8].mp3
+[GPT-4o-mini] Using hybrid mode for accurate timestamps...
+[Hybrid] Step 1: Fetching YouTube transcript with timestamps...
+Error fetching transcript: 
+Could not retrieve a transcript for the video https://www.youtube.com/watch?v=Inexperienc! This is most likely caused by:
+
+The video is no longer available
+
+If you are sure that the described cause is not responsible for this error and that a transcript should be retrievable, please create an issue at https://github.com/jdepoix/youtube-transcript-api/issues. Please add which version of youtube_transcript_api you are using and provide the information needed to replicate the error. Also make sure that there are no open issues which already describe your problem!
+[Hybrid] Error: Could not fetch YouTube transcript
+[GPT-4o-mini] Hybrid mode failed, falling back to standard mode
+[GPT-4o-mini] [WARNING] YouTube transcript API를 사용할 수 없어 30초 단위의 타임코드가 생성됩니다
+[GPT-4o-mini] (Live 영상이거나 자막이 없는 영상일 수 있습니다)
+[GPT-4o-mini] ℹ️  Using chunked timestamps for gpt-4o-mini-transcribe
+[GPT-4o-mini] Using chunking for timestamp support...
+[Audio] Using project temp directory: /Users/jaesolshin/Documents/GitHub/yt-trans/temp_audio
+[Audio] Splitting 545.5s audio into 19 chunks of 30s each
+[Audio] Created chunk 1/19: chunk_000.mp3
+[Audio] Created chunk 2/19: chunk_001.mp3
+[Audio] Created chunk 3/19: chunk_002.mp3
+[Audio] Created chunk 4/19: chunk_003.mp3
+[Audio] Created chunk 5/19: chunk_004.mp3
+[Audio] Created chunk 6/19: chunk_005.mp3
+[Audio] Created chunk 7/19: chunk_006.mp3
+[Audio] Created chunk 8/19: chunk_007.mp3
+[Audio] Created chunk 9/19: chunk_008.mp3
+[Audio] Created chunk 10/19: chunk_009.mp3
+[Audio] Created chunk 11/19: chunk_010.mp3
+[Audio] Created chunk 12/19: chunk_011.mp3
+[Audio] Created chunk 13/19: chunk_012.mp3
+[Audio] Created chunk 14/19: chunk_013.mp3
+[Audio] Created chunk 15/19: chunk_014.mp3
+[Audio] Created chunk 16/19: chunk_015.mp3
+[Audio] Created chunk 17/19: chunk_016.mp3
+[Audio] Created chunk 18/19: chunk_017.mp3
+[Audio] Created chunk 19/19: chunk_018.mp3
+[GPT-4o-mini] Transcribing 19 chunks...
+
+                                                                                                    
+Overall: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0.5% (0.1/19 chunks) | Speed: 19181.27 chunks/min | ETA: 0m 0s
+                                                                                                    
+Overall: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 7.4% (1.4/19 chunks) | Speed: 27.89 chunks/min | ETA: 0m 37s
+[GPT-4o-mini] Chunk 2: 645 chars
+
+                                                                                                    
+Overall: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 7.9% (1.5/19 chunks) | Speed: 29.88 chunks/min | ETA: 0m 35s
+                                                                                                    
+Overall: [█████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 12.6% (2.4/19 chunks) | Speed: 43.18 chunks/min | ETA: 0m 23s
+[GPT-4o-mini] Chunk 3: 614 chars
+
+                                                                                                    
+Overall: [█████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 13.2% (2.5/19 chunks) | Speed: 44.97 chunks/min | ETA: 0m 22s
+                                                                                                    
+Overall: [███████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 17.9% (3.4/19 chunks) | Speed: 57.97 chunks/min | ETA: 0m 16s
+[GPT-4o-mini] Chunk 5: 640 chars
+
+                                                                                                    
+Overall: [███████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 18.4% (3.5/19 chunks) | Speed: 59.67 chunks/min | ETA: 0m 15s
+                                                                                                    
+Overall: [█████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 23.2% (4.4/19 chunks) | Speed: 74.13 chunks/min | ETA: 0m 11s
+[GPT-4o-mini] Chunk 4: 677 chars
+
+                                                                                                    
+Overall: [███████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 28.4% (5.4/19 chunks) | Speed: 84.91 chunks/min | ETA: 0m 9s
+[GPT-4o-mini] Chunk 1: 656 chars
+
+                                                                                                    
+Overall: [███████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 28.9% (5.5/19 chunks) | Speed: 86.48 chunks/min | ETA: 0m 9s
+                                                                                                    
+Overall: [█████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░] 33.7% (6.4/19 chunks) | Speed: 65.80 chunks/min | ETA: 0m 11s
+[GPT-4o-mini] Chunk 6: 661 chars
+
+                                                                                                    
+Overall: [█████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░] 34.2% (6.5/19 chunks) | Speed: 66.83 chunks/min | ETA: 0m 11s
+                                                                                                    
+Overall: [███████████████░░░░░░░░░░░░░░░░░░░░░░░░░] 38.9% (7.4/19 chunks) | Speed: 71.54 chunks/min | ETA: 0m 9s
+[GPT-4o-mini] Chunk 9: 617 chars
+
+                                                                                                    
+Overall: [███████████████░░░░░░░░░░░░░░░░░░░░░░░░░] 39.5% (7.5/19 chunks) | Speed: 72.50 chunks/min | ETA: 0m 9s
+                                                                                                    
+Overall: [█████████████████░░░░░░░░░░░░░░░░░░░░░░░] 44.2% (8.4/19 chunks) | Speed: 77.52 chunks/min | ETA: 0m 8s
+[GPT-4o-mini] Chunk 7: 576 chars
+
+                                                                                                    
+Overall: [█████████████████░░░░░░░░░░░░░░░░░░░░░░░] 44.7% (8.5/19 chunks) | Speed: 78.44 chunks/min | ETA: 0m 8s
+                                                                                                    
+Overall: [███████████████████░░░░░░░░░░░░░░░░░░░░░] 49.5% (9.4/19 chunks) | Speed: 86.74 chunks/min | ETA: 0m 6s
+[GPT-4o-mini] Chunk 8: 635 chars
+
+                                                                                                    
+Overall: [█████████████████████░░░░░░░░░░░░░░░░░░░] 54.7% (10.4/19 chunks) | Speed: 81.05 chunks/min | ETA: 0m 6s
+[GPT-4o-mini] Chunk 10: 634 chars
+
+                                                                                                    
+Overall: [██████████████████████░░░░░░░░░░░░░░░░░░] 55.3% (10.5/19 chunks) | Speed: 81.83 chunks/min | ETA: 0m 6s
+                                                                                                    
+Overall: [████████████████████████░░░░░░░░░░░░░░░░] 60.0% (11.4/19 chunks) | Speed: 81.01 chunks/min | ETA: 0m 5s
+[GPT-4o-mini] Chunk 12: 652 chars
+
+                                                                                                    
+Overall: [████████████████████████░░░░░░░░░░░░░░░░] 60.5% (11.5/19 chunks) | Speed: 81.72 chunks/min | ETA: 0m 5s
+                                                                                                    
+Overall: [██████████████████████████░░░░░░░░░░░░░░] 65.3% (12.4/19 chunks) | Speed: 83.96 chunks/min | ETA: 0m 4s
+[GPT-4o-mini] Chunk 14: 566 chars
+
+                                                                                                    
+Overall: [██████████████████████████░░░░░░░░░░░░░░] 65.8% (12.5/19 chunks) | Speed: 84.64 chunks/min | ETA: 0m 4s
+                                                                                                    
+Overall: [████████████████████████████░░░░░░░░░░░░] 70.5% (13.4/19 chunks) | Speed: 86.69 chunks/min | ETA: 0m 3s
+[GPT-4o-mini] Chunk 13: 646 chars
+
+                                                                                                    
+Overall: [████████████████████████████░░░░░░░░░░░░] 71.1% (13.5/19 chunks) | Speed: 87.33 chunks/min | ETA: 0m 3s
+                                                                                                    
+Overall: [██████████████████████████████░░░░░░░░░░] 75.8% (14.4/19 chunks) | Speed: 92.39 chunks/min | ETA: 0m 2s
+[GPT-4o-mini] Chunk 11: 632 chars
+
+                                                                                                    
+Overall: [████████████████████████████████░░░░░░░░] 81.1% (15.4/19 chunks) | Speed: 81.22 chunks/min | ETA: 0m 2s
+[GPT-4o-mini] Chunk 19: 130 chars
+
+                                                                                                    
+Overall: [██████████████████████████████████░░░░░░] 85.8% (16.3/19 chunks) | Speed: 85.49 chunks/min | ETA: 0m 1s
+[GPT-4o-mini] Chunk 17: 615 chars
+
+                                                                                                    
+Overall: [████████████████████████████████████░░░░] 90.5% (17.2/19 chunks) | Speed: 89.90 chunks/min | ETA: 0m 1s
+[GPT-4o-mini] Chunk 16: 635 chars
+
+                                                                                                    
+Overall: [██████████████████████████████████████░░] 95.3% (18.1/19 chunks) | Speed: 93.80 chunks/min | ETA: 0m 0s
+[GPT-4o-mini] Chunk 15: 599 chars
+
+                                                                                                    
+Overall: [████████████████████████████████████████] 100.0% (19.0/19 chunks) | Speed: 87.92 chunks/min | ETA: calculating...
+[GPT-4o-mini] Chunk 18: 683 chars
+
+[WorkerPool] Completed 19 chunks in 0m 12s
+[WorkerPool] Worker 13455405056: Processed 4 chunks, avg time: 2.8s
+[WorkerPool] Worker 13472231424: Processed 4 chunks, avg time: 3.2s
+[WorkerPool] Worker 13505884160: Processed 4 chunks, avg time: 2.9s
+[WorkerPool] Worker 13489057792: Processed 4 chunks, avg time: 2.9s
+[WorkerPool] Worker 13438578688: Processed 3 chunks, avg time: 3.9s
+[GPT-4o-mini] Completed: 19/19 chunks
+[GPT-4o-mini] Streaming transcription...
+------------------------------------------------------------
+[00:00] In a competitive job market for junior engineers, only
+those coming in with the strongest skills will be hired.
+In this video, I'm going over the top five signs
+of a self-taught, inexperienced machine learning engineer, so you can
+avoid these traps and present yourself in the best possible
+light, whether that's on your resume, in an interview, or
+your first few weeks on the job. I'm drawing from
+my own experience mentoring many people on my team at
+Amazon, as well as several years of experience as a
+career coach. I'm also semi-self-taught myself, since I come from
+a non-traditional background and I had to do a lot
+of up-leveling on my own. [00:30] to get where I
+am today. So let's get to the list. Before I
+go into the first sign, just a quick caveat that
+the term self-taught is a bit loaded. Realistically, whether you
+went through a formal program or not, the vast majority
+of what you learn throughout your career will be on
+the job. So what I'm really talking about here are
+signs that you haven't been properly mentored or worked on
+large-scale projects before. It's completely possible for someone with a
+university degree to also struggle in these areas, especially sign
+number one. The first major red flag I see from
+inexperienced ML engineers is that they only think about [01:00]
+about the model itself. To zoom out a bit, ultimately
+your job as an MLE is to solve a problem.
+A model sitting in a Jupyter notebook is unlikely to
+accomplish that. I've seen really smart people spend weeks building
+a model with great offline performance metrics, only to discover
+that the existing system, for example, couldn't handle the input
+format, or maybe the inference time is too long. From
+the very beginning of any project, you should be considering
+the entire system design. How will this model get deployed?
+Will it run on a server or a mobile device?
+How will it receive data, through batch [01:30] processing, real-time
+APIs, or streaming. What happens when the model fails or
+produces unexpected outputs? These are the kind of questions you
+should be considering from the very beginning, because they will
+have a huge impact on what kind of model is
+even appropriate for the task. But sometimes the biggest system
+design consideration is whether you even need machine learning at
+all, which brings us to sign number two. The second
+sign is jumping straight to the most complex model you
+can think of. This is a trap that catches a
+lot of self-taught engineers off guard because they want to
+show off their knowledge of cutting-edge techniques, but there are
+so many [02:00] problems that can happen when you start
+too complex. You have no baseline to compare against, there's
+no clear return on investment, it takes way too long
+to start iterating, the model isn't easily maintainable, it's not
+explainable to stakeholders, and it's much harder to debug when
+things go wrong. Ultimately, it might even be the case
+that machine learning isn't even needed for the problem. One
+of my proudest moments was talking a PM down from
+building a real-time personalized recommendations model to just using a
+SQL query. That SQL query solved 80% of the business
+need with 1% of the complexity and development time. So
+[02:30] Always start simple and get a baseline working. Linear
+regression, logistic regression, even just heuristics. Then iterate and add
+complexity only when you can justify it with clear improvements
+and business value. Speaking of making your work environment support
+better decision making, let me tell you about something that's
+been a huge help for my own productivity. This is
+the FlexiSpot E7 Pro Standing Desk. When you're putting in
+those long study sessions trying to up-level your ML skills,
+being comfortable makes a huge difference. I've recently been recovering
+from a back injury that was actually caused by sitting
+too long in a bad position. [03:00] The FlexiSpot E7
+Pro Standing Desk allows me to change positions throughout the
+day, which has made a big difference in my comfort
+and recovery. As a bonus, I found that I'm much
+more focused throughout the day, since I'm not just melting
+into my seat as the hours wear on. The E7
+Pro has a 440-pound static capacity for solid stability, a
+height adjustment range from 25 to 50.6 inches, and features
+a dual monitor, three-stage, semi-c-sleeve structure. Plus, it comes with
+a 15-year warranty and 30-day risk-free return service. Having a
+standing desk has genuinely [03:30] It made a huge difference
+in how long I'm able to focus and how enjoyable
+those long work sessions are for me. Check out the
+link in the description if you want to upgrade your
+setup and use the code YTE7P50 for $50 off your
+purchase. Now back to our list. This next one is
+particularly tough for folks coming from data science, but those
+with a computer science background can make these mistakes too.
+The third sign that shows someone is inexperienced is poor
+software engineering practices. This one is huge because machine learning
+is still software engineering at its core, and this is
+where I see the biggest gap between [04:00] academic projects
+and industry work. Let's start with testing. Machine learning pipelines
+need tests just like any software product. Tests and deployment
+checks need to be run with a CI/CD pipeline. It
+can be something as simple as GitHub Actions, but it's
+really bad news if someone says they're manually running tests
+before merging a PR or manually checking a model before
+deploying to production. Modularity is another big one. Remember at
+the beginning how we talked about not just focusing on
+the model itself? Having a single mononotebook is no bueno.
+We need to write our code in a way that's
+easy to [04:30] maintain, extend, and iterate on as an
+entire system. Speaking of iterating, inexperienced engineers often submit these
+huge code changes. This is really not ideal. It means
+it's basically impossible to give a super thorough review, which
+is extra important for beginners. And you're not getting feedback
+while it's still easy to make changes. It's also just
+annoying and will make your team frustrated with you. But
+even with perfect engineering practices, there's still a fundamental step
+that many engineers either skip entirely or completely overdo, which
+brings us to sign number four. Sign number four is
+either skipped [05:00] exploratory data analysis entirely, or on the
+flip side, going completely overboard with it. At the beginning
+of your career, you know you're supposed to do EDA,
+so you make a whole bunch of plots. Then you
+review them, but it's almost performative since you're not looking
+for the right things. We don't need plots for the
+sake of plots. Good EDA should answer specific questions. Do
+I need to standardize or scale my features? Where are
+the null values and how should I handle them? Are
+there obvious errors in the upstream data that I need
+to deal with? What are the potential data leakage risks
+I need to watch out for? [05:30] More importantly, what
+kind of model actually makes sense for this problem? Some
+models have specific assumptions we need to verify. Linear models
+assume linear relationships, neural networks need lots of data to
+work well, that kind of thing. And don't forget about
+feature engineering ideas. Good EDA should give you insights into
+how you might transform your features to make them more
+predictive. The key is being purposeful. Every plot, every summary
+statistic should inform a decision about how you'll approach the
+modeling. But even if you do perfect EDA and build
+a great model, there's one final area where inexperienced engineers
+can [06:00] consistently shoot themselves in the foot. The final
+sign is having a poor understanding of metrics, and this
+one might be the most damaging because it affects how
+you evaluate everything else. Let's start with the most basic
+mistake, evaluating metrics on the wrong data set. I've seen
+people report performance metrics on their test set instead of
+a proper holdout validation set. Or even worse, reporting metrics
+on the training set. Then there's choosing completely wrong metrics.
+The most obvious example in my mind is using accuracy
+basically ever. Balanced data sets very rarely exist in the
+real world. If you're working on email [06:30] and 95%
+of emails are legitimate. A model that just predicts not
+spam for everything will get 95% accuracy while being totally
+useless. And also 99% accuracy should make you suspicious for
+other reasons. In most real world problems, it usually means
+one of two things. Either you have that severe class
+imbalance you're not addressing properly, or you have data leakage,
+where information from the future is sneaking into your training
+data. One time I reviewed a model for predicting customer
+churn that claimed to have 98% accuracy. Sounds pretty amazing.
+[07:00] But it turns out they had just accidentally included
+features that were only available after a customer had already
+turned. This is really classic data leakage. When we fixed
+that, the actual performance was around 72%, which was still
+good but much more realistic. Another huge issue is not
+connecting your model metrics to actual business metrics. You might
+have a precision of 0.85, but what does that mean
+for revenue? How does a 5% improvement in your F1
+score translate to customer satisfaction or cost savings? If you
+can't make this connection, you did not solve a business
+problem. [07:30] Which is your job? Only checking metrics on
+a global level is another trap. You need to examine
+performance across different subsets of your data. Maybe your model
+works really awesome for users who are 25 to 35,
+but it performs terribly for those over 65. Maybe it
+performs well in urban areas, but poorly in rural. These
+insights are really important for understanding your model's limitations and
+improving on it. Finally, understand your errors through a qualitative
+lens as well. Don't just look at the numbers. Actually
+examine the cases where your model fails. You should be
+able to explain why your model misclassified [08:00] specific examples,
+and use those insights to improve your future engineering or
+model architecture. I once worked on a model that was
+performing surprisingly poorly. After doing systematic, qualitative error analysis, I
+discovered the issue was our evaluation data was improperly labeled.
+The model was right, and the labels were wrong. This
+was because of inconsistent training of the human labeling team,
+something I could not have possibly found out just from
+looking at the metrics themselves. These five signs, only focusing
+on the model, starting too complex, poor software engineering, inappropriate
+[08:30] and misunderstanding metrics are the biggest giveaways that someone
+hasn't worked on real machine learning projects in a production
+environment. The good news is that all of these are
+completely fixable with the right mindset and practice. Focus on
+solving problems end to end, not just building cool models.
+Start simple and iterate. Treat machine learning like the software
+engineering discipline that it is. Do purposeful data exploration that
+informs your modeling decisions and really understand what your metrics
+are telling you, both about model performance and business impact.
+If you're curious about which skills to learn on your
+way to becoming a machine learning [09:00] engineer. Check out
+the roadmap video on that, that's up next. Thank you
+so much for watching and I'll see you next time.
+------------------------------------------------------------
+[Audio] Keeping 19 chunk files for debugging
+[Audio] Chunks location: /Users/jaesolshin/Documents/GitHub/yt-trans/temp_audio
+
+Transcript saved: /Users/jaesolshin/Documents/GitHub/yt-trans/transcript/5_Signs_of_an_Inexperienced,_Self-Taught_Machine_Learning_Engineer.txt
+
+[SUMMARY] Generating summary...
+Generating summary with gpt-5-mini...
+Summary generated successfully
+Summary saved: /Users/jaesolshin/Documents/GitHub/yt-trans/transcript/5_Signs_of_an_Inexperienced,_Self-Taught_Machine_Learning_Engineer_summary.txt
+Summary copied to: /Users/jaesolshin/Downloads/5_Signs_of_an_Inexperienced,_Self-Taught_Machine_Learning_Engineer_summary.txt
+
+Transcript copied to: /Users/jaesolshin/Downloads/5_Signs_of_an_Inexperienced,_Self-Taught_Machine_Learning_Engineer.txt
+
+[SUCCESS] Transcription completed successfully!

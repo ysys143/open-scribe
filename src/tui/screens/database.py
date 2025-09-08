@@ -2,7 +2,7 @@
 
 from textual.app import ComposeResult
 from textual.containers import Vertical, Horizontal, ScrollableContainer
-from textual.widgets import Static, Button, Input, DataTable
+from textual.widgets import Static, Button, DataTable
 from textual.binding import Binding
 from textual import events
 from textual.screen import ModalScreen
@@ -36,16 +36,14 @@ class DatabaseScreen(BaseScreen):
         self._viewer_open = False
         self._last_jobs_snapshot: list[dict] = []
         self._debug = Config.DEBUG
+        self._current_view_job_id: int | None = None
+        self._confirm_context: dict | None = None
     
     def compose(self) -> ComposeResult:
         """UI 구성"""
         yield Static("▣ Database", classes="screen-title")
         
         with Vertical(classes="db-container"):
-            # 검색 행
-            with Horizontal(id="db_search_row"):
-                yield Input(placeholder="검색어 (제목/URL)", id="search_input")
-                yield Button("Search", id="search_btn", classes="utility-button")
             # 버튼 일렬 배치
             with Horizontal(id="db_btn_row"):
                 yield Button("Back", id="back_button", classes="action-button")
@@ -134,9 +132,15 @@ class DatabaseScreen(BaseScreen):
         elif event.button.id == "viewer_back":
             # 뷰어에서 목록으로 복귀 - 간단하게 화면 재구성
             self._close_viewer_and_restore_list()
-        elif event.button.id == "search_btn":
-            self.search_query = self.query_one("#search_input", Input).value.strip()
-            self.load_data()
+        elif event.button.id == "viewer_delete":
+            # 현재 열람 중인 항목 삭제 확인
+            if self._current_view_job_id is None:
+                self.show_error("선택된 항목이 없습니다")
+                return
+            self._confirm_mode = 'viewer'
+            self._confirm_context = {"job_id": self._current_view_job_id}
+            # 콘텐츠 영역 내부에 인라인 확인 바 표시
+            self._show_confirm_dialog("현재 항목을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다. 관련 파일도 함께 삭제됩니다.")
         elif event.button.id == "delete_selected":
             self._delete_selected_rows()
         elif event.button.id == "delete_all":
@@ -310,11 +314,23 @@ class DatabaseScreen(BaseScreen):
         self.load_data()
 
     def _show_confirm_dialog(self, message: str) -> None:
+        """DB 화면 내에 인라인 확인 바를 표시"""
         try:
-            self.app.push_screen(ConfirmDialog(message), self._on_confirm_result)
-        except Exception:
+            container = self.query_one(".db-container", Vertical)
+            # 기존 확인 바 제거 후 재생성
+            self._remove_confirm_dialog()
+            confirm_bar = Vertical(classes="confirmation-dialog", id="confirm_delete_dialog")
+            # 1) 부모 먼저 mount
+            container.mount(confirm_bar)
+            # 2) 그 다음 자식들 mount
+            confirm_bar.mount(Static(message))
+            btns = Horizontal(classes="dialog-buttons")
+            confirm_bar.mount(btns)
+            btns.mount(Button("Yes", id="confirm_delete_yes", classes="flat-danger"))
+            btns.mount(Button("No", id="confirm_delete_no", classes="flat-button"))
+        except Exception as e:
             try:
-                self.show_error("확인 창을 표시하지 못했습니다. 다시 시도하세요.")
+                self.show_error(f"확인 바 표시 오류: {e}")
             except Exception:
                 pass
     
@@ -327,12 +343,6 @@ class DatabaseScreen(BaseScreen):
             
             # 원래 UI 재구성
             container.mount(Static("[DB] Database", classes="screen-title"))
-            
-            # 검색 행 - 먼저 mount 후 자식 추가
-            search_row = Horizontal(id="db_search_row")
-            container.mount(search_row)
-            search_row.mount(Input(placeholder="검색어 (제목/URL)", id="search_input", value=self.search_query))
-            search_row.mount(Button("Search", id="search_btn", classes="utility-button"))
             
             # 버튼 행 - 먼저 mount 후 자식 추가
             btn_row = Horizontal(id="db_btn_row")
@@ -362,8 +372,6 @@ class DatabaseScreen(BaseScreen):
             # 스타일 설정
             table_wrap.styles.height = "1fr"
             table_wrap.styles.min_height = 0
-            search_row.styles.height = 3
-            search_row.styles.min_height = 3
             btn_row.styles.height = 3
             btn_row.styles.min_height = 3
             
@@ -389,6 +397,21 @@ class DatabaseScreen(BaseScreen):
                 self._do_delete_selected()
             elif mode == 'all':
                 self._do_delete_all()
+            elif mode == 'viewer':
+                try:
+                    job_id = int((self._confirm_context or {}).get("job_id", 0)) if self._confirm_context else 0
+                except Exception:
+                    job_id = 0
+                self._confirm_context = None
+                if job_id <= 0:
+                    self.show_error("잘못된 항목입니다")
+                    return
+                result_info = self.db.delete_job(job_id, delete_files=True)
+                if result_info.get("rows", 0) > 0:
+                    self.show_success(f"Deleted 1 record, files removed: {result_info.get('files_removed',0)}")
+                else:
+                    self.show_error("삭제할 항목을 찾지 못했습니다")
+                self._close_viewer_and_restore_list()
         except Exception:
             pass
 
@@ -514,7 +537,8 @@ class DatabaseScreen(BaseScreen):
             btns = Horizontal(id="viewer_button_bar")
             # 먼저 컨테이너에 mount한 후에 자식 위젯 추가
             container.mount(btns)
-            btns.mount(Button("[<] Back to List", id="viewer_back", classes="action-button"))
+            btns.mount(Button("[<] Back", id="viewer_back", classes="action-button"))
+            btns.mount(Button("Delete", id="viewer_delete", classes="danger-button"))
             btns.mount(Static(f"Engine: {job.get('engine', 'N/A')} | Status: {job.get('status', 'N/A')}", classes="viewer-info"))
             btns.styles.height = 3
             btns.styles.min_height = 3
@@ -551,6 +575,7 @@ class DatabaseScreen(BaseScreen):
                 container.mount(sc)
                 sc.mount(Static(orig_text or "(없음)", classes="output-text"))
             self._viewer_open = True
+            self._current_view_job_id = job_id
             # 포커스를 백 버튼으로 설정
             try:
                 back_btn = self.query_one("#viewer_back", Button)
@@ -601,185 +626,3 @@ class ConfirmDialog(ModalScreen[bool]):
             self.dismiss(True)
         elif event.button.id == "no":
             self.dismiss(False)
-        try:
-            table = self.query_one("#jobs_table", DataTable)
-            row = table.get_row_at(row_index)
-            if not row:
-                return
-            job_id = int(row[0])
-            if job_id in self._selected_ids:
-                self._selected_ids.remove(job_id)
-                # 선택 표시가 별도 컬럼이 없으므로 토글만 유지
-            else:
-                self._selected_ids.add(job_id)
-            try:
-                table.update_row(row_index, row)
-            except Exception:
-                pass
-        except Exception:
-            pass
-
-
-    # 제거: 마우스 다운 전역 핸들러(포커스 간섭 방지)
-    
-    def on_mouse_down(self, event: MouseDown) -> None:
-        """마우스 다운 이벤트로 테이블 클릭 처리"""
-        # 뷰어가 열려있으면 무시
-        if self._viewer_open:
-            return
-        
-        # DataTable의 cell_selected 이벤트가 처리하도록 전파
-        # 이 메서드는 백업용으로만 유지
-        
-    def on_key(self, event: events.Key) -> None:
-        # Space: 현재 커서 행 토글 (멀티선택 UX)
-        if event.key == "space":
-            try:
-                table = self.query_one("#jobs_table", DataTable)
-                if table.cursor_row is not None and table.cursor_row >= 0:
-                    self._toggle_row_by_index(table.cursor_row)
-                    return
-            except Exception:
-                pass
-        elif event.key == "enter":
-            # Enter로 현재 행 뷰어 열기
-            try:
-                table = self.query_one("#jobs_table", DataTable)
-                if table.cursor_row is not None and table.cursor_row >= 0:
-                    row = table.get_row_at(table.cursor_row)
-                    if row:
-                        job_id = int(row[0])
-                        self._open_transcript_viewer(job_id)
-                        return
-            except Exception:
-                pass
-        # Cmd/Ctrl+Click은 Textual 기본 클릭 이벤트만 들어오므로
-        # on_data_table_cell_selected에서 동일 동작 처리
-        super().on_key(event)
-
-    # --- Transcript Viewer ---
-    def _open_transcript_viewer(self, job_id: int) -> None:
-        try:
-            # 디버깅을 위한 로그
-            if self._debug:
-                self.app.notify(f"_open_transcript_viewer called with job_id {job_id}", severity="information")
-            
-            job = self.db.get_job_by_id(job_id)
-            if not job:
-                self.show_error(f"Job {job_id} not found in database")
-                return
-            
-            if self._debug:
-                self.app.notify(f"Job found: {job.get('title', 'No title')[:30]}", severity="information")
-            # 파일 경로 결정
-            orig_path = job.get("transcript_path") or job.get("translation_path")
-            summary_path = None
-            try:
-                tp = job.get("transcript_path")
-                if tp and tp.endswith(".txt"):
-                    from pathlib import Path
-                    p = Path(tp)
-                    cand = p.with_name(f"{p.stem}_summary.txt")
-                    if cand.exists():
-                        summary_path = str(cand)
-            except Exception:
-                pass
-            # 콘텐츠 읽기
-            def _read_text(p: str | None, limit: int = 120000) -> str:
-                if not p:
-                    return ""
-                try:
-                    with open(p, "r", encoding="utf-8") as f:
-                        data = f.read(limit + 1)
-                        if len(data) > limit:
-                            data = data[:limit] + "\n... (truncated)"
-                        return data
-                except Exception:
-                    return "(파일을 읽을 수 없습니다)"
-            orig_text = _read_text(orig_path)
-            summary_text = _read_text(summary_path)
-
-            # 테이블 대신 뷰어 표시
-            if self._debug:
-                self.app.notify("Clearing container for viewer", severity="information")
-            container = self.query_one(".db-container", Vertical)
-            container.remove_children()
-            if self._debug:
-                self.app.notify("Container cleared", severity="information")
-            
-            # 제목과 정보 표시
-            title = job.get("title", "제목 없음")
-            container.mount(Static(f"[T] Transcript Viewer - {title[:50]}{'...' if len(title) > 50 else ''}", classes="screen-title"))
-            # 버튼 바와 정보 표시
-            if self._debug:
-                self.app.notify("Mounting button bar", severity="information")
-            btns = Horizontal(id="viewer_button_bar")
-            # 먼저 컨테이너에 mount한 후에 자식 위젯 추가
-            container.mount(btns)
-            btns.mount(Button("[<] Back to List", id="viewer_back", classes="action-button"))
-            btns.mount(Static(f"Engine: {job.get('engine', 'N/A')} | Status: {job.get('status', 'N/A')}", classes="viewer-info"))
-            btns.styles.height = 3
-            btns.styles.min_height = 3
-            if self._debug:
-                self.app.notify("Button bar mounted", severity="information")
-            # 본문 영역
-            if summary_text:
-                split = Horizontal()
-                container.mount(split)
-                try:
-                    split.styles.height = "1fr"
-                    split.styles.min_height = 0
-                except Exception:
-                    pass
-                left = ScrollableContainer()
-                right = ScrollableContainer()
-                try:
-                    left.styles.height = "1fr"; left.styles.min_height = 0
-                    right.styles.height = "1fr"; right.styles.min_height = 0
-                except Exception:
-                    pass
-                split.mount(left)
-                split.mount(right)
-                left.mount(Static("Original", classes="options-title"))
-                left.mount(Static(orig_text or "(없음)", classes="output-text"))
-                right.mount(Static("Summary", classes="options-title"))
-                right.mount(Static(summary_text or "(없음)", classes="output-text"))
-            else:
-                sc = ScrollableContainer()
-                try:
-                    sc.styles.height = "1fr"; sc.styles.min_height = 0
-                except Exception:
-                    pass
-                container.mount(sc)
-                sc.mount(Static(orig_text or "(없음)", classes="output-text"))
-            self._viewer_open = True
-            # 포커스를 백 버튼으로 설정
-            try:
-                back_btn = self.query_one("#viewer_back", Button)
-                back_btn.focus()
-            except Exception as e:
-                if self._debug:
-                    self.app.notify(f"Could not focus back button: {e}", severity="warning")
-            
-            if self._debug:
-                self.app.notify("Transcript viewer opened successfully - Press Back button or ESC to return", severity="success")
-        except Exception as e:
-            import traceback
-            error_msg = f"Viewer error: {e}\nTraceback:\n{traceback.format_exc()}"
-            self.show_error(error_msg)
-            if self._debug:
-                self.app.notify(f"Failed to open viewer: {e}", severity="error")
-            self._viewer_open = False
-
-    def action_open_viewer(self) -> None:
-        try:
-            table = self.query_one("#jobs_table", DataTable)
-            if table.cursor_row is None or table.cursor_row < 0:
-                return
-            row = table.get_row_at(table.cursor_row)
-            if not row:
-                return
-            job_id = int(row[0])
-            self._open_transcript_viewer(job_id)
-        except Exception:
-            pass

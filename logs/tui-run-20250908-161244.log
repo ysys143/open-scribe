@@ -1,0 +1,24 @@
+[START] Starting transcription: https://www.youtube.com/watch?v=QXAXNcRs7gQ&t=13s
+Engine: youtube-transcript-api
+
+Extracting video information...
+Title: Is McKinsey losing its crown to AI?
+Duration: 444 seconds
+Uploader: The Economist
+
+[OK] Skipping audio download (using YouTube Transcript API)
+
+Transcribing with youtube-transcript-api...
+Found auto-generated transcript in en
+
+Transcript saved: /Users/jaesolshin/Documents/GitHub/yt-trans/transcript/Is_McKinsey_losing_its_crown_to_AI.txt
+
+[SUMMARY] Generating summary...
+Generating summary with gpt-5-mini...
+Summary generated successfully
+Summary saved: /Users/jaesolshin/Documents/GitHub/yt-trans/transcript/Is_McKinsey_losing_its_crown_to_AI_summary.txt
+Summary copied to: /Users/jaesolshin/Downloads/Is_McKinsey_losing_its_crown_to_AI_summary.txt
+
+Transcript copied to: /Users/jaesolshin/Downloads/Is_McKinsey_losing_its_crown_to_AI.txt
+
+[SUCCESS] Transcription completed successfully!

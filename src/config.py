@@ -48,9 +48,6 @@ class Config:
     ENGINE = os.getenv('OPEN_SCRIBE_ENGINE', 'gpt-4o-mini-transcribe')
     ENABLE_STREAM = os.getenv('OPEN_SCRIBE_STREAM', 'true').lower() == 'true'
     COPY_TO_DOWNLOADS = os.getenv('OPEN_SCRIBE_DOWNLOADS', 'true').lower() == 'true'
-    
-    # Debug Configuration
-    DEBUG = os.getenv('DEBUG', 'false').lower() == 'true'
     ENABLE_SUMMARY = os.getenv('OPEN_SCRIBE_SUMMARY', 'true').lower() == 'true'
     VERBOSE = os.getenv('OPEN_SCRIBE_VERBOSE', 'true').lower() == 'true'
     KEEP_AUDIO = os.getenv('OPEN_SCRIBE_AUDIO', 'false').lower() == 'true'
@@ -59,6 +56,11 @@ class Config:
     ENABLE_TRANSLATE = os.getenv('OPEN_SCRIBE_TRANSLATE', 'false').lower() == 'true'
     INCLUDE_TIMESTAMP = os.getenv('OPEN_SCRIBE_TIMESTAMP', 'false').lower() == 'true'
     
+
+    # Debug Configuration
+    DEBUG = os.getenv('DEBUG', 'false').lower() == 'true'
+
+
     # Engine Aliases
     ENGINE_ALIASES = {
         'high': 'gpt-4o-transcribe',

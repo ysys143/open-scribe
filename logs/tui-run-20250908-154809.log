@@ -1,0 +1,510 @@
+[youtube] Extracting URL: https://www.youtube.com/watch?v=AbmQfmz7B98
+[START] Starting transcription: https://www.youtube.com/watch?v=AbmQfmz7B98
+Engine: gpt-4o-mini-transcribe
+
+Extracting video information...
+Title: "Empire of AI": Karen Hao on How AI Is Threatening Democracy & Creating a New Colonial World
+Duration: 877 seconds
+Uploader: Democracy Now!
+
+Downloading audio...
+Downloading audio from YouTube...
+[youtube] AbmQfmz7B98: Downloading webpage
+[youtube] AbmQfmz7B98: Downloading tv simply player API JSON
+[youtube] AbmQfmz7B98: Downloading tv client config
+[youtube] AbmQfmz7B98: Downloading tv player API JSON
+[info] AbmQfmz7B98: Downloading 1 format(s): 251
+[download] Sleeping 5.00 seconds as required by the site...
+[download] Destination: /Users/jaesolshin/Documents/GitHub/yt-trans/audio/＂Empire of AI＂： Karen Hao on How AI Is Threatening Democracy & Creating a New Colonial World [AbmQfmz7B98].webm
+
+[download]   0.0% of   12.00MiB at  Unknown B/s ETA Unknown
+[download]   0.0% of   12.00MiB at  Unknown B/s ETA Unknown
+[download]   0.1% of   12.00MiB at    6.09MiB/s ETA 00:01  
+[download]   0.1% of   12.00MiB at   11.38MiB/s ETA 00:01
+[download]   0.3% of   12.00MiB at    4.90MiB/s ETA 00:02
+[download]   0.5% of   12.00MiB at    5.02MiB/s ETA 00:02
+[download]   1.0% of   12.00MiB at    6.85MiB/s ETA 00:01
+[download]   2.1% of   12.00MiB at    9.83MiB/s ETA 00:01
+[download]   4.2% of   12.00MiB at   16.00MiB/s ETA 00:00
+[download]   8.3% of   12.00MiB at   23.56MiB/s ETA 00:00
+[download]  16.7% of   12.00MiB at   31.05MiB/s ETA 00:00
+[download]  33.3% of   12.00MiB at   37.43MiB/s ETA 00:00
+[download]  66.7% of   12.00MiB at   42.83MiB/s ETA 00:00
+[download]  80.9% of   12.00MiB at   34.25MiB/s ETA 00:00
+[download]  80.9% of   12.00MiB at  Unknown B/s ETA Unknown
+[download]  80.9% of   12.00MiB at  Unknown B/s ETA Unknown
+[download]  81.0% of   12.00MiB at  Unknown B/s ETA Unknown
+[download]  81.0% of   12.00MiB at   14.42MiB/s ETA 00:00  
+[download]  81.1% of   12.00MiB at   22.47MiB/s ETA 00:00
+[download]  81.4% of   12.00MiB at   34.37MiB/s ETA 00:00
+[download]  81.9% of   12.00MiB at   62.35MiB/s ETA 00:00
+[download]  83.0% of   12.00MiB at   93.93MiB/s ETA 00:00
+[download]  85.1% of   12.00MiB at    7.47MiB/s ETA 00:00
+[download]  89.2% of   12.00MiB at   12.55MiB/s ETA 00:00
+[download]  97.6% of   12.00MiB at   19.84MiB/s ETA 00:00
+[download] 100.0% of   12.00MiB at   20.77MiB/s ETA 00:00
+[download] 100% of   12.00MiB in 00:00:00 at 18.91MiB/s  
+[ExtractAudio] Destination: /Users/jaesolshin/Documents/GitHub/yt-trans/audio/＂Empire of AI＂： Karen Hao on How AI Is Threatening Democracy & Creating a New Colonial World [AbmQfmz7B98].mp3
+Audio downloaded: ＂Empire of AI＂： Karen Hao on How AI Is Threatening Democracy & Creating a New Colonial World [AbmQfmz7B98].mp3
+
+Transcribing with gpt-4o-mini-transcribe...
+[GPT-4o-mini] Processing: /Users/jaesolshin/Documents/GitHub/yt-trans/audio/＂Empire of AI＂： Karen Hao on How AI Is Threatening Democracy & Creating a New Colonial World [AbmQfmz7B98].mp3
+[GPT-4o-mini] Using hybrid mode for accurate timestamps...
+[Hybrid] Step 1: Fetching YouTube transcript with timestamps...
+Error fetching transcript: 
+Could not retrieve a transcript for the video https://www.youtube.com/watch?v=Threatening! This is most likely caused by:
+
+The video is no longer available
+
+If you are sure that the described cause is not responsible for this error and that a transcript should be retrievable, please create an issue at https://github.com/jdepoix/youtube-transcript-api/issues. Please add which version of youtube_transcript_api you are using and provide the information needed to replicate the error. Also make sure that there are no open issues which already describe your problem!
+[Hybrid] Error: Could not fetch YouTube transcript
+[GPT-4o-mini] Hybrid mode failed, falling back to standard mode
+[GPT-4o-mini] [WARNING] YouTube transcript API를 사용할 수 없어 30초 단위의 타임코드가 생성됩니다
+[GPT-4o-mini] (Live 영상이거나 자막이 없는 영상일 수 있습니다)
+[GPT-4o-mini] ℹ️  Using chunked timestamps for gpt-4o-mini-transcribe
+[GPT-4o-mini] Using chunking for timestamp support...
+[Audio] Using project temp directory: /Users/jaesolshin/Documents/GitHub/yt-trans/temp_audio
+[Audio] Splitting 877.2s audio into 30 chunks of 30s each
+[Audio] Created chunk 1/30: chunk_000.mp3
+[Audio] Created chunk 2/30: chunk_001.mp3
+[Audio] Created chunk 3/30: chunk_002.mp3
+[Audio] Created chunk 4/30: chunk_003.mp3
+[Audio] Created chunk 5/30: chunk_004.mp3
+[Audio] Created chunk 6/30: chunk_005.mp3
+[Audio] Created chunk 7/30: chunk_006.mp3
+[Audio] Created chunk 8/30: chunk_007.mp3
+[Audio] Created chunk 9/30: chunk_008.mp3
+[Audio] Created chunk 10/30: chunk_009.mp3
+[Audio] Created chunk 11/30: chunk_010.mp3
+[Audio] Created chunk 12/30: chunk_011.mp3
+[Audio] Created chunk 13/30: chunk_012.mp3
+[Audio] Created chunk 14/30: chunk_013.mp3
+[Audio] Created chunk 15/30: chunk_014.mp3
+[Audio] Created chunk 16/30: chunk_015.mp3
+[Audio] Created chunk 17/30: chunk_016.mp3
+[Audio] Created chunk 18/30: chunk_017.mp3
+[Audio] Created chunk 19/30: chunk_018.mp3
+[Audio] Created chunk 20/30: chunk_019.mp3
+[Audio] Created chunk 21/30: chunk_020.mp3
+[Audio] Created chunk 22/30: chunk_021.mp3
+[Audio] Created chunk 23/30: chunk_022.mp3
+[Audio] Created chunk 24/30: chunk_023.mp3
+[Audio] Created chunk 25/30: chunk_024.mp3
+[Audio] Created chunk 26/30: chunk_025.mp3
+[Audio] Created chunk 27/30: chunk_026.mp3
+[Audio] Created chunk 28/30: chunk_027.mp3
+[Audio] Created chunk 29/30: chunk_028.mp3
+[Audio] Created chunk 30/30: chunk_029.mp3
+[GPT-4o-mini] Transcribing 30 chunks...
+
+                                                                                                    
+Overall: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0.3% (0.1/30 chunks) | Speed: 20476.67 chunks/min | ETA: 0m 0s
+                                                                                                    
+Overall: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 4.7% (1.4/30 chunks) | Speed: 35.61 chunks/min | ETA: 0m 48s
+[GPT-4o-mini] Chunk 3: 402 chars
+
+                                                                                                    
+Overall: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 5.0% (1.5/30 chunks) | Speed: 38.15 chunks/min | ETA: 0m 44s
+                                                                                                    
+Overall: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 8.0% (2.4/30 chunks) | Speed: 59.64 chunks/min | ETA: 0m 27s
+[GPT-4o-mini] Chunk 1: 424 chars
+
+                                                                                                    
+Overall: [████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 11.3% (3.4/30 chunks) | Speed: 78.42 chunks/min | ETA: 0m 20s
+[GPT-4o-mini] Chunk 2: 459 chars
+
+                                                                                                    
+Overall: [████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 11.7% (3.5/30 chunks) | Speed: 80.73 chunks/min | ETA: 0m 19s
+                                                                                                    
+Overall: [█████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 14.7% (4.4/30 chunks) | Speed: 96.09 chunks/min | ETA: 0m 15s
+[GPT-4o-mini] Chunk 5: 497 chars
+
+                                                                                                    
+Overall: [█████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 15.0% (4.5/30 chunks) | Speed: 98.27 chunks/min | ETA: 0m 15s
+                                                                                                    
+Overall: [███████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 18.0% (5.4/30 chunks) | Speed: 93.91 chunks/min | ETA: 0m 15s
+[GPT-4o-mini] Chunk 4: 485 chars
+
+                                                                                                    
+Overall: [███████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 18.3% (5.5/30 chunks) | Speed: 95.64 chunks/min | ETA: 0m 15s
+                                                                                                    
+Overall: [████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 21.3% (6.4/30 chunks) | Speed: 81.65 chunks/min | ETA: 0m 17s
+[GPT-4o-mini] Chunk 6: 440 chars
+
+                                                                                                    
+Overall: [████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 21.7% (6.5/30 chunks) | Speed: 82.93 chunks/min | ETA: 0m 17s
+                                                                                                    
+Overall: [█████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 24.7% (7.4/30 chunks) | Speed: 93.04 chunks/min | ETA: 0m 14s
+[GPT-4o-mini] Chunk 8: 489 chars
+
+                                                                                                    
+Overall: [███████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 28.0% (8.4/30 chunks) | Speed: 105.03 chunks/min | ETA: 0m 12s
+[GPT-4o-mini] Chunk 7: 461 chars
+
+                                                                                                    
+Overall: [████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 31.3% (9.4/30 chunks) | Speed: 97.68 chunks/min | ETA: 0m 12s
+[GPT-4o-mini] Chunk 9: 481 chars
+
+                                                                                                    
+Overall: [████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 31.7% (9.5/30 chunks) | Speed: 98.72 chunks/min | ETA: 0m 12s
+                                                                                                    
+Overall: [█████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░] 34.7% (10.4/30 chunks) | Speed: 90.56 chunks/min | ETA: 0m 12s
+[GPT-4o-mini] Chunk 13: 188 chars
+
+                                                                                                    
+Overall: [█████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░] 35.0% (10.5/30 chunks) | Speed: 91.43 chunks/min | ETA: 0m 12s
+                                                                                                    
+Overall: [███████████████░░░░░░░░░░░░░░░░░░░░░░░░░] 38.0% (11.4/30 chunks) | Speed: 99.05 chunks/min | ETA: 0m 11s
+[GPT-4o-mini] Chunk 10: 371 chars
+
+                                                                                                    
+Overall: [████████████████░░░░░░░░░░░░░░░░░░░░░░░░] 41.3% (12.4/30 chunks) | Speed: 103.78 chunks/min | ETA: 0m 10s
+[GPT-4o-mini] Chunk 11: 536 chars
+
+                                                                                                    
+Overall: [████████████████░░░░░░░░░░░░░░░░░░░░░░░░] 41.7% (12.5/30 chunks) | Speed: 104.62 chunks/min | ETA: 0m 10s
+                                                                                                    
+Overall: [█████████████████░░░░░░░░░░░░░░░░░░░░░░░] 44.7% (13.4/30 chunks) | Speed: 111.23 chunks/min | ETA: 0m 8s
+[GPT-4o-mini] Chunk 12: 437 chars
+
+                                                                                                    
+Overall: [███████████████████░░░░░░░░░░░░░░░░░░░░░] 48.0% (14.4/30 chunks) | Speed: 95.74 chunks/min | ETA: 0m 9s
+[GPT-4o-mini] Chunk 14: 459 chars
+
+                                                                                                    
+Overall: [███████████████████░░░░░░░░░░░░░░░░░░░░░] 48.3% (14.5/30 chunks) | Speed: 96.40 chunks/min | ETA: 0m 9s
+                                                                                                    
+Overall: [████████████████████░░░░░░░░░░░░░░░░░░░░] 51.3% (15.4/30 chunks) | Speed: 98.71 chunks/min | ETA: 0m 8s
+[GPT-4o-mini] Chunk 15: 524 chars
+
+                                                                                                    
+Overall: [████████████████████░░░░░░░░░░░░░░░░░░░░] 51.7% (15.5/30 chunks) | Speed: 99.35 chunks/min | ETA: 0m 8s
+                                                                                                    
+Overall: [█████████████████████░░░░░░░░░░░░░░░░░░░] 54.7% (16.4/30 chunks) | Speed: 102.83 chunks/min | ETA: 0m 7s
+[GPT-4o-mini] Chunk 17: 532 chars
+
+                                                                                                    
+Overall: [██████████████████████░░░░░░░░░░░░░░░░░░] 55.0% (16.5/30 chunks) | Speed: 103.45 chunks/min | ETA: 0m 7s
+                                                                                                    
+Overall: [███████████████████████░░░░░░░░░░░░░░░░░] 58.0% (17.4/30 chunks) | Speed: 106.13 chunks/min | ETA: 0m 7s
+[GPT-4o-mini] Chunk 16: 521 chars
+
+                                                                                                    
+Overall: [███████████████████████░░░░░░░░░░░░░░░░░] 58.3% (17.5/30 chunks) | Speed: 106.74 chunks/min | ETA: 0m 7s
+                                                                                                    
+Overall: [████████████████████████░░░░░░░░░░░░░░░░] 61.3% (18.4/30 chunks) | Speed: 109.16 chunks/min | ETA: 0m 6s
+[GPT-4o-mini] Chunk 18: 233 chars
+
+                                                                                                    
+Overall: [████████████████████████░░░░░░░░░░░░░░░░] 61.7% (18.5/30 chunks) | Speed: 109.75 chunks/min | ETA: 0m 6s
+                                                                                                    
+Overall: [█████████████████████████░░░░░░░░░░░░░░░] 64.7% (19.4/30 chunks) | Speed: 101.41 chunks/min | ETA: 0m 6s
+[GPT-4o-mini] Chunk 19: 460 chars
+
+                                                                                                    
+Overall: [██████████████████████████░░░░░░░░░░░░░░] 65.0% (19.5/30 chunks) | Speed: 101.93 chunks/min | ETA: 0m 6s
+                                                                                                    
+Overall: [███████████████████████████░░░░░░░░░░░░░] 68.0% (20.4/30 chunks) | Speed: 106.24 chunks/min | ETA: 0m 5s
+[GPT-4o-mini] Chunk 20: 508 chars
+
+                                                                                                    
+Overall: [████████████████████████████░░░░░░░░░░░░] 71.3% (21.4/30 chunks) | Speed: 110.61 chunks/min | ETA: 0m 4s
+[GPT-4o-mini] Chunk 21: 466 chars
+
+                                                                                                    
+Overall: [████████████████████████████░░░░░░░░░░░░] 71.7% (21.5/30 chunks) | Speed: 111.12 chunks/min | ETA: 0m 4s
+                                                                                                    
+Overall: [█████████████████████████████░░░░░░░░░░░] 74.7% (22.4/30 chunks) | Speed: 104.56 chunks/min | ETA: 0m 4s
+[GPT-4o-mini] Chunk 22: 501 chars
+
+                                                                                                    
+Overall: [██████████████████████████████░░░░░░░░░░] 75.0% (22.5/30 chunks) | Speed: 105.02 chunks/min | ETA: 0m 4s
+                                                                                                    
+Overall: [███████████████████████████████░░░░░░░░░] 78.0% (23.4/30 chunks) | Speed: 107.93 chunks/min | ETA: 0m 3s
+[GPT-4o-mini] Chunk 23: 437 chars
+
+                                                                                                    
+Overall: [███████████████████████████████░░░░░░░░░] 78.3% (23.5/30 chunks) | Speed: 108.39 chunks/min | ETA: 0m 3s
+                                                                                                    
+Overall: [████████████████████████████████░░░░░░░░] 81.3% (24.4/30 chunks) | Speed: 106.43 chunks/min | ETA: 0m 3s
+[GPT-4o-mini] Chunk 24: 463 chars
+
+                                                                                                    
+Overall: [████████████████████████████████░░░░░░░░] 81.7% (24.5/30 chunks) | Speed: 106.87 chunks/min | ETA: 0m 3s
+                                                                                                    
+Overall: [█████████████████████████████████░░░░░░░] 84.7% (25.4/30 chunks) | Speed: 108.49 chunks/min | ETA: 0m 2s
+[GPT-4o-mini] Chunk 26: 470 chars
+
+                                                                                                    
+Overall: [██████████████████████████████████░░░░░░] 85.0% (25.5/30 chunks) | Speed: 108.91 chunks/min | ETA: 0m 2s
+                                                                                                    
+Overall: [███████████████████████████████████░░░░░] 88.0% (26.4/30 chunks) | Speed: 110.90 chunks/min | ETA: 0m 1s
+[GPT-4o-mini] Chunk 25: 440 chars
+
+                                                                                                    
+Overall: [████████████████████████████████████░░░░] 91.0% (27.3/30 chunks) | Speed: 109.20 chunks/min | ETA: 0m 1s
+[GPT-4o-mini] Chunk 28: 459 chars
+
+                                                                                                    
+Overall: [█████████████████████████████████████░░░] 94.0% (28.2/30 chunks) | Speed: 111.94 chunks/min | ETA: 0m 0s
+[GPT-4o-mini] Chunk 30: 117 chars
+
+                                                                                                    
+Overall: [██████████████████████████████████████░░] 97.0% (29.1/30 chunks) | Speed: 110.36 chunks/min | ETA: 0m 0s
+[GPT-4o-mini] Chunk 27: 501 chars
+
+                                                                                                    
+Overall: [████████████████████████████████████████] 100.0% (30.0/30 chunks) | Speed: 110.70 chunks/min | ETA: calculating...
+[GPT-4o-mini] Chunk 29: 437 chars
+
+[WorkerPool] Completed 30 chunks in 0m 16s
+[WorkerPool] Worker 13455405056: Processed 7 chunks, avg time: 2.2s
+[WorkerPool] Worker 6172848128: Processed 6 chunks, avg time: 2.4s
+[WorkerPool] Worker 13438578688: Processed 6 chunks, avg time: 2.5s
+[WorkerPool] Worker 13489057792: Processed 6 chunks, avg time: 2.7s
+[WorkerPool] Worker 13472231424: Processed 5 chunks, avg time: 3.2s
+[GPT-4o-mini] Completed: 30/30 chunks
+[GPT-4o-mini] Streaming transcription...
+------------------------------------------------------------
+[00:00] This is Democracy Now!, democracynow.org, The War and Peace
+Report. I'm Amy Goodman. We turn now to The Empire
+of AI. That's the name of a new book by
+the journalist Karen Hao, who's closely reported on the rise
+of the artificial intelligence industry, with a focus on Sam
+Altman's OpenAI. That's the company behind ChatGPT. Karen Hao compares
+the actions of the AI industry to those of colonial
+powers in the past. [00:30] She writes, quote, "The empires
+of AI are not engaged in the same overt violence
+and brutality that marked this history, but they too seize
+and extract precious resources to feed their vision of artificial
+intelligence: the work of artists and writers, the data of
+countless individuals posting about their experiences and observations online, the
+land, energy and water required to house and run massive
+data centers and supercomputers," she writes. [01:00] is a former
+reporter at The Wall Street Journal and MIT Technology Review,
+where she became the first journalist to profile OpenAI. Democracy
+Now!'s Juan González and I spoke to her in May.
+I began by asking her to explain what artificial intelligence
+is. So AI is a collection of many different technologies,
+but most people were introduced to it through ChatGPT. And
+what I argue in the book [01:30] The title refers
+to empire of AI. It's actually a critique of the
+specific trajectory of AI development that led us to ChatGPT
+and has continued since ChatGPT. And that is specifically Silicon
+Valley's scale at all costs approach to AI development. AI
+models in modern day, they are trained on data. They
+need computers to train them on that data. But what
+Silicon Valley did and what OpenAI did in the last
+few years is they started blowing up the amount of
+data and the size [02:00] of the computers that need
+to do this training. So we are talking about the
+full English language internet being fed into these models, books,
+scientific articles, all of the intellectual property that is being
+created, and also massive supercomputers that run tens of thousands,
+even hundreds of thousands of computer chips that are the
+size of dozens, maybe hundreds of football fields, and use
+practically the entire energy demands of cities now. So this
+is an extraordinary type of AI [02:30] that is causing
+a lot of social labor and environmental harms, and that
+is ultimately why I evoke this analogy to empire. And
+Karen, could you talk some more about not only the
+energy requirements, but the water requirements of these huge data
+centers that are in essence the backbone of this widening
+industry? Absolutely. I'll give you two stats on both the
+energy and the water. When talking about the energy demand,
+McKinsey... [03:00] came out with a report that said in
+the next five years, based on the current pace of
+AI computational infrastructure expansion, we would need to put as
+much energy on the global grid as what is consumed
+by two to six times the energy consumed annually by
+the state of California. And that will mostly be serviced
+by fossil fuels. We're already seeing reporting of coal plants
+with their lives being extended. They were supposed to retire,
+but now they [03:30] cannot to support the data center
+development. We are seeing methane gas turbines, unlicensed ones, being
+popped up to service these data centers as well. From
+a fresh water perspective, these data centers need to be
+trained on fresh water. They cannot be trained on any
+other type of water because it can corrode the equipment,
+it can lead to bacterial growth, and most of the
+time, it actually taps directly into a public drinking water
+supply because that is the infrastructure [04:00] that has been
+laid to deliver this clean, fresh water to different businesses,
+to different homes. And Bloomberg recently had an analysis where
+they looked at the expansion of these data centers around
+the world, and two-thirds of them are being placed in
+water-scarce areas. So they're being placed in communities that do
+not have access to fresh water. So it's not just
+the total amount of fresh water that we need to
+be concerned about, but actually the distribution of [04:30] And
+most people are familiar with ChatGPT, the consumer aspect of
+AI, but what about the military aspect of AI, where
+in essence we're finding Silicon Valley companies becoming the next
+generation of defense contractors? One of the reasons why OpenAI
+and many other companies are turning to the defense industry
+is because they have spent an extraordinary amount [05:00] of
+money in developing these technologies. They're spending hundreds of billions
+to train these models and they need to recoup those
+costs. And there are only so many industries and so
+many places that have that size of a paycheck to
+pay. And so that's why we're seeing a cozying up
+to the defense industry. We're also seeing Silicon Valley use
+the U.S. government in their empire building ambitions. You could
+argue that the U.S. government is also trying to use
+Silicon Valley, vice versa, in their empire building ambitions. [05:30]
+But certainly, these technologies are not designed to be used
+in a sensitive military context. And so, the aggressive push
+of these companies to try and get those defense contracts
+and integrate their technologies more and more into the infrastructure
+of the military is really alarming. I wanted to go
+to the countries you went to or the stories you
+covered. I mean, this is amazing, the depth of your
+reporting. From Kenya to— [06:00] It was under a dictatorship
+for a very long time. And so during that time,
+most public resources were privatized, including water. But because of
+an anomaly, there's one community [06:30] in the greater Santiago
+metropolitan region that actually still has access to a public
+freshwater resource that services both that community as well as
+the rest of the country in emergency situations. That is
+the exact community that Google chose to try to put
+a data center in, and they proposed for their data
+center to use a thousand times more fresh water than
+that community used annually. And it would be free. And
+it, you know, I have no idea. [07:00] question, but
+what the community told me was they weren't even paying
+taxes for this because they believed based on reading the
+documentation that the taxes that Google was paying was in
+fact to where they had registered their offices, their administrative
+offices, not where they were putting down the data center.
+So they were not seeing any benefit from this data
+center directly to that community and they were seeing no
+checks placed on the fresh water that this data center
+would have been allowed to extract. [07:30] And so these
+activists said, wait a minute, absolutely not. We're not going
+to allow this data center to come in unless they
+give us a legitimate reason for why it benefits us.
+And so they started doing boots on the ground activism,
+pushing back, knocking on every single one of their neighbor's
+doors, handing out flyers to the community, telling them, this
+company is taking our freshwater resources without giving us anything
+in return. And so they escalated so dramatically that it
+escalated to Google Chile. [08:00] which by the way then
+sent representatives to Chile that only spoke English. But then
+it eventually escalated to the Chilean government, and the Chilean
+government now has roundtables where they ask these community residents
+and the company representatives and representatives from the government to
+come together to actually discuss how to make data center
+development more beneficial to the community. The activists say the
+fight is not over. Just because they've been invited to
+the table doesn't mean that everything is [08:30] And how
+is it that these Western companies, in essence, are exploiting
+labor in the global South? You go into something called
+data annotation firms. What are those? Yeah, so because AI,
+modern-day AI systems, are trained on [09:00] masses amounts of
+data and that's scraped from the internet. You can't actually
+pump that data directly into your AI model because there
+are a lot of things within that data it's heavily
+polluted, it needs to be cleaned, it needs to be
+annotated. So this is where data annotation firms come in.
+These are middleman firms that hire contract labor to provide
+to these AI companies to do that kind of data
+preparation. And OpenAI, when it was starting to [09:30] thinking
+about commercializing its products and thinking about let's put text
+generation machines that can spew any kind of text into
+the hands of millions of users, they realized they needed
+to have some kind of content moderation. They needed to
+develop a filter that would wrap around these models and
+prevent these models from actually spewing racist, hateful, and harmful
+speech to users that would not make a very good
+commercially viable product. And so they contracted these middleman firms.
+[10:00] where the Kenyan workers had to read through reams
+of the worst text on the internet, as well as
+AI-generated text where OpenAI was prompting its own AI models
+to imagine the worst text on the internet. And then
+telling these Kenyan workers to categorize them in detailed taxonomies
+of is this sexual content, is this violent content, how
+graphic is that violent content, in order to teach its
+filter all the different categories of content it had to
+block. [10:30] And this is an incredibly uncommon form of
+labor. There are lots of other different types of contract
+labor that they use, but these workers, they're paid a
+few bucks an hour, if at all. And just like
+the era of social media, these content moderators are left
+very deeply psychologically traumatized. And ultimately, there is no real
+philosophy behind why these workers are paid a couple bucks
+an hour and have their lives destroyed, and why AI
+researchers who also contribute to these models [11:00] are paid
+million dollar compensation packages simply because they sit in Silicon
+Valley in OpenAI's offices. That is the logic of empire
+and that hearkens back to my title, Empire of AI.
+So let's go back to your title, Empire of AI,
+the subtitle Dreams and Nightmares in Sam Altman's OpenAI. So
+tell us the story of Sam Altman and what OpenAI
+is all about, right through to the deal he just
+made in the Gulf when President Trump [11:30] Sam Altman
+and Elon Musk were there. Altman is very much a
+product of Silicon Valley. His career was first as founder
+of a startup and then as the president of Y
+Combinator, which is one of the most famous startup accelerators
+in Silicon Valley. And then the CEO of OpenAI. And
+there's no coincidence that OpenAI ended up introducing the world
+to the scale at all costs approach to AI development,
+because that is the way that Silicon Valley has operated
+[12:00] in the entire time that Altman came up in
+it. And so he is a very strategic person. He
+is incredibly good at telling stories about the future and
+painting these sweeping visions that investors and employees want to
+be a part of. And so early on at YC,
+he identified that AI would be one of the trends
+that could take off. And he was trying to build
+a portfolio of different investments and different initiatives to place
+himself in [12:30] center of various different trends depending on
+which one took off. He was investing in quantum computing,
+he was investing in nuclear fusion, he was investing in
+self-driving cars, and he was developing a fundamental AI research
+lab. Ultimately, the AI research lab was the ones that
+started accelerating really quickly, so he makes himself the CEO
+of that company. And originally, he started it as a
+nonprofit to try and position it as a counter to
+for-profit [13:00] But within one and a half years, OpenAI's
+executives identified that if they wanted to be the lead
+in this space, they had to go for this scale
+at all costs approach and had to should be in
+quotes. They thought that they had to do this. There
+are actually many other ways to develop AI and to
+have progress in AI that does not take this approach.
+But once they decided that, they realized the bottleneck was
+capital. It just so happens Sam Altman is a once
+in a generation fundraising talent. [13:30] created this new structure,
+nesting a for-profit arm within the nonprofit to become this
+fundraising vehicle for the tens of billions and ultimately hundreds
+of billions that they needed to pursue the approach that
+they decided on. And that is how we ultimately get
+to present-day OpenAI, which is one of the most capitalistic
+companies in the history of Silicon Valley, continuing to raise
+hundreds of billions and Altman has joked even trillions to
+[14:00] use a technology that ultimately has a middling economic
+impact thus far. We'll return to our conversation in a
+minute with Karen Hao, author of the new book, Empire
+of AI: Dreams and Nightmares in Sam Altman's OpenAI. Thanks
+for watching Democracy Now! on YouTube. Subscribe to the channel
+and turn on notifications to make sure you never miss
+a video. And for more of our audience-supported journalism, go
+to democracynow.org. [14:30] You can download our news app, sign
+up for our newsletter, subscribe to the daily podcast, and
+so much more.
+------------------------------------------------------------
+[Audio] Keeping 30 chunk files for debugging
+[Audio] Chunks location: /Users/jaesolshin/Documents/GitHub/yt-trans/temp_audio
+
+Transcript saved: /Users/jaesolshin/Documents/GitHub/yt-trans/transcript/Empire_of_AI_Karen_Hao_on_How_AI_Is_Threatening_Democracy_&_Creating_a_New_Colonial_World.txt
+
+[SUMMARY] Generating summary...
+Generating summary with gpt-5-mini...
+Summary generated successfully
+Summary saved: /Users/jaesolshin/Documents/GitHub/yt-trans/transcript/Empire_of_AI_Karen_Hao_on_How_AI_Is_Threatening_Democracy_&_Creating_a_New_Colonial_World_summary.txt
+Summary copied to: /Users/jaesolshin/Downloads/Empire_of_AI_Karen_Hao_on_How_AI_Is_Threatening_Democracy_&_Creating_a_New_Colonial_World_summary.txt
+
+Transcript copied to: /Users/jaesolshin/Downloads/Empire_of_AI_Karen_Hao_on_How_AI_Is_Threatening_Democracy_&_Creating_a_New_Colonial_World.txt
+
+[SUCCESS] Transcription completed successfully!

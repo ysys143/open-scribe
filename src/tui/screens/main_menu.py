@@ -1,25 +1,27 @@
 """메인 메뉴 화면"""
 
 from textual.containers import Vertical, Horizontal, ScrollableContainer
-from textual.widgets import Button, Static, Input, Label, Rule
+from textual.widgets import Button, Static, Input, Label, Rule, DataTable
 from textual.events import Key, Click
 from rich.text import Text
 from textual.widget import Widget
 from textual.app import ComposeResult
 from textual.binding import Binding
+from textual.screen import ModalScreen
 import subprocess
 import os
 import sys
 import threading
 from datetime import datetime
 import time
+import signal
 from ...config import Config
 from ...database import TranscriptionDatabase
 from ...downloader import YouTubeDownloader
 from pathlib import Path
 import json
-from .database import DatabaseScreen
 from ..utils.config_manager import ConfigManager
+from ..utils.db_manager import DatabaseManager
 import asyncio
 
 
@@ -57,9 +59,8 @@ class MainMenuScreen(Widget):
     BINDINGS = [
         Binding("1", "menu_action('transcribe')", "Transcription", priority=True),
         Binding("2", "menu_action('database')", "Database", priority=True),
-        Binding("3", "menu_action('monitor')", "Monitor", priority=True),
-        Binding("4", "menu_action('api_keys')", "API Keys", priority=True),
-        Binding("5", "menu_action('settings')", "Settings", priority=True),
+        Binding("3", "menu_action('api_keys')", "API Keys", priority=True),
+        Binding("4", "menu_action('settings')", "Settings", priority=True),
         Binding("h", "menu_action('help')", "Help", priority=True),
         Binding("q", "menu_action('quit')", "Quit", priority=True),
         Binding("ㅂ", "menu_action('quit')", "Quit", priority=True),
@@ -91,18 +92,31 @@ class MainMenuScreen(Widget):
         self.srt_enabled = False
         self.srt_translate_enabled = False
         self.force_enabled = False
+        # Background 옵션 제거
         self.background_enabled = False
         self.selected_engine = "gpt-4o-mini-transcribe"  # default
         # Store option widgets for updating display
         self.option_widgets = {}
         # Current focused option index (for arrow key navigation)
         self.focused_option = 0
-        self.total_options = 13  # 8 checkboxes + 5 engines
+        self.total_options = 12  # 7 checkboxes + 5 engines (background 제거)
+        # 현재 실행 중인 전사 프로세스 추적 (Job Queue에서 중지용)
+        self._active_process = None
+        self._active_loader_stop = None
+        self._active_log_path = None
         # 재처리 확인용 보류 URL
         self._pending_url = None
         # 설정/키 관리자
         self.cfg_manager = ConfigManager()
         self._validating_api_key = False
+        # --- Database (inline) state ---
+        self.db = DatabaseManager()
+        self.db_current_filter = "all"
+        self.db_search_query = ""
+        self.db_viewer_open = False
+        self.db_selected_ids = set()
+        self._db_confirm_mode = None  # e.g., 'delete_all'
+        self._db_pending_delete_id = None
     
     def compose(self) -> ComposeResult:
         """UI 구성"""
@@ -122,9 +136,8 @@ class MainMenuScreen(Widget):
                     with Vertical(classes="menu-buttons"):
                         yield Button("1. Transcribe", id="transcribe", classes="menu-button")
                         yield Button("2. Database", id="database", classes="menu-button")
-                        yield Button("3. Monitor", id="monitor", classes="menu-button")
-                        yield Button("4. API Key", id="api_keys", classes="menu-button")
-                        yield Button("5. Settings", id="settings", classes="menu-button")
+                        yield Button("3. API Key", id="api_keys", classes="menu-button")
+                        yield Button("4. Settings", id="settings", classes="menu-button")
                         yield Button("H. Help", id="help", classes="menu-button")
                         yield Button("Q. Quit", id="quit", classes="menu-button")
                 
@@ -135,7 +148,7 @@ class MainMenuScreen(Widget):
     def on_mount(self) -> None:
         """화면 마운트 시 버튼 리스트 설정 및 첫 번째 버튼에 포커스"""
         # 버튼 순서대로 저장
-        button_ids = ["transcribe", "database", "api_keys", "settings", "monitor", "help", "quit"]
+        button_ids = ["transcribe", "database", "api_keys", "settings", "help", "quit"]
         self.menu_buttons = [self.query_one(f"#{btn_id}", Button) for btn_id in button_ids]
         
         # 콘텐츠 영역 저장
@@ -178,13 +191,48 @@ class MainMenuScreen(Widget):
             self.clear_url_input()
             return
         elif button_id == "confirm_yes":
-            self._remove_confirm_dialog()
+            if getattr(self, "_db_confirm_mode", None) == 'delete_all':
+                # DB 일괄 삭제 확정
+                try:
+                    result = self.db.delete_all_jobs(delete_files=True, status_filter=self.db_current_filter)
+                    self.show_success(f"Deleted {result.get('rows',0)} record(s), files removed: {result.get('files_removed',0)}")
+                    self._db_confirm_mode = None
+                    self._remove_confirm_dialog()
+                    self.show_database_interface()
+                except Exception as e:
+                    self.show_error(str(e))
+                    self._db_confirm_mode = None
+                    self._remove_confirm_dialog()
+                return
+            if getattr(self, "_db_confirm_mode", None) == 'delete_one':
+                try:
+                    if self._db_pending_delete_id is not None:
+                        result = self.db.delete_job(self._db_pending_delete_id, delete_files=True)
+                        self.show_success(f"Deleted {result.get('rows',0)} record(s), files removed: {result.get('files_removed',0)}")
+                        self._db_pending_delete_id = None
+                        self._db_confirm_mode = None
+                        # 뷰어를 닫고 데이터베이스 목록으로 돌아가기
+                        self.db_viewer_open = False
+                        self.db_current_view_job_id = None
+                        self._remove_confirm_dialog()
+                        self.show_database_interface()
+                except Exception as e:
+                    self.show_error(str(e))
+                    self._db_confirm_mode = None
+                    self._remove_confirm_dialog()
+                return
             if self._pending_url:
+                self._remove_confirm_dialog()
                 self._launch_transcription_process(self._pending_url, force=True)
                 self._pending_url = None
             return
         elif button_id == "confirm_no":
+            self._db_confirm_mode = None
+            self._db_pending_delete_id = None
             self._remove_confirm_dialog()
+            # 뷰어가 열려있었으면 다시 표시
+            if self.db_viewer_open and self.db_current_view_job_id:
+                self._open_db_viewer_inline(self.db_current_view_job_id)
             try:
                 out = self.content_area.query_one(".transcribe-output", Static)
                 out.update("Cancelled by user.")
@@ -193,14 +241,12 @@ class MainMenuScreen(Widget):
             self._pending_url = None
             return
         elif button_id == "stop_transcribe":
-            # 현재는 백그라운드 스레드/프로세스 중지 미구현 - 안내만 표시
-            self.app.notify("Stop is not implemented yet", severity="warning")
+            self._stop_active_process()
             return
         elif button_id == "database":
-            try:
-                self.app.push_screen(DatabaseScreen())
-            except Exception:
-                self.show_content("Database Management", "Database screen failed to open.")
+            self.selected_button_id = "database"
+            self.show_database_interface()
+            self.focus_area = "content"
             self.set_timer(0.01, lambda btn_id="database": self._update_button_selection(btn_id))
         elif button_id == "api_keys":
             self.selected_button_id = "api_keys"
@@ -212,9 +258,6 @@ class MainMenuScreen(Widget):
             self.show_settings_interface()
             self.focus_area = "content"
             self.set_timer(0.01, lambda btn_id="settings": self._update_button_selection(btn_id))
-        elif button_id == "monitor":
-            self.show_content("Monitoring", "Monitoring screen will be implemented in Phase 4.")
-            self.set_timer(0.01, lambda btn_id="monitor": self._update_button_selection(btn_id))
         elif button_id == "help":
             self.show_help()
         elif button_id == "quit":
@@ -238,41 +281,36 @@ class MainMenuScreen(Widget):
 
 Navigation:
 - Left/Right: Focus menu ↔ content
-- ↑/↓ or K/J: Move selection
+- Up/Down or K/J: Move selection
 - Enter: Select / Toggle
-- Space: Toggle option (content 영역)
-- 1-5: Menu shortcuts (1: Transcribe, 2: Database, 3: Monitor, 4: API Key, 5: Settings)
-- H: Help, Q : Quit, Esc: Quit
-- S: Start transcription (Transcribe 화면)
-- C: Clear form (Transcribe 화면)
+- Space: Toggle option (content area)
+- 1-4: Menu shortcuts (1: Transcribe, 2: Database, 3: API Key, 4: Settings)
+- H: Help, Q/Esc: Quit
+- S: Start transcription (Transcribe)
+- C: Clear form (Transcribe)
 
 Transcribe:
-- URL 입력 후 Run(또는 S)으로 시작, Clr(또는 C)로 초기화
-- 옵션은 화살표/Space로 토글, 엔진은 라디오 스타일로 선택
-- Output 위 구분선과 상태 라인이 표시되며, 실시간 진행은 스트림 라인에 1줄로 갱신됨
-- Background 활성화 시 작업이 큐에 등록되고 모니터 탭에서 상태 확인
-- 실행 로그는 logs/ 디렉터리에 저장됨 (화면에 경로 표시)
+- Enter a YouTube URL and click Run (or press S). Use Clr (or C) to reset.
+- Toggle options with arrows/Space; choose engine like radio buttons.
+- A status line and a one-line live stream appear above Output.
+- Logs are saved to the logs/ directory; the exact path is shown on screen.
+- Run/Stop control only the current foreground run. Previous runs continue independently.
 
 API Keys:
-- 키 입력 후 Save/Validate 버튼 제공, 결과는 상태 라인에 표시
+- Enter your key and click Save/Validate. Results appear on the status line.
 
 Settings:
-- 값 수정 후 Save로 .env 갱신, 가능한 항목은 즉시 런타임에 반영 시도
+- Edit values and click Save to update the .env file. Some changes take effect immediately.
 
 Database:
-- 최근 작업 목록/통계 확인, 항목 선택 시 상세 보기와 요약/원문 뷰 제공
-
-Monitor:
-- 진행 중이거나 대기 중인 작업, 그리고 최근 작업 위주로 표시
-- 오래된 항목은 보존 기간이 지나면 목록에서 자동으로 숨김/정리됨
-- 주기적으로 자동 새로고침되어 최신 상태를 반영
+- Browse recent jobs; select a row to open the inline viewer with Original/Summary.
 
 Theme:
 - F2: Toggle theme
 
 Tips:
-- 메뉴로 돌아가려면 Left, 콘텐츠 조작으로 가려면 Right
-- 포커스가 애매할 때는 Enter를 한 번 누르고 방향키로 이동"""
+- Press Left to return to the menu, Right to operate the content area.
+- If focus feels ambiguous, press Enter once and use arrow keys."""
         self.show_content("Help", help_text)
     
     def _update_button_selection(self, selected_id: str) -> None:
@@ -282,7 +320,7 @@ Tips:
         try:
             for btn in self.menu_buttons:
                 btn.remove_class("selected")
-            mapping = {"transcribe":0,"database":1,"api_keys":2,"settings":3,"monitor":4,"help":5,"quit":6}
+            mapping = {"transcribe":0,"database":1,"api_keys":2,"settings":3,"help":4,"quit":5}
             idx = mapping.get(selected_id)
             if idx is not None and 0 <= idx < len(self.menu_buttons):
                 self.menu_buttons[idx].add_class("selected")
@@ -339,8 +377,21 @@ Tips:
             form = Vertical(classes="form-stack")
             self.content_area.mount(form)
             
-            # URL 입력 섹션
-            form.mount(Static("YouTube URL:", classes="options-title"))
+            # URL 입력 섹션 (우측에 Tip 표시)
+            header_row = Horizontal(classes="url-header")
+            form.mount(header_row)
+            header_row.mount(Static("YouTube URL:", classes="options-title", id="yt_label"))
+            tip = Static(
+                "Entering a new URL and clicking Run will continue the existing job in parallel.",
+                classes="url-tip"
+            )
+            header_row.mount(tip)
+            try:
+                # 라벨 폭을 auto로, 팁은 남은 공간 채우며 오른쪽 정렬
+                self.query_one("#yt_label", Static).styles.width = "auto"
+                tip.styles.width = "1fr"
+            except Exception:
+                pass
             
             # 입력창 컨테이너
             input_container = Horizontal(classes="input-container")
@@ -363,6 +414,7 @@ Tips:
             actions.mount(Button("Clr", id="clear_url", variant="default", classes="utility-button"))
             
             
+
             # 옵션 섹션 - 텍스트 기반 UI (여백 최소화 타이틀)
             form.mount(Static("", classes="line-spacer"))
             form.mount(Static("Options:", classes="options-title section-gap"))
@@ -375,7 +427,6 @@ Tips:
             self.option_widgets['srt'] = Button(Text(self._get_option_display(4, "Generate SRT (timestamps)", self.srt_enabled)), id="opt_srt", classes="content-text option-button")
             self.option_widgets['srt_translate'] = Button(Text(self._get_option_display(5, "Translate SRT", self.srt_translate_enabled)), id="opt_srt_translate", classes="content-text option-button")
             self.option_widgets['force'] = Button(Text(self._get_option_display(6, "Force (retry)", self.force_enabled)), id="opt_force", classes="content-text option-button")
-            self.option_widgets['background'] = Button(Text(self._get_option_display(7, "Background", self.background_enabled)), id="opt_background", classes="content-text option-button")
             
             form.mount(self.option_widgets['timestamp'])
             form.mount(self.option_widgets['summary'])
@@ -384,7 +435,6 @@ Tips:
             form.mount(self.option_widgets['srt'])
             form.mount(self.option_widgets['srt_translate'])
             form.mount(self.option_widgets['force'])
-            form.mount(self.option_widgets['background'])
             
             # 엔진 선택
             form.mount(Static("", classes="line-spacer"))
@@ -569,14 +619,14 @@ Tips:
             self._validating_api_key = False
             self.show_error(str(e))
 
-    def show_monitor_interface(self) -> None:
-        """메인 영역에 모니터링 UI 표시"""
+    def show_job_queue_interface(self) -> None:
+        """Job Queue 전용 화면: 진행/대기 작업과 제어 제공"""
         if not self.content_area:
             return
         self.content_area.remove_children()
         
         # 스크롤 가능한 컨테이너
-        scroller = ScrollableContainer(classes="tab-content", id="monitor_scroller")
+        scroller = ScrollableContainer(classes="tab-content", id="queue_scroller")
         try:
             scroller.styles.height = "1fr"
             scroller.styles.min_height = 0
@@ -588,50 +638,34 @@ Tips:
         # 메인 컨테이너
         container = Vertical(classes="form-stack")
         scroller.mount(container)
-        container.mount(Static("== Job Monitor ==", classes="options-title"))
-        
-        # 통계 섹션
-        stats_section = Horizontal(classes="stats-row")
-        container.mount(stats_section)
-        stats_section.mount(Label("Total: 0", id="stat_total"))
-        stats_section.mount(Label("[PENDING] Pending: 0", id="stat_pending"))
-        stats_section.mount(Label("[RUNNING] Running: 0", id="stat_running"))
-        stats_section.mount(Label("[DONE] Completed: 0", id="stat_completed"))
-        stats_section.mount(Label("[FAILED] Failed: 0", id="stat_failed"))
+        container.mount(Static("== Job Queue ==", classes="options-title"))
         
         # 작업 목록
-        container.mount(Static("== Job Queue ==", classes="options-title"))
+        container.mount(Static("Active & Recent Jobs", classes="options-title"))
         
         # 작업 테이블 (간단한 텍스트 형태로)
         job_list = Vertical(id="job_list", classes="job-list")
         container.mount(job_list)
         
         # 샘플 데이터 또는 실제 데이터 로드
-        self._load_monitor_data(job_list)
+        self._load_queue_data(job_list)
         
         # 컨트롤 버튼
         actions = Horizontal(classes="actions-bar")
         container.mount(actions)
-        actions.mount(Button("Refresh", id="refresh_monitor", classes="action-button"))
+        actions.mount(Button("Refresh", id="refresh_queue", classes="action-button"))
+        actions.mount(Button("Stop Active", id="stop_transcribe", classes="danger-button"))
         actions.mount(Button("Clear Completed", id="clear_completed", classes="utility-button"))
         actions.mount(Button("Back", id="transcribe", classes="warning-button"))
         
         # 자동 새로고침 시작 (2초마다)
-        self._start_monitor_refresh()
+        self._start_queue_refresh()
     
-    def _load_monitor_data(self, container: Vertical) -> None:
-        """모니터링 데이터 로드"""
+    def _load_queue_data(self, container: Vertical) -> None:
+        """Job Queue 데이터 로드"""
         try:
             from ..utils.db_manager import DatabaseManager
             db = DatabaseManager()
-            
-            # 통계 업데이트
-            stats = db.get_job_statistics()
-            self.query_one("#stat_total", Label).update(f"Total: {stats.get('total', 0)}")
-            self.query_one("#stat_pending", Label).update(f"[PENDING] Pending: {stats.get('pending', 0)}")
-            self.query_one("#stat_running", Label).update(f"[RUNNING] Running: {stats.get('running', 0)}")
-            self.query_one("#stat_completed", Label).update(f"[DONE] Completed: {stats.get('completed', 0)}")
-            self.query_one("#stat_failed", Label).update(f"[FAILED] Failed: {stats.get('failed', 0)}")
             
             # 작업 목록 업데이트
             container.remove_children()
@@ -665,23 +699,203 @@ Tips:
         except Exception as e:
             container.mount(Static(f"Error loading monitor data: {e}", classes="error-text"))
     
-    def _start_monitor_refresh(self) -> None:
-        """모니터링 자동 새로고침 시작"""
+    def _start_queue_refresh(self) -> None:
+        """Job Queue 자동 새로고침 시작"""
         import threading
         
         def refresh_loop():
-            while self.selected_button_id == "monitor":
+            while self.selected_button_id == "job_queue":
                 time.sleep(2)  # 2초마다
-                if self.selected_button_id == "monitor":
+                if self.selected_button_id == "job_queue":
                     try:
                         job_list = self.query_one("#job_list", Vertical)
-                        self._load_monitor_data(job_list)
+                        self._load_queue_data(job_list)
                     except Exception:
                         break
         
         # 백그라운드 스레드에서 실행
         refresh_thread = threading.Thread(target=refresh_loop, daemon=True)
         refresh_thread.start()
+
+    # --- Database (inline) ---
+    def show_database_interface(self) -> None:
+        """콘텐츠 영역에 데이터베이스 목록을 인라인으로 렌더링"""
+        if not self.content_area:
+            return
+        self.content_area.remove_children()
+
+        # 상단 제목
+        self.content_area.mount(Static("Database", classes="options-title"))
+
+        # # 검색 행 (입력 + 검색 버튼을 우측에 배치)
+        # search_row = Horizontal(classes="input-container")
+        # self.content_area.mount(search_row)
+        # search_input = Input(placeholder="검색어 (제목/URL)", id="db_search_input", classes="url-input")
+        # try:
+        #     search_input.value = self.db_search_query
+        # except Exception:
+        #     pass
+        # search_row.mount(search_input)
+        # search_row.mount(Button("Search", id="db_search_btn", classes="utility-button inline-button"))
+
+        # 목록 테이블
+        table_wrap = Vertical(id="db_table_wrap", classes="form-stack")
+        self.content_area.mount(table_wrap)
+        table = DataTable(id="db_jobs_table")
+        table_wrap.mount(table)
+        table.clear(columns=True)
+        table.add_columns("ID", "Title", "URL", "Engine", "Status", "Created", "Completed")
+        table.cursor_type = "row"; table.zebra_stripes = True; table.show_cursor = True; table.can_focus = True
+        try:
+            table_wrap.styles.height = "1fr"; table_wrap.styles.min_height = 0
+        except Exception:
+            pass
+
+        # 데이터 로드
+        self._load_db_table()
+        try:
+            table.focus()
+        except Exception:
+            pass
+
+    def _load_db_table(self) -> None:
+        """현재 필터/검색어로 테이블 데이터 채우기"""
+        try:
+            table = self.content_area.query_one("#db_jobs_table", DataTable)
+        except Exception:
+            return
+        jobs = self.db.get_jobs_filtered(search=self.db_search_query, status_filter=self.db_current_filter, limit=200)
+        table.clear(columns=False)
+        for job in jobs:
+            job_id = int(job.get("id", 0) or 0)
+            title = (job.get("title") or "")[:40] + ("..." if (job.get("title") and len(job.get("title"))>40) else "")
+            url = (job.get("url") or "")[:40] + ("..." if (job.get("url") and len(job.get("url"))>40) else "")
+            table.add_row(str(job_id), title, url, job.get("engine", ""), job.get("status", ""), job.get("created_at", ""), job.get("completed_at", ""))
+
+    def on_data_table_cell_selected(self, event: DataTable.CellSelected) -> None:  # type: ignore[override]
+        """DB 목록 셀 클릭 시 인라인 뷰어 열기"""
+        if self.selected_button_id != "database":
+            return
+        try:
+            row_index = event.coordinate.row
+            row = self.content_area.query_one("#db_jobs_table", DataTable).get_row_at(row_index)
+            if row:
+                job_id = int(row[0])
+                self._open_db_viewer_inline(job_id)
+                event.stop()
+        except Exception:
+            pass
+
+    def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:  # type: ignore[override]
+        """Enter 등으로 행 선택 시 인라인 뷰어 열기"""
+        if self.selected_button_id != "database":
+            return
+        try:
+            table = self.content_area.query_one("#db_jobs_table", DataTable)
+            if table.cursor_row is not None and table.cursor_row >= 0:
+                row = table.get_row_at(table.cursor_row)
+                if row:
+                    job_id = int(row[0])
+                    self._open_db_viewer_inline(job_id)
+        except Exception:
+            pass
+
+    def _open_db_viewer_inline(self, job_id: int) -> None:
+        """현재 콘텐츠 영역에서 선택한 작업의 뷰어를 인라인으로 표시"""
+        if not self.content_area:
+            return
+        job = self.db.get_job_by_id(job_id)
+        if not job:
+            self.show_error(f"Job {job_id} not found")
+            return
+        self.db_current_view_job_id = job_id
+
+        # 텍스트 로드
+        def _read_text(p: str | None, limit: int = 120000) -> str:
+            if not p:
+                return ""
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    data = f.read(limit + 1)
+                    if len(data) > limit:
+                        data = data[:limit] + "\n... (truncated)"
+                    return data
+            except Exception:
+                return "(파일을 읽을 수 없습니다)"
+
+        orig_path = job.get("transcript_path") or job.get("translation_path")
+        summary_path = None
+        try:
+            tp = job.get("transcript_path")
+            if tp and tp.endswith(".txt"):
+                from pathlib import Path
+                p = Path(tp)
+                cand = p.with_name(f"{p.stem}_summary.txt")
+                if cand.exists():
+                    summary_path = str(cand)
+        except Exception:
+            pass
+        orig_text = _read_text(orig_path)
+        summary_text = _read_text(summary_path)
+
+        # 화면 구성
+        self.content_area.remove_children()
+        # 상단 헤더 (제목 좌측, 메타 정보 우측)
+        header = Horizontal(classes="viewer-header")
+        self.content_area.mount(header)
+        header.mount(Static("Transcript", classes="viewer-title"))
+        header.mount(Static(f"Engine: {job.get('engine','')} | Status: {job.get('status','')}", classes="viewer-meta"))
+        # 상단 영상 제목 앞에 여백 1줄
+        self.content_area.mount(Static("", classes="line-spacer"))
+        # 상단 영상 제목
+        # 요구사항: '아니라고?'까지 출력하고 뒤에 ' ...'을 붙여 오른쪽 여백을 최소화
+        _raw_title = job.get('title') or ''
+        try:
+            _key = "아니라고?"
+            if _key in _raw_title:
+                _cut = _raw_title.find(_key) + len(_key)
+                _disp_title = _raw_title[:_cut] + " ..."
+            else:
+                _disp_title = _raw_title
+        except Exception:
+            _disp_title = _raw_title
+        self.content_area.mount(Static(_disp_title, classes="viewer-video-title"))
+        # 툴바 (얕은 높이) - 버튼 위쪽에 확실한 여백 확보(스페이서 1줄)
+        self.content_area.mount(Static("", classes="line-spacer"))
+        bar = Horizontal(classes="viewer-actions")
+        self.content_area.mount(bar)
+        try:
+            bar.styles.dock = "top"
+        except Exception:
+            pass
+        bar.mount(Button("Back", id="db_viewer_back", classes="action-button"))
+        bar.mount(Button("Delete", id="db_viewer_delete", classes="danger-button"))
+        # (구분선 제거) 시각적 잡선 방지를 위해 구분선은 사용하지 않음
+
+        if summary_text:
+            split = Horizontal()
+            self.content_area.mount(split)
+            left = ScrollableContainer(classes="viewer-pane"); right = ScrollableContainer(classes="viewer-pane")
+            try:
+                left.styles.height = "1fr"; left.styles.min_height = 0
+                right.styles.height = "1fr"; right.styles.min_height = 0
+            except Exception:
+                pass
+            split.mount(left); split.mount(right)
+            left.mount(Static("Original", classes="options-title"))
+            left.mount(Static(orig_text or "(없음)", classes="output-text"))
+            right.mount(Static("Summary", classes="options-title"))
+            right.mount(Static(summary_text or "(없음)", classes="output-text"))
+        else:
+            sc = ScrollableContainer(classes="viewer-pane")
+            try:
+                sc.styles.height = "1fr"; sc.styles.min_height = 0
+            except Exception:
+                pass
+            self.content_area.mount(sc)
+            sc.mount(Static(orig_text or "(없음)", classes="output-text"))
+
+        self.db_viewer_open = True
 
     def show_settings_interface(self) -> None:
         """메인 영역에 Settings UI 표시 (싱글 페이지)"""
@@ -838,8 +1052,7 @@ Tips:
             self.option_widgets['srt_translate'].label = Text(self._get_option_display(5, "Translate SRT", self.srt_translate_enabled))
         if 'force' in self.option_widgets:
             self.option_widgets['force'].label = Text(self._get_option_display(6, "Force (retry)", self.force_enabled))
-        if 'background' in self.option_widgets:
-            self.option_widgets['background'].label = Text(self._get_option_display(7, "Background", self.background_enabled))
+        # background 옵션 제거
         
         # 엔진 옵션 업데이트
         if 'engine_mini' in self.option_widgets:
@@ -854,11 +1067,65 @@ Tips:
             self.option_widgets['engine_youtube'].label = Text(self._get_engine_display(12, "YouTube native", "youtube-transcript-api"))
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        """버튼 클릭 이벤트 처리 (메뉴/옵션/엔진 모두 포함)"""
+        """버튼 클릭 이벤트 처리 (메뉴/옵션/엔진/확인 다이얼로그 포함)"""
         button_id = event.button.id
+
+        # 확인 다이얼로그 버튼 처리 (삭제 등 확정/취소)
+        if button_id == "confirm_yes":
+            # 일괄 삭제 확정
+            if getattr(self, "_db_confirm_mode", None) == 'delete_all':
+                try:
+                    result = self.db.delete_all_jobs(delete_files=True, status_filter=self.db_current_filter)
+                    self.show_success(f"Deleted {result.get('rows',0)} record(s), files removed: {result.get('files_removed',0)}")
+                    self._db_confirm_mode = None
+                    self._remove_confirm_dialog()
+                    self.show_database_interface()
+                except Exception as e:
+                    self.show_error(str(e))
+                    self._db_confirm_mode = None
+                    self._remove_confirm_dialog()
+                return
+            # 단일 항목 삭제 확정
+            if getattr(self, "_db_confirm_mode", None) == 'delete_one':
+                try:
+                    if self._db_pending_delete_id is not None:
+                        result = self.db.delete_job(self._db_pending_delete_id, delete_files=True)
+                        self.show_success(f"Deleted {result.get('rows',0)} record(s), files removed: {result.get('files_removed',0)}")
+                        self._db_pending_delete_id = None
+                        self._db_confirm_mode = None
+                        # 뷰어 닫고 목록으로 복귀
+                        self.db_viewer_open = False
+                        self.db_current_view_job_id = None
+                        self._remove_confirm_dialog()
+                        self.show_database_interface()
+                except Exception as e:
+                    self.show_error(str(e))
+                    self._db_confirm_mode = None
+                    self._remove_confirm_dialog()
+                return
+            # 기타 확인(예: 재처리) 확정
+            if getattr(self, "_pending_url", None):
+                self._remove_confirm_dialog()
+                self._launch_transcription_process(self._pending_url, force=True)
+                self._pending_url = None
+            return
+        elif button_id == "confirm_no":
+            # 취소: 상태 초기화 및 다이얼로그 닫기
+            self._db_confirm_mode = None
+            self._db_pending_delete_id = None
+            self._remove_confirm_dialog()
+            # 뷰어가 열려 있었으면 다시 표시
+            if self.db_viewer_open and self.db_current_view_job_id:
+                try:
+                    self._open_db_viewer_inline(self.db_current_view_job_id)
+                except Exception:
+                    pass
+            # 재처리 대기 URL 초기화
+            self._pending_url = None
+            return
         
         # 메뉴 버튼 처리 (좌측 메뉴 영역의 버튼)
-        if button_id in {"transcribe", "database", "api_keys", "settings", "monitor", "help", "quit"}:
+        if button_id in {"transcribe", "database", "api_keys", "settings", "help", "quit"}:
             # 좌측 메뉴 클릭 시에도 동일한 동작을 수행
             if button_id == "transcribe":
                 self.selected_button_id = "transcribe"
@@ -871,10 +1138,9 @@ Tips:
                 self.set_timer(0.01, lambda btn_id="transcribe": self._update_button_selection(btn_id))
                 return
             elif button_id == "database":
-                try:
-                    self.app.push_screen(DatabaseScreen())
-                except Exception:
-                    self.show_content("Database Management", "Database screen failed to open.")
+                self.selected_button_id = "database"
+                self.show_database_interface()
+                self.focus_area = "content"
                 self.set_timer(0.01, lambda btn_id="database": self._update_button_selection(btn_id))
                 return
             elif button_id == "api_keys":
@@ -889,12 +1155,7 @@ Tips:
                 self.focus_area = "content"
                 self.set_timer(0.01, lambda btn_id="settings": self._update_button_selection(btn_id))
                 return
-            elif button_id == "monitor":
-                self.selected_button_id = "monitor"
-                self.show_monitor_interface()
-                self.focus_area = "content"
-                self.set_timer(0.01, lambda btn_id="monitor": self._update_button_selection(btn_id))
-                return
+            
             elif button_id == "help":
                 self.show_help()
                 return
@@ -928,11 +1189,59 @@ Tips:
         elif button_id == "settings_save":
             self._save_settings_inline()
             return
-        elif button_id == "refresh_monitor":
+        # Database inline controls
+        elif button_id == "db_search_btn":
+            try:
+                self.db_search_query = self.content_area.query_one("#db_search_input", Input).value.strip()
+            except Exception:
+                self.db_search_query = ""
+            self._load_db_table()
+            return
+        elif button_id == "db_delete_selected":
+            # 선택된 행 삭제 (확인 다이얼로그 먼저 표시)
+            try:
+                table = self.content_area.query_one("#db_jobs_table", DataTable)
+                if table.cursor_row is None or table.cursor_row < 0:
+                    self.show_error("선택된 항목이 없습니다.")
+                    return
+                row = table.get_row_at(table.cursor_row)
+                if not row:
+                    return
+                self._db_pending_delete_id = int(row[0])
+                self._db_confirm_mode = 'delete_one'
+                self._show_confirm_dialog("선택한 항목을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없으며 관련 파일도 함께 삭제됩니다.")
+            except Exception as e:
+                self.show_error(str(e))
+            return
+        elif button_id == "db_delete_all":
+            # 먼저 사용자 확인
+            self._db_confirm_mode = 'delete_all'
+            self._show_confirm_dialog("[WARNING] 현재 필터에 해당하는 모든 항목을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없으며 관련 파일도 함께 삭제됩니다.")
+            return
+        elif button_id == "db_viewer_back":
+            # back to list
+            self.db_viewer_open = False
+            self.db_current_view_job_id = None
+            self.show_database_interface(); return
+        elif button_id == "db_viewer_delete":
+            # 뷰어에서 현재 항목 삭제 확인 플로우 시작
+            try:
+                if self.db_current_view_job_id is not None:
+                    self.app.notify(f"Preparing to delete job {self.db_current_view_job_id}", severity="warning")
+                    self._db_pending_delete_id = int(self.db_current_view_job_id)
+                    self._db_confirm_mode = 'delete_one'
+                    self._show_confirm_dialog("현재 항목을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없으며 관련 파일도 함께 삭제됩니다.")
+                else:
+                    self.app.notify("No job selected to delete", severity="warning")
+            except Exception as e:
+                self.app.notify(f"Delete error: {e}", severity="error")
+                self.show_error(str(e))
+            return
+        elif button_id == "refresh_queue":
             # 모니터 데이터 새로고침
             try:
                 job_list = self.query_one("#job_list", Vertical)
-                self._load_monitor_data(job_list)
+                self._load_queue_data(job_list)
                 self.app.notify("Refreshed monitor data", severity="information")
             except Exception:
                 pass
@@ -947,7 +1256,7 @@ Tips:
                 self.app.notify(f"Cleared {count} completed/failed jobs", severity="information")
                 # 새로고침
                 job_list = self.query_one("#job_list", Vertical)
-                self._load_monitor_data(job_list)
+                self._load_queue_data(job_list)
             except Exception as e:
                 self.app.notify(f"Error clearing jobs: {e}", severity="error")
             return
@@ -975,9 +1284,7 @@ Tips:
         elif button_id == 'opt_force':
             self.focused_option = 6
             self.force_enabled = not self.force_enabled
-        elif button_id == 'opt_background':
-            self.focused_option = 7
-            self.background_enabled = not self.background_enabled
+        # background 옵션 제거
         # 엔진 선택
         elif button_id == 'eng_mini':
             self.focused_option = 8
@@ -1011,10 +1318,9 @@ Tips:
             except Exception:
                 pass
         elif menu_id == "database":
-            try:
-                self.app.push_screen(DatabaseScreen())
-            except Exception:
-                self.show_content("Database Management", "Database screen failed to open.")
+            self.selected_button_id = "database"
+            self.show_database_interface()
+            self.focus_area = "content"
         elif menu_id == "api_keys":
             self.selected_button_id = "api_keys"
             self.show_api_keys_interface()
@@ -1023,9 +1329,9 @@ Tips:
             self.selected_button_id = "settings"
             self.show_settings_interface()
             self.focus_area = "content"
-        elif menu_id == "monitor":
-            self.selected_button_id = "monitor"
-            self.show_monitor_interface()
+        elif menu_id == "job_queue":
+            self.selected_button_id = "job_queue"
+            self.show_job_queue_interface()
             self.focus_area = "content"
         elif menu_id == "help":
             self.show_help()
@@ -1048,13 +1354,14 @@ Tips:
                 # 오른쪽 콘텐츠 영역에 전사 인터페이스 표시
                 self.show_transcribe_interface()
             elif button_id == "database":
-                self.show_content("Database Management", "Database management features will be implemented in Phase 4.")
+                self.selected_button_id = "database"
+                self.show_database_interface()
             elif button_id == "api_keys":
                 self.show_api_keys_interface()
             elif button_id == "settings":
                 self.show_settings_interface()
-            elif button_id == "monitor":
-                self.show_content("Monitoring", "Monitoring screen will be implemented in Phase 4.")
+            elif button_id == "job_queue":
+                self.show_job_queue_interface()
             elif button_id == "help":
                 self.show_help()
             elif button_id == "quit":
@@ -1162,9 +1469,7 @@ Tips:
             output.update(f"[PROCESSING] Starting transcription...\nURL: {url[:50]}...\nEngine: {self.selected_engine}\nOptions: {options_str}")
             
             # Background 모드면 큐에 적재 후 종료
-            if self.background_enabled:
-                self._enqueue_background_job(url, force=self.force_enabled)
-                return
+            # background 모드 제거됨: 항상 즉시 실행
             # 기존 결과 존재 여부 확인 또는 즉시 실행
             self._pending_url = url
             self._precheck_and_maybe_confirm(url)
@@ -1182,10 +1487,13 @@ Tips:
                 self.url_input.focus()
             
             # 옵션 상태 초기화
-            self.timestamp_enabled = False
-            self.summary_enabled = False
+            self.timestamp_enabled = True
+            self.summary_enabled = True
             self.translate_enabled = False
             self.video_enabled = False
+            self.srt_enabled = False
+            self.srt_translate_enabled = False
+            self.force_enabled = False
             self.selected_engine = "gpt-4o-mini-transcribe"
             self.focused_option = 0
             
@@ -1246,10 +1554,8 @@ Tips:
         elif key == "2":
             self.action_menu_action("database")
         elif key == "3":
-            self.action_menu_action("monitor")
-        elif key == "4":
             self.action_menu_action("api_keys")
-        elif key == "5":
+        elif key == "4":
             self.action_menu_action("settings")
         elif key == "h":
             self.action_menu_action("help")
@@ -1268,6 +1574,18 @@ Tips:
         elif key == "right":
             self.action_focus_content()
         elif key == "enter":
+            # DB 목록이 활성화된 경우: 현재 행 뷰어 열기
+            if self.selected_button_id == "database":
+                try:
+                    table = self.content_area.query_one("#db_jobs_table", DataTable)
+                    if table.cursor_row is not None and table.cursor_row >= 0:
+                        row = table.get_row_at(table.cursor_row)
+                        if row:
+                            job_id = int(row[0])
+                            self._open_db_viewer_inline(job_id)
+                            return
+                except Exception:
+                    pass
             self.action_handle_enter()
             return
         elif key == "space":
@@ -1319,6 +1637,7 @@ Tips:
     def _enqueue_background_job(self, url: str, force: bool) -> None:
         """작업을 큐로 등록하고 모니터링 탭에서 관리되도록 한다."""
         try:
+            # 비디오 정보
             config = Config()
             db = TranscriptionDatabase(config.DB_PATH)
             downloader = YouTubeDownloader(config.AUDIO_PATH, config.VIDEO_PATH, config.TEMP_PATH)
@@ -1328,26 +1647,39 @@ Tips:
                 return
             video_id = info.get('id')
             title = info.get('title') or url
+            # DB 생성 및 대기 상태로 설정
             job_id = db.create_job(video_id, url, title, self.selected_engine)
-            db.update_job_status(job_id, 'queued')
-            # 큐 파일 작성
-            root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
-            queue_dir = Path(root_dir) / 'queue'
-            queue_dir.mkdir(parents=True, exist_ok=True)
-            payload = {
-                "job_id": job_id,
-                "video_id": video_id,
-                "url": url,
-                "title": title,
-                "engine": self.selected_engine,
-                "force": force,
-                "timestamp": datetime.now().isoformat(timespec='seconds')
-            }
-            qfile = queue_dir / f"{datetime.now().strftime('%Y%m%d-%H%M%S')}-{video_id}.json"
-            qfile.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding='utf-8')
+            db.update_job_status(job_id, 'pending')
+
+            # JobQueue에 직접 투입 (워커 스레드가 main.py 실행)
+            try:
+                from ...utils.job_queue import job_queue, TranscriptionJob
+                options = {
+                    'summary': self.summary_enabled,
+                    'timestamp': self.timestamp_enabled,
+                    'translate': self.translate_enabled,
+                    'video': self.video_enabled,
+                    'srt': self.srt_enabled,
+                    'force': force,
+                }
+                job = TranscriptionJob(
+                    job_id=job_id,
+                    url=url,
+                    title=title,
+                    engine=self.selected_engine,
+                    options=options,
+                )
+                # 높은 우선순위는 0(기본)로 처리
+                job_queue.job_queue.put((0, job.created_at, job))
+            except Exception as e:
+                # 실패 시 사용자에게 알리고 즉시 포그라운드로 실행 대체
+                self.app.notify(f"Background queue unavailable: {e}. Running now...", severity="warning")
+                self._launch_transcription_process(url, force=force)
+                return
+
             try:
                 out = self.content_area.query_one(".transcribe-output", Static)
-                out.update(f"[QUEUED] Enqueued background job (ID: {job_id}).\nSee Monitoring for status.")
+                out.update(f"[QUEUED] Enqueued background job (ID: {job_id}).")
             except Exception:
                 pass
             self.show_success("Job added to queue")
@@ -1355,28 +1687,102 @@ Tips:
             self.show_error(f"Queue error: {e}")
 
     def _show_confirm_dialog(self, message: str) -> None:
-        """재처리 확인 다이얼로그 표시"""
+        """콘텐츠 영역 내 인라인 확인 바 표시 (Modal 미사용)"""
         try:
-            self._remove_confirm_dialog()
-            dialog = Vertical(classes="confirmation-dialog", id="confirm_dialog")
-            dialog.mount(Static(message))
-            buttons = Horizontal(classes="dialog-buttons")
-            buttons.mount(Button("Yes", id="confirm_yes", variant="primary"))
-            buttons.mount(Button("No", id="confirm_no", variant="default"))
-            dialog.mount(buttons)
-            self.content_area.mount(dialog)
-        except Exception:
-            pass
+            # 콘텐츠 영역 최상위 컨테이너 내 상단에 확인 바 추가
+            if not self.content_area:
+                return
+            # 기존 확인 바 제거
+            try:
+                confirm_old = self.content_area.query_one("#confirm_delete_dialog", Vertical)
+                confirm_old.remove()
+            except Exception:
+                pass
+            confirm_bar = Vertical(classes="confirmation-dialog", id="confirm_delete_dialog")
+            # 1) 부모 먼저 mount
+            self.content_area.mount(confirm_bar)
+            # 2) 그 다음 자식들 mount
+            confirm_bar.mount(Static(message))
+            btns = Horizontal(classes="dialog-buttons")
+            confirm_bar.mount(btns)
+            btns.mount(Button("Yes", id="confirm_yes", classes="flat-danger"))
+            btns.mount(Button("No", id="confirm_no", classes="flat-button"))
+        except Exception as e:
+            self.show_error(f"확인 바 표시 실패: {e}")
 
     def _remove_confirm_dialog(self) -> None:
         try:
-            dialog = self.content_area.query_one("#confirm_dialog", Vertical)
-            dialog.remove()
+            if not self.content_area:
+                return
+            confirm_old = self.content_area.query_one("#confirm_delete_dialog", Vertical)
+            confirm_old.remove()
         except Exception:
             pass
 
+    def _on_confirm_result(self, result: bool | None) -> None:
+        """Modal 확인 결과 처리: 재처리/DB 삭제 모두 지원"""
+        try:
+            if not result:
+                # 취소 케이스: 상태 초기화 및 필요 시 UI 복원
+                self._db_confirm_mode = None
+                self._db_pending_delete_id = None
+                # 뷰어가 열려 있었다면 복원
+                if getattr(self, 'db_viewer_open', False) and getattr(self, 'db_current_view_job_id', None):
+                    try:
+                        self._open_db_viewer_inline(self.db_current_view_job_id)
+                    except Exception:
+                        pass
+                # 재처리 대기 URL 초기화 및 사용자 안내
+                try:
+                    out = self.content_area.query_one(".transcribe-output", Static)
+                    out.update("Cancelled by user.")
+                except Exception:
+                    pass
+                self._pending_url = None
+                return
+
+            # 승인 케이스: 먼저 DB 삭제 분기 처리
+            if getattr(self, "_db_confirm_mode", None) == 'delete_all':
+                try:
+                    result_info = self.db.delete_all_jobs(delete_files=True, status_filter=self.db_current_filter)
+                    self.show_success(f"Deleted {result_info.get('rows',0)} record(s), files removed: {result_info.get('files_removed',0)}")
+                except Exception as e:
+                    self.show_error(str(e))
+                finally:
+                    self._db_confirm_mode = None
+                    self._db_pending_delete_id = None
+                    # 목록 UI 재구성
+                    self.show_database_interface()
+                return
+
+            if getattr(self, "_db_confirm_mode", None) == 'delete_one':
+                try:
+                    if self._db_pending_delete_id is not None:
+                        result_info = self.db.delete_job(self._db_pending_delete_id, delete_files=True)
+                        self.show_success(f"Deleted {result_info.get('rows',0)} record(s), files removed: {result_info.get('files_removed',0)}")
+                except Exception as e:
+                    self.show_error(str(e))
+                finally:
+                    self._db_pending_delete_id = None
+                    self._db_confirm_mode = None
+                    # 뷰어/목록 상태 정리 후 목록 재표시
+                    self.db_viewer_open = False
+                    self.db_current_view_job_id = None
+                    self.show_database_interface()
+                return
+
+            # 그 외(재처리 등)
+            if getattr(self, "_pending_url", None):
+                self._launch_transcription_process(self._pending_url, force=True)
+                self._pending_url = None
+                return
+            # 명시적 컨텍스트 없으면 무시
+        except Exception as e:
+            self.show_error(f"Confirm 처리 오류: {e}")
+
+    # 전사 실행 전 사전 점검 및 재처리 확인 다이얼로그 표시
     def _precheck_and_maybe_confirm(self, url: str) -> None:
-        """DB와 파일을 확인해 재처리 여부를 묻거나 바로 실행"""
+        """DB와 파일을 확인해 재처리 여부를 묻거나 바로 실행 (MainMenuScreen)"""
         try:
             config = Config()
             db = TranscriptionDatabase(config.DB_PATH)
@@ -1394,8 +1800,9 @@ Tips:
         except Exception:
             self._launch_transcription_process(url, force=False)
 
+    # 실제 전사 워커 프로세스를 실행하고 로그를 스트리밍하여 출력에 반영
     def _launch_transcription_process(self, url: str, force: bool = False) -> None:
-        """백그라운드 스레드로 전사 프로세스 실행"""
+        """백그라운드 스레드로 전사 프로세스 실행 (MainMenuScreen)"""
         def run_worker():
             try:
                 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
@@ -1410,14 +1817,24 @@ Tips:
                     args.append("--force")
                 if self.timestamp_enabled:
                     args.append("--timestamp")
+                else:
+                    args.append("--no-timestamp")
                 if self.summary_enabled:
                     args.append("--summary")
+                else:
+                    args.append("--no-summary")
                 if self.translate_enabled:
                     args.append("--translate")
+                else:
+                    args.append("--no-translate")
                 if self.video_enabled:
                     args.append("--video")
+                else:
+                    args.append("--no-video")
                 if self.srt_enabled:
                     args.append("--srt")
+                else:
+                    args.append("--no-srt")
                 if self.srt_translate_enabled:
                     if "--srt" not in args:
                         args.append("--srt")
@@ -1433,13 +1850,18 @@ Tips:
                     cwd=root_dir,
                     env=env,
                     bufsize=1,
+                    start_new_session=True,
                 )
+                # 활성 프로세스 추적 저장
+                self._active_process = proc
+                self._active_log_path = log_file_path
                 try:
                     info_line = self.content_area.query_one("#spinner_line", Static)
                     info_line.update(f"[log] Writing to: {log_file_path}")
                 except Exception:
                     pass
                 loader_stop = threading.Event()
+                self._active_loader_stop = loader_stop
                 def _animate_loader():
                     frames = ["⠋","⠙","⠹","⠸","⠼","⠴","⠦","⠧","⠇","⠏"]
                     i = 0
@@ -1494,4 +1916,88 @@ Tips:
                     self.show_error(f"Transcription failed (code {proc.returncode}) — see log: {log_file_path}")
             except Exception as e:
                 self.show_error(str(e))
+            finally:
+                # 정리: 활성 추적 해제
+                try:
+                    self._active_loader_stop = None
+                except Exception:
+                    pass
+                try:
+                    self._active_process = None
+                except Exception:
+                    pass
         threading.Thread(target=run_worker, daemon=True).start()
+
+    def _stop_active_process(self) -> None:
+        """현재 실행 중인 전사 프로세스를 안전하게 중지"""
+        try:
+            proc = getattr(self, "_active_process", None)
+            if not proc or proc.poll() is not None:
+                self.app.notify("No active job to stop", severity="warning")
+                return
+            self.app.notify("Stopping current job...", severity="warning")
+            # 로더 애니메이션 중지 요청
+            try:
+                if self._active_loader_stop:
+                    self._active_loader_stop.set()
+            except Exception:
+                pass
+            # 프로세스 그룹에 SIGTERM 전파
+            try:
+                pgid = os.getpgid(proc.pid)
+                os.killpg(pgid, signal.SIGTERM)
+            except Exception:
+                try:
+                    proc.terminate()
+                except Exception:
+                    pass
+            # 짧게 대기 후 강제 종료
+            try:
+                proc.wait(timeout=2)
+            except Exception:
+                try:
+                    pgid = os.getpgid(proc.pid)
+                    os.killpg(pgid, signal.SIGKILL)
+                except Exception:
+                    try:
+                        proc.kill()
+                    except Exception:
+                        pass
+            # UI 업데이트
+            try:
+                out = self.content_area.query_one(".transcribe-output", Static)
+                lp = self._active_log_path or "(unknown)"
+                out.update(f"[CANCELLED] Job stopped by user. See log: {lp}")
+            except Exception:
+                pass
+            # DB 상태를 best-effort로 'cancelled' 처리 (가장 최근 running 항목)
+            try:
+                recent = self.db.get_jobs_filtered(status_filter='running', limit=1)
+                if recent:
+                    rid = int(recent[0].get('id', 0) or 0)
+                    if rid > 0:
+                        self.db.update_job_status(rid, 'cancelled')
+            except Exception:
+                pass
+        except Exception as e:
+            self.show_error(f"Stop error: {e}")
+
+class ConfirmDialog(ModalScreen[bool]):
+    def __init__(self, message: str):
+        super().__init__()
+        self.message = message
+
+    def compose(self) -> ComposeResult:  # type: ignore[override]
+        with Vertical(classes="confirmation-dialog"):
+            yield Static(self.message)
+            with Horizontal(classes="dialog-buttons"):
+                yield Button("Yes", id="yes", variant="primary")
+                yield Button("No", id="no", variant="default")
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:  # type: ignore[override]
+        if event.button.id == "yes":
+            self.dismiss(True)
+        elif event.button.id == "no":
+            self.dismiss(False)
+
+
