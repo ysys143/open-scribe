@@ -155,12 +155,12 @@ class MainMenuScreen(Widget):
                 # 왼쪽 메뉴
                 with Vertical(classes="menu-section"):
                     with Vertical(classes="menu-buttons"):
-                        yield Button("1. Transcribe (1)", id="transcribe", classes="menu-button")
-                        yield Button("2. Database (2)", id="database", classes="menu-button")
-                        yield Button("3. API Key (3)", id="api_keys", classes="menu-button")
-                        yield Button("4. Settings (4)", id="settings", classes="menu-button")
-                        yield Button("H. Help (h)", id="help", classes="menu-button")
-                        yield Button("Q. Quit (q)", id="quit", classes="menu-button")
+                        yield Button("1. Transcribe", id="transcribe", classes="menu-button")
+                        yield Button("2. Database", id="database", classes="menu-button")
+                        yield Button("3. API Key", id="api_keys", classes="menu-button")
+                        yield Button("4. Settings", id="settings", classes="menu-button")
+                        yield Button("H. Help", id="help", classes="menu-button")
+                        yield Button("Q. Quit", id="quit", classes="menu-button")
                 
                 # 오른쪽 콘텐츠 영역
                 with Vertical(classes="content-area", id="content_area"):
