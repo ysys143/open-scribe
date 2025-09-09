@@ -9,6 +9,7 @@ from typing import Optional
 import subprocess
 import os
 import asyncio
+from pathlib import Path
 
 
 class TranscribeScreen(Widget):
@@ -40,11 +41,11 @@ class TranscribeScreen(Widget):
             yield Static("New Transcription", classes="screen-title")
             yield Static("─" * 80, classes="divider-line")
             
-            # URL 입력
+            # URL/파일 입력
             with Vertical(classes="input-group"):
-                yield Label("YouTube URL:")
+                yield Label("YouTube URL or Local Audio File:")
                 yield Input(
-                    placeholder="https://www.youtube.com/watch?v=...", 
+                    placeholder="https://www.youtube.com/watch?v=... or /path/to/audio.mp3", 
                     id="url_input", 
                     classes="main-input",
                     value="",  # 초기값 명시
@@ -114,8 +115,24 @@ class TranscribeScreen(Widget):
     def on_input_changed(self, event: Input.Changed) -> None:
         """Input 값이 변경될 때 호출"""
         if event.input.id == "url_input":
-            # URL이 입력되고 있음을 확인 (디버깅용)
-            self.app.notify(f"URL Input: {event.value[:50]}...", timeout=1)
+            input_value = event.value.strip()
+            
+            # 로컬 파일인지 확인
+            is_local_file = self.is_local_audio_file(input_value)
+            
+            if is_local_file:
+                # 로컬 파일인 경우 --audio, --video, --srt 비활성화
+                self.video_switch.value = False
+                self.srt_switch.value = False
+                self.video_switch.disabled = True
+                self.srt_switch.disabled = True
+                self.app.notify("Local audio file detected - video/srt options disabled", timeout=2)
+            else:
+                # YouTube URL인 경우 옵션들 활성화
+                self.video_switch.disabled = False
+                self.srt_switch.disabled = False
+                if not self.video_switch.value:
+                    self.srt_switch.value = False
     
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """버튼 클릭 이벤트 처리"""
@@ -139,6 +156,24 @@ class TranscribeScreen(Widget):
             # 향후 언어 감지 후 한국어가 아닌 경우만 translate 활성화
             pass
     
+    def is_local_audio_file(self, path: str) -> bool:
+        """로컬 오디오 파일인지 확인"""
+        if not path or not isinstance(path, str):
+            return False
+        
+        # URL인지 확인
+        if path.startswith(('http://', 'https://', 'ftp://')):
+            return False
+        
+        # 파일 존재 여부 확인
+        file_path = Path(path)
+        if not file_path.exists() or not file_path.is_file():
+            return False
+        
+        # 오디오 파일 확장자 확인
+        audio_extensions = {'.mp3', '.wav', '.m4a', '.aac', '.flac', '.ogg', '.wma', '.aiff', '.au'}
+        return file_path.suffix.lower() in audio_extensions
+    
     def get_selected_engine(self) -> str:
         """선택된 엔진 가져오기"""
         if self.query_one("#engine_mini", RadioButton).value:
@@ -155,14 +190,29 @@ class TranscribeScreen(Widget):
     
     def start_transcription(self) -> None:
         """전사 시작"""
-        url = self.url_input.value.strip()
+        input_path = self.url_input.value.strip()
         
-        if not url:
-            self.show_output("Error: Please enter a YouTube URL", error=True)
+        if not input_path:
+            self.show_output("Error: Please enter a YouTube URL or local audio file path", error=True)
             return
         
+        # 로컬 파일인지 확인
+        is_local_file = self.is_local_audio_file(input_path)
+        
+        if is_local_file:
+            # 로컬 파일인 경우 YouTube Transcript API는 사용할 수 없음
+            selected_engine = self.get_selected_engine()
+            if selected_engine == "youtube-transcript-api":
+                self.show_output("Error: YouTube Transcript API cannot be used with local files. Please select a different engine.", error=True)
+                return
+        else:
+            # YouTube URL인지 확인
+            if not input_path.startswith(('http://', 'https://')):
+                self.show_output("Error: Please enter a valid YouTube URL or local audio file path", error=True)
+                return
+        
         # 명령어 구성
-        cmd = ["python", "main.py", url]
+        cmd = ["python", "main.py", input_path]
         
         # 엔진 옵션
         engine = self.get_selected_engine()
@@ -175,10 +225,13 @@ class TranscribeScreen(Widget):
             cmd.append("--summary")
         if self.translate_switch.value:
             cmd.append("--translate")
-        if self.video_switch.value:
-            cmd.append("--video")
-        if self.srt_switch.value:
-            cmd.append("--srt")
+        
+        # 로컬 파일이 아닌 경우에만 video/srt 옵션 추가
+        if not is_local_file:
+            if self.video_switch.value:
+                cmd.append("--video")
+            if self.srt_switch.value:
+                cmd.append("--srt")
         
         # 진행 상황 표시
         cmd.append("--progress")
@@ -296,6 +349,11 @@ class TranscribeScreen(Widget):
         self.translate_switch.value = False
         self.video_switch.value = False
         self.srt_switch.value = False
+        
+        # 옵션들 다시 활성화
+        self.video_switch.disabled = False
+        self.srt_switch.disabled = False
+        
         self.show_output("Transcription output will appear here...", error=False)
         self.url_input.focus()
     

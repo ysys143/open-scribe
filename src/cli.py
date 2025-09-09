@@ -13,7 +13,7 @@ from .downloader import YouTubeDownloader
 from .transcribers.openai import WhisperAPITranscriber, GPT4OTranscriber, GPT4OMiniTranscriber
 from .transcribers.youtube import YouTubeTranscriptAPITranscriber
 from .transcribers.whisper_cpp import WhisperCppTranscriber
-from .utils.validators import validate_youtube_url, extract_video_id
+from .utils.validators import validate_youtube_url, extract_video_id, is_local_audio_file
 from .utils.file import sanitize_filename, save_text_file, copy_to_downloads
 from .utils.progress import ProgressBar
 from .utils.summary import generate_summary, format_summary_output
@@ -41,7 +41,7 @@ Environment variables for defaults:
         '''
     )
     
-    parser.add_argument('url', help='YouTube video or playlist URL')
+    parser.add_argument('input', help='YouTube video/playlist URL or local audio file path')
     
     parser.add_argument(
         '--engine', '-e',
@@ -193,39 +193,57 @@ def get_transcriber(engine: str, config: Config):
     
     return transcriber_class(config)
 
-def process_single_video(url: str, args, config: Config) -> bool:
+def process_single_video(input_path: str, args, config: Config) -> bool:
     """
-    Process a single video
+    Process a single video or local audio file
     
     Args:
-        url: Video URL
+        input_path: Video URL or local audio file path
         args: Command line arguments
         config: Configuration object
         
     Returns:
         bool: True if successful
     """
-    # Validate URL
-    if not validate_youtube_url(url):
-        print(f"Error: Invalid YouTube URL: {url}")
-        return False
+    # Check if input is a local audio file
+    is_local_file = is_local_audio_file(input_path)
+    
+    if is_local_file:
+        # For local files, disable certain options
+        args.audio = False
+        args.video = False
+        args.srt = False
+        print(f"Local audio file detected: {input_path}")
+    else:
+        # Validate URL for YouTube videos
+        if not validate_youtube_url(input_path):
+            print(f"Error: Invalid YouTube URL or audio file: {input_path}")
+            return False
     
     # Initialize components
     db = TranscriptionDatabase(config.DB_PATH)
-    downloader = YouTubeDownloader(config.AUDIO_PATH, config.VIDEO_PATH, config.TEMP_PATH)
     
-    # Get video info
-    print("\nExtracting video information...")
-    video_info = downloader.get_video_info(url)
-    if not video_info:
-        print("Error: Could not extract video information")
-        return False
-    
-    video_id = video_info['id']
-    video_title = video_info['title']
-    print(f"Title: {video_title}")
-    print(f"Duration: {video_info['duration']} seconds")
-    print(f"Uploader: {video_info['uploader']}")
+    if is_local_file:
+        # For local files, create basic info
+        file_path = Path(input_path)
+        video_id = f"local_{file_path.stem}"
+        video_title = file_path.stem
+        print(f"Title: {video_title}")
+        print(f"File: {input_path}")
+    else:
+        # For YouTube videos, get video info
+        downloader = YouTubeDownloader(config.AUDIO_PATH, config.VIDEO_PATH, config.TEMP_PATH)
+        print("\nExtracting video information...")
+        video_info = downloader.get_video_info(input_path)
+        if not video_info:
+            print("Error: Could not extract video information")
+            return False
+        
+        video_id = video_info['id']
+        video_title = video_info['title']
+        print(f"Title: {video_title}")
+        print(f"Duration: {video_info['duration']} seconds")
+        print(f"Uploader: {video_info['uploader']}")
     
     # Check for existing job and progress
     existing_job = db.get_job_progress(video_id, args.engine)
@@ -243,36 +261,44 @@ def process_single_video(url: str, args, config: Config) -> bool:
                     return True
     else:
         # Create new job
-        job_id = db.create_job(video_id, url, video_title, args.engine)
+        job_id = db.create_job(video_id, input_path, video_title, args.engine)
     
-    # Download video if requested
-    if args.video:
-        print("\nDownloading video...")
-        video_file = downloader.download_video(url)
-        if video_file:
-            print(f"Video saved: {video_file}")
-    
-    # Download audio (skip for YouTube Transcript API)
+    # Handle audio file
     audio_file = None
-    if args.engine != 'youtube-transcript-api':
-        if existing_job and existing_job.get('download_completed') and not args.force:
-            if existing_job.get('download_path') and Path(existing_job['download_path']).exists():
-                print("\n[OK] Download already completed (using cached file)")
-                audio_file = existing_job['download_path']
-            else:
-                print("\n[WARNING] Previous download missing, re-downloading...")
-        
-        if not audio_file:
-            print("\nDownloading audio...")
-            audio_file = downloader.download_audio(url, keep_original=args.audio)
-            if not audio_file:
-                print("Error: Failed to download audio")
-                db.update_job_status(job_id, 'failed')
-                return False
-            # Update download status
-            db.update_download_status(job_id, True, audio_file)
+    if is_local_file:
+        # For local files, use the file directly
+        audio_file = input_path
+        print(f"\n[OK] Using local audio file: {audio_file}")
+        # Update download status
+        db.update_download_status(job_id, True, audio_file)
     else:
-        print("\n[OK] Skipping audio download (using YouTube Transcript API)")
+        # For YouTube videos, download if needed
+        if args.video:
+            print("\nDownloading video...")
+            video_file = downloader.download_video(input_path)
+            if video_file:
+                print(f"Video saved: {video_file}")
+        
+        # Download audio (skip for YouTube Transcript API)
+        if args.engine != 'youtube-transcript-api':
+            if existing_job and existing_job.get('download_completed') and not args.force:
+                if existing_job.get('download_path') and Path(existing_job['download_path']).exists():
+                    print("\n[OK] Download already completed (using cached file)")
+                    audio_file = existing_job['download_path']
+                else:
+                    print("\n[WARNING] Previous download missing, re-downloading...")
+            
+            if not audio_file:
+                print("\nDownloading audio...")
+                audio_file = downloader.download_audio(input_path, keep_original=args.audio)
+                if not audio_file:
+                    print("Error: Failed to download audio")
+                    db.update_job_status(job_id, 'failed')
+                    return False
+                # Update download status
+                db.update_download_status(job_id, True, audio_file)
+        else:
+            print("\n[OK] Skipping audio download (using YouTube Transcript API)")
     
     # Transcribe (check if already transcribed)
     transcription = None
@@ -298,8 +324,12 @@ def process_single_video(url: str, args, config: Config) -> bool:
         
         # YouTube Transcript API uses URL directly, not audio file
         if args.engine == 'youtube-transcript-api':
+            if is_local_file:
+                print("Error: YouTube Transcript API cannot be used with local files")
+                db.update_job_status(job_id, 'failed')
+                return False
             transcription = transcriber.transcribe(
-                url,  # Pass URL directly for YouTube API
+                input_path,  # Pass URL directly for YouTube API
                 stream=args.stream,
                 return_timestamps=args.timestamp
             )
@@ -440,44 +470,50 @@ def main():
         # Validate configuration
         config.validate()
         
-        # Process URL
-        print(f"[START] Starting transcription: {args.url}")
+        # Process input
+        print(f"[START] Starting transcription: {args.input}")
         print(f"Engine: {args.engine}")
         
-        # Check if playlist
-        downloader = YouTubeDownloader(config.AUDIO_PATH, config.VIDEO_PATH, config.TEMP_PATH)
-        
-        if downloader.is_playlist(args.url):
-            print("\n[PLAYLIST] Playlist detected!")
-            playlist_items = downloader.get_playlist_items(args.url)
-            
-            if not playlist_items:
-                print("Error: Could not extract playlist items")
+        # Check if input is a local file
+        if is_local_audio_file(args.input):
+            # Process local file
+            if not process_single_video(args.input, args, config):
                 return 1
-            
-            print(f"Found {len(playlist_items)} videos")
-            
-            # Process playlist videos
-            if args.parallel:
-                # TODO: Implement parallel processing
-                print(f"Parallel processing with {args.parallel} workers not yet implemented")
-            
-            # Sequential processing
-            success_count = 0
-            for i, item in enumerate(playlist_items, 1):
-                print(f"\n{'='*60}")
-                print(f"Video {i}/{len(playlist_items)}: {item['title']}")
-                print(f"{'='*60}")
-                
-                if process_single_video(item['url'], args, config):
-                    success_count += 1
-            
-            print(f"\n[COMPLETE] Processed {success_count}/{len(playlist_items)} videos successfully")
-            
         else:
-            # Single video
-            if not process_single_video(args.url, args, config):
-                return 1
+            # Check if playlist
+            downloader = YouTubeDownloader(config.AUDIO_PATH, config.VIDEO_PATH, config.TEMP_PATH)
+            
+            if downloader.is_playlist(args.input):
+                print("\n[PLAYLIST] Playlist detected!")
+                playlist_items = downloader.get_playlist_items(args.input)
+            
+                if not playlist_items:
+                    print("Error: Could not extract playlist items")
+                    return 1
+                
+                print(f"Found {len(playlist_items)} videos")
+                
+                # Process playlist videos
+                if args.parallel:
+                    # TODO: Implement parallel processing
+                    print(f"Parallel processing with {args.parallel} workers not yet implemented")
+                
+                # Sequential processing
+                success_count = 0
+                for i, item in enumerate(playlist_items, 1):
+                    print(f"\n{'='*60}")
+                    print(f"Video {i}/{len(playlist_items)}: {item['title']}")
+                    print(f"{'='*60}")
+                    
+                    if process_single_video(item['url'], args, config):
+                        success_count += 1
+                
+                print(f"\n[COMPLETE] Processed {success_count}/{len(playlist_items)} videos successfully")
+                
+            else:
+                # Single video
+                if not process_single_video(args.input, args, config):
+                    return 1
         
         return 0
         
