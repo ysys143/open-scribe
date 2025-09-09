@@ -3,6 +3,8 @@ Validation utilities for Open-Scribe
 """
 
 import re
+import os
+from pathlib import Path
 from typing import Optional
 
 def validate_youtube_url(url: str) -> bool:
@@ -61,3 +63,29 @@ def is_playlist_url(url: str) -> bool:
         bool: True if playlist URL, False otherwise
     """
     return 'playlist' in url.lower() or 'list=' in url
+
+def is_local_audio_file(path: str) -> bool:
+    """
+    Check if the input is a local audio file path
+    
+    Args:
+        path: Input path to check
+        
+    Returns:
+        bool: True if valid local audio file, False otherwise
+    """
+    if not path or not isinstance(path, str):
+        return False
+    
+    # Check if it's a file path (not a URL)
+    if path.startswith(('http://', 'https://', 'ftp://')):
+        return False
+    
+    # Check if file exists
+    file_path = Path(path)
+    if not file_path.exists() or not file_path.is_file():
+        return False
+    
+    # Check if it's an audio file by extension
+    audio_extensions = {'.mp3', '.wav', '.m4a', '.aac', '.flac', '.ogg', '.wma', '.aiff', '.au'}
+    return file_path.suffix.lower() in audio_extensions
