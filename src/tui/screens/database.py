@@ -24,6 +24,13 @@ class DatabaseScreen(BaseScreen):
         Binding("ctrl+d", "delete_all", "DelAll", priority=True),
         Binding("space", "toggle_select", "Toggle", priority=True),
         Binding("enter", "open_viewer", "Open", priority=True),
+        Binding("b", "back_to_main", "Back", priority=True),
+        Binding("d", "delete_selected", "Delete Selected", priority=True),
+        Binding("a", "delete_all", "Delete All", priority=True),
+        Binding("1", "filter_all", "All", priority=True),
+        Binding("2", "filter_completed", "Completed", priority=True),
+        Binding("3", "filter_running", "Running", priority=True),
+        Binding("4", "filter_failed", "Failed", priority=True),
     ]
     
     def __init__(self):
@@ -46,13 +53,13 @@ class DatabaseScreen(BaseScreen):
         with Vertical(classes="db-container"):
             # 버튼 일렬 배치
             with Horizontal(id="db_btn_row"):
-                yield Button("Back", id="back_button", classes="action-button")
-                yield Button("Delete Selected", id="delete_selected", classes="warning-button")
-                yield Button("Delete All", id="delete_all", classes="danger-button")
-                yield Button("All", id="filter_all", classes="utility-button")
-                yield Button("Completed", id="filter_completed", classes="utility-button")
-                yield Button("Running", id="filter_running", classes="utility-button")
-                yield Button("Failed", id="filter_failed", classes="utility-button")
+                yield Button("Back (b)", id="back_button", classes="action-button")
+                yield Button("Delete Selected (d)", id="delete_selected", classes="warning-button")
+                yield Button("Delete All (a)", id="delete_all", classes="danger-button")
+                yield Button("All (1)", id="filter_all", classes="utility-button")
+                yield Button("Completed (2)", id="filter_completed", classes="utility-button")
+                yield Button("Running (3)", id="filter_running", classes="utility-button")
+                yield Button("Failed (4)", id="filter_failed", classes="utility-button")
             with Vertical(id="db_table_wrap"):
                 yield DataTable(id="jobs_table")
     
@@ -537,8 +544,8 @@ class DatabaseScreen(BaseScreen):
             btns = Horizontal(id="viewer_button_bar")
             # 먼저 컨테이너에 mount한 후에 자식 위젯 추가
             container.mount(btns)
-            btns.mount(Button("[<] Back", id="viewer_back", classes="action-button"))
-            btns.mount(Button("Delete", id="viewer_delete", classes="danger-button"))
+            btns.mount(Button("[<] Back (b)", id="viewer_back", classes="action-button"))
+            btns.mount(Button("Delete (d)", id="viewer_delete", classes="danger-button"))
             btns.mount(Static(f"Engine: {job.get('engine', 'N/A')} | Status: {job.get('status', 'N/A')}", classes="viewer-info"))
             btns.styles.height = 3
             btns.styles.min_height = 3
@@ -606,6 +613,30 @@ class DatabaseScreen(BaseScreen):
             self._open_transcript_viewer(job_id)
         except Exception:
             pass
+    
+    def action_back_to_main(self) -> None:
+        """키보드 단축키로 메인 메뉴로 돌아가기"""
+        self.app.pop_screen()
+    
+    def action_filter_all(self) -> None:
+        """키보드 단축키로 모든 항목 필터"""
+        self.current_filter = "all"
+        self.load_data()
+    
+    def action_filter_completed(self) -> None:
+        """키보드 단축키로 완료된 항목 필터"""
+        self.current_filter = "completed"
+        self.load_data()
+    
+    def action_filter_running(self) -> None:
+        """키보드 단축키로 실행 중인 항목 필터"""
+        self.current_filter = "running"
+        self.load_data()
+    
+    def action_filter_failed(self) -> None:
+        """키보드 단축키로 실패한 항목 필터"""
+        self.current_filter = "failed"
+        self.load_data()
 
 
 class ConfirmDialog(ModalScreen[bool]):

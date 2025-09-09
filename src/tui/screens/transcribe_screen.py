@@ -18,6 +18,9 @@ class TranscribeScreen(Widget):
         Binding("escape", "back_to_menu", "Back", priority=True),
         Binding("ctrl+t", "start_transcription", "Start", priority=True),
         Binding("ctrl+c", "clear_form", "Clear", priority=True),
+        Binding("s", "start_transcription", "Start", priority=True),
+        Binding("c", "clear_form", "Clear", priority=True),
+        Binding("b", "back_to_menu", "Back", priority=True),
     ]
     
     def __init__(self, **kwargs):
@@ -88,9 +91,9 @@ class TranscribeScreen(Widget):
             
             # 버튼들 (하단에 위치)
             with Horizontal(classes="button-group"):
-                yield Button("Start Transcription", id="start_btn", variant="primary", classes="action-button")
-                yield Button("Clear", id="clear_btn", variant="default", classes="utility-button")
-                yield Button("Back", id="back_btn", variant="default", classes="utility-button")
+                yield Button("Start Transcription (s)", id="start_btn", variant="primary", classes="action-button")
+                yield Button("Clear (c)", id="clear_btn", variant="default", classes="utility-button")
+                yield Button("Back (b)", id="back_btn", variant="default", classes="utility-button")
     
     def on_mount(self) -> None:
         """화면 마운트 시 위젯 저장"""
