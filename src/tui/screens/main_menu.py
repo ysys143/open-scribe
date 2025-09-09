@@ -73,6 +73,27 @@ class MainMenuScreen(Widget):
         Binding("k", "handle_up", "Up (vim)", priority=True),
         Binding("enter", "handle_enter", "Select/Toggle", priority=True),
         Binding("space", "handle_space", "Toggle", priority=True),
+        Binding("s", "start_transcription", "Start", priority=True),
+        Binding("x", "stop_transcription", "Stop", priority=True),
+        Binding("c", "clear_form", "Clear", priority=True),
+        Binding("v", "validate_api_key", "Validate", priority=True),
+        Binding("b", "back_to_transcribe", "Back", priority=True),
+        Binding("y", "confirm_yes", "Yes", priority=True),
+        Binding("n", "confirm_no", "No", priority=True),
+        # 옵션 토글 키
+        Binding("t", "toggle_timestamp", "Toggle Timestamp", priority=True),
+        Binding("m", "toggle_summary", "Toggle Summary", priority=True),
+        Binding("l", "toggle_translate", "Toggle Translate", priority=True),
+        Binding("v", "toggle_video", "Toggle Video", priority=True),
+        Binding("r", "toggle_srt", "Toggle SRT", priority=True),
+        Binding("n", "toggle_srt_translate", "Toggle SRT Translate", priority=True),
+        Binding("f", "toggle_force", "Toggle Force", priority=True),
+        # 엔진 선택 키
+        Binding("1", "select_engine_mini", "Engine Mini", priority=True),
+        Binding("2", "select_engine_gpt4o", "Engine GPT-4o", priority=True),
+        Binding("3", "select_engine_whisper_api", "Engine Whisper API", priority=True),
+        Binding("4", "select_engine_whisper_cpp", "Engine Whisper CPP", priority=True),
+        Binding("5", "select_engine_youtube", "Engine YouTube", priority=True),
     ]
     
     def __init__(self, **kwargs):
@@ -134,12 +155,12 @@ class MainMenuScreen(Widget):
                 # 왼쪽 메뉴
                 with Vertical(classes="menu-section"):
                     with Vertical(classes="menu-buttons"):
-                        yield Button("1. Transcribe", id="transcribe", classes="menu-button")
-                        yield Button("2. Database", id="database", classes="menu-button")
-                        yield Button("3. API Key", id="api_keys", classes="menu-button")
-                        yield Button("4. Settings", id="settings", classes="menu-button")
-                        yield Button("H. Help", id="help", classes="menu-button")
-                        yield Button("Q. Quit", id="quit", classes="menu-button")
+                        yield Button("1. Transcribe (1)", id="transcribe", classes="menu-button")
+                        yield Button("2. Database (2)", id="database", classes="menu-button")
+                        yield Button("3. API Key (3)", id="api_keys", classes="menu-button")
+                        yield Button("4. Settings (4)", id="settings", classes="menu-button")
+                        yield Button("H. Help (h)", id="help", classes="menu-button")
+                        yield Button("Q. Quit (q)", id="quit", classes="menu-button")
                 
                 # 오른쪽 콘텐츠 영역
                 with Vertical(classes="content-area", id="content_area"):
@@ -286,24 +307,45 @@ Navigation:
 - Space: Toggle option (content area)
 - 1-4: Menu shortcuts (1: Transcribe, 2: Database, 3: API Key, 4: Settings)
 - H: Help, Q/Esc: Quit
-- S: Start transcription (Transcribe)
-- C: Clear form (Transcribe)
 
-Transcribe:
+Transcribe Screen:
+- S: Start transcription (Run button)
+- X: Stop transcription (Stop button)
+- C: Clear form (Clr button)
+- T: Toggle timestamps option
+- M: Toggle summary option
+- L: Toggle translate option
+- V: Toggle video download option
+- R: Toggle SRT generation option
+- N: Toggle SRT translate option
+- F: Toggle force (retry) option
+- 1-5: Select engine (1: Mini, 2: GPT-4o, 3: Whisper API, 4: Whisper CPP, 5: YouTube)
 - Enter a YouTube URL and click Run (or press S). Use Clr (or C) to reset.
-- Toggle options with arrows/Space; choose engine like radio buttons.
+- Toggle options with arrows/Space or keyboard shortcuts; choose engine like radio buttons.
 - A status line and a one-line live stream appear above Output.
 - Logs are saved to the logs/ directory; the exact path is shown on screen.
 - Run/Stop control only the current foreground run. Previous runs continue independently.
 
-API Keys:
+API Keys Screen:
+- S: Save API key
+- V: Validate API key
+- B: Back to Transcribe
 - Enter your key and click Save/Validate. Results appear on the status line.
 
-Settings:
+Settings Screen:
+- S: Save settings
+- B: Back to Transcribe
 - Edit values and click Save to update the .env file. Some changes take effect immediately.
 
-Database:
+Database Screen:
 - Browse recent jobs; select a row to open the inline viewer with Original/Summary.
+- Enter: Open selected item
+- Space: Toggle selection
+- Delete: Delete selected item
+
+Confirmation Dialogs:
+- Y: Yes
+- N: No
 
 Theme:
 - F2: Toggle theme
@@ -409,9 +451,9 @@ Tips:
             actions = Horizontal(classes="actions-bar")
             form.mount(actions)
             # 상단 강조 제거: 버튼만 3분할로 배치
-            actions.mount(Button("Run", id="start_transcribe", variant="primary", classes="action-button"))
-            actions.mount(Button("Stop", id="stop_transcribe", variant="warning", classes="warning-button"))
-            actions.mount(Button("Clr", id="clear_url", variant="default", classes="utility-button"))
+            actions.mount(Button("Run (s)", id="start_transcribe", variant="primary", classes="action-button"))
+            actions.mount(Button("Stop (x)", id="stop_transcribe", variant="warning", classes="warning-button"))
+            actions.mount(Button("Clr (c)", id="clear_url", variant="default", classes="utility-button"))
             
             
 
@@ -500,9 +542,9 @@ Tips:
         # 버튼 바
         actions = Horizontal(classes="actions-bar")
         form.mount(actions)
-        actions.mount(Button("Save", id="save_api_key", classes="action-button"))
-        actions.mount(Button("Validate", id="validate_api_key", classes="utility-button"))
-        actions.mount(Button("Back", id="transcribe", classes="warning-button"))
+        actions.mount(Button("Save (s)", id="save_api_key", classes="action-button"))
+        actions.mount(Button("Validate (v)", id="validate_api_key", classes="utility-button"))
+        actions.mount(Button("Back (b)", id="transcribe", classes="warning-button"))
         # 상태 메시지 위에 빈 줄 추가
         form.mount(Static("", classes="line-spacer"))
         # 상태 (초기 텍스트로 높이 확보)
@@ -967,8 +1009,8 @@ Tips:
         # 버튼 바
         actions = Horizontal(classes="actions-bar")
         form.mount(actions)
-        actions.mount(Button("Save", id="settings_save", classes="action-button"))
-        actions.mount(Button("Back", id="transcribe", classes="warning-button"))
+        actions.mount(Button("Save (s)", id="settings_save", classes="action-button"))
+        actions.mount(Button("Back (b)", id="transcribe", classes="warning-button"))
         form.mount(Static("", id="settings_status_line", classes="output-text"))
 
     def _set_settings_status(self, msg: str) -> None:
@@ -1025,12 +1067,20 @@ Tips:
     def _get_option_display(self, index: int, label: str, enabled: bool) -> str:
         """체크박스 스타일 옵션 표시 생성"""
         checkbox = "[*]" if enabled else "[ ]"
-        return f"{checkbox} {label}"
+        # 키보드 단축키 추가 (옵션 인덱스에 따라)
+        key_map = {0: "t", 1: "m", 2: "l", 3: "v", 4: "r", 5: "n", 6: "f"}
+        key = key_map.get(index, "")
+        key_display = f" ({key})" if key else ""
+        return f"{checkbox} {label}{key_display}"
     
     def _get_engine_display(self, index: int, label: str, engine_value: str) -> str:
         """엔진 표시 생성 - 선택시 체크박스 스타일로 표시"""
         checkbox = "[*]" if self.selected_engine == engine_value else "[ ]"
-        return f"{checkbox} {label}"
+        # 키보드 단축키 추가 (엔진 인덱스에 따라)
+        key_map = {8: "1", 9: "2", 10: "3", 11: "4", 12: "5"}
+        key = key_map.get(index, "")
+        key_display = f" ({key})" if key else ""
+        return f"{checkbox} {label}{key_display}"
     
     def update_option_displays(self) -> None:
         """모든 옵션 표시 업데이트"""
@@ -1434,6 +1484,129 @@ Tips:
         if self.focus_area == "content":
             self.toggle_current_option()
     
+    def action_start_transcription(self) -> None:
+        """키보드 단축키로 전사 시작"""
+        if self.selected_button_id == "transcribe":
+            self.start_transcription()
+    
+    def action_stop_transcription(self) -> None:
+        """키보드 단축키로 전사 중지"""
+        if self.selected_button_id == "transcribe":
+            self._stop_active_process()
+    
+    def action_clear_form(self) -> None:
+        """키보드 단축키로 폼 초기화"""
+        if self.selected_button_id == "transcribe":
+            self.clear_url_input()
+    
+    def action_validate_api_key(self) -> None:
+        """키보드 단축키로 API 키 검증"""
+        if self.selected_button_id == "api_keys":
+            self._validate_api_key_inline()
+    
+    def action_back_to_transcribe(self) -> None:
+        """키보드 단축키로 전사 화면으로 돌아가기"""
+        if self.selected_button_id in ["api_keys", "settings"]:
+            self.action_menu_action("transcribe")
+    
+    def action_confirm_yes(self) -> None:
+        """키보드 단축키로 확인 다이얼로그 Yes 선택"""
+        # 확인 다이얼로그가 열려있는지 확인
+        try:
+            confirm_dialog = self.content_area.query_one("#confirm_delete_dialog", Vertical)
+            if confirm_dialog:
+                # Yes 버튼 클릭 시뮬레이션
+                self.on_button_pressed(Button.Pressed(Button("Yes (y)", id="confirm_yes")))
+        except Exception:
+            pass
+    
+    def action_confirm_no(self) -> None:
+        """키보드 단축키로 확인 다이얼로그 No 선택"""
+        # 확인 다이얼로그가 열려있는지 확인
+        try:
+            confirm_dialog = self.content_area.query_one("#confirm_delete_dialog", Vertical)
+            if confirm_dialog:
+                # No 버튼 클릭 시뮬레이션
+                self.on_button_pressed(Button.Pressed(Button("No (n)", id="confirm_no")))
+        except Exception:
+            pass
+    
+    # 옵션 토글 액션들
+    def action_toggle_timestamp(self) -> None:
+        """키보드 단축키로 타임스탬프 옵션 토글"""
+        if self.selected_button_id == "transcribe":
+            self.timestamp_enabled = not self.timestamp_enabled
+            self.update_option_displays()
+    
+    def action_toggle_summary(self) -> None:
+        """키보드 단축키로 요약 옵션 토글"""
+        if self.selected_button_id == "transcribe":
+            self.summary_enabled = not self.summary_enabled
+            self.update_option_displays()
+    
+    def action_toggle_translate(self) -> None:
+        """키보드 단축키로 번역 옵션 토글"""
+        if self.selected_button_id == "transcribe":
+            self.translate_enabled = not self.translate_enabled
+            self.update_option_displays()
+    
+    def action_toggle_video(self) -> None:
+        """키보드 단축키로 비디오 옵션 토글"""
+        if self.selected_button_id == "transcribe":
+            self.video_enabled = not self.video_enabled
+            self.update_option_displays()
+    
+    def action_toggle_srt(self) -> None:
+        """키보드 단축키로 SRT 옵션 토글"""
+        if self.selected_button_id == "transcribe":
+            self.srt_enabled = not self.srt_enabled
+            self.update_option_displays()
+    
+    def action_toggle_srt_translate(self) -> None:
+        """키보드 단축키로 SRT 번역 옵션 토글"""
+        if self.selected_button_id == "transcribe":
+            self.srt_translate_enabled = not self.srt_translate_enabled
+            if self.srt_translate_enabled:
+                self.srt_enabled = True
+            self.update_option_displays()
+    
+    def action_toggle_force(self) -> None:
+        """키보드 단축키로 강제 옵션 토글"""
+        if self.selected_button_id == "transcribe":
+            self.force_enabled = not self.force_enabled
+            self.update_option_displays()
+    
+    # 엔진 선택 액션들
+    def action_select_engine_mini(self) -> None:
+        """키보드 단축키로 GPT-4o-mini 엔진 선택"""
+        if self.selected_button_id == "transcribe":
+            self.selected_engine = "gpt-4o-mini-transcribe"
+            self.update_option_displays()
+    
+    def action_select_engine_gpt4o(self) -> None:
+        """키보드 단축키로 GPT-4o 엔진 선택"""
+        if self.selected_button_id == "transcribe":
+            self.selected_engine = "gpt-4o-transcribe"
+            self.update_option_displays()
+    
+    def action_select_engine_whisper_api(self) -> None:
+        """키보드 단축키로 Whisper API 엔진 선택"""
+        if self.selected_button_id == "transcribe":
+            self.selected_engine = "whisper-api"
+            self.update_option_displays()
+    
+    def action_select_engine_whisper_cpp(self) -> None:
+        """키보드 단축키로 Whisper CPP 엔진 선택"""
+        if self.selected_button_id == "transcribe":
+            self.selected_engine = "whisper-cpp"
+            self.update_option_displays()
+    
+    def action_select_engine_youtube(self) -> None:
+        """키보드 단축키로 YouTube 엔진 선택"""
+        if self.selected_button_id == "transcribe":
+            self.selected_engine = "youtube-transcript-api"
+            self.update_option_displays()
+    
     
     def start_transcription(self) -> None:
         """전사 시작"""
@@ -1705,8 +1878,8 @@ Tips:
             confirm_bar.mount(Static(message))
             btns = Horizontal(classes="dialog-buttons")
             confirm_bar.mount(btns)
-            btns.mount(Button("Yes", id="confirm_yes", classes="flat-danger"))
-            btns.mount(Button("No", id="confirm_no", classes="flat-button"))
+            btns.mount(Button("Yes (y)", id="confirm_yes", classes="flat-danger"))
+            btns.mount(Button("No (n)", id="confirm_no", classes="flat-button"))
         except Exception as e:
             self.show_error(f"확인 바 표시 실패: {e}")
 

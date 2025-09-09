@@ -16,6 +16,8 @@ class SettingsScreen(BaseScreen):
     BINDINGS = [
         Binding("escape", "app.pop_screen", "Back", priority=True),
         Binding("ctrl+s", "save", "Save", priority=True),
+        Binding("s", "save", "Save", priority=True),
+        Binding("b", "back_to_main", "Back", priority=True),
     ]
     
     def __init__(self):
@@ -65,8 +67,8 @@ class SettingsScreen(BaseScreen):
                     yield Input(placeholder="OPEN_SCRIBE_TIMESTAMP", id="include_timestamp", classes="main-input")
             # 버튼
             with Horizontal(classes="actions-bar"):
-                yield Button("Save", id="save_btn", classes="action-button")
-                yield Button("Back", id="back_button", classes="warning-button")
+                yield Button("Save (s)", id="save_btn", classes="action-button")
+                yield Button("Back (b)", id="back_button", classes="warning-button")
             yield Static("", id="status_line", classes="output-text")
     
     def on_mount(self) -> None:
@@ -171,3 +173,7 @@ class SettingsScreen(BaseScreen):
             self.show_success("설정 저장 완료")
         except Exception as e:
             self.show_error(str(e))
+    
+    def action_back_to_main(self) -> None:
+        """키보드 단축키로 메인 메뉴로 돌아가기"""
+        self.app.pop_screen()
