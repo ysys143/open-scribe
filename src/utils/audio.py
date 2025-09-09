@@ -226,7 +226,7 @@ def split_audio_into_chunks(audio_path: str, chunk_duration_seconds: int = 600, 
     # Use project temp_audio directory for easier debugging
     if use_project_temp:
         from pathlib import Path
-        project_root = Path(audio_path).parent.parent  # Go up from audio/ to project root
+        project_root = Path(audio_path).parent
         temp_dir = project_root / "temp_audio"
         temp_dir.mkdir(exist_ok=True)
         temp_dir = str(temp_dir)
@@ -256,10 +256,21 @@ def split_audio_into_chunks(audio_path: str, chunk_duration_seconds: int = 600, 
         result = subprocess.run(cmd, capture_output=True, text=True)
         if result.returncode != 0:
             # Try with re-encoding if copy fails
-            cmd[6] = "libmp3lame"  # Replace "copy" with mp3 codec
-            cmd.insert(7, "-b:a")
-            cmd.insert(8, "128k")
-            result = subprocess.run(cmd, capture_output=True, text=True)
+            # Rebuild command explicitly to avoid index errors
+            remaining = max(0, duration - start_time)
+            target_duration = min(chunk_duration_seconds, remaining)
+            reencode_cmd = [
+                "ffmpeg",
+                "-i", audio_path,
+                "-ss", str(start_time),
+                "-t", str(target_duration),
+                "-c:a", "libmp3lame",
+                "-b:a", "128k",
+                chunk_path,
+                "-y",
+                "-loglevel", "error",
+            ]
+            result = subprocess.run(reencode_cmd, capture_output=True, text=True)
             
             if result.returncode != 0:
                 print(f"[Audio] Error creating chunk {i}: {result.stderr}")

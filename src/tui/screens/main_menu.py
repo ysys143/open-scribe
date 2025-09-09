@@ -441,7 +441,7 @@ Tips:
             
             # URL 입력창
             self.url_input = Input(
-                placeholder="Paste YouTube URL here...",
+                placeholder="Paste YouTube URL or Audio File Path here...",
                 classes="url-input",
                 id="url_input"
             )

@@ -3,7 +3,7 @@
 # Author: 재솔님
 
 # 프로젝트 경로 설정 (필요시 수정)
-OPEN_SCRIBE_PATH="/Users/jaesolshin/Documents/GitHub/yt-trans"
+OPEN_SCRIBE_PATH="/Users/jaesolshin/Documents/GitHub/open-scribe"
 
 # 가상환경 활성화 함수
 function activate_open_scribe() {
@@ -234,7 +234,7 @@ function scribe() {
         echo "✅ 전사 완료!"
 
         # 생성된 파일 정보 표시
-        local transcript_dir="$HOME/Documents/open-scribe/transcript"
+        local transcript_dir="$HOME/Documents/GitHub/open-scribe/transcript"
         if [[ -d "$transcript_dir" ]]; then
             echo "📝 전사 결과가 저장된 디렉토리: $transcript_dir"
             local latest_file=$(ls -t "$transcript_dir"/*.txt 2>/dev/null | head -1)

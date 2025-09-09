@@ -104,6 +104,15 @@ python trans.py [url] [options]
 * 실시간 다운로드 및 전사 진행률 표시 (`--progress` 옵션)
 * 워커 수 동적 계산으로 시스템 리소스 최적 활용
 
+### 로컬 오디오 파일 입력 시
+
+* 로컬 오디오 파일 경로를 그대로 입력하면 다운로드 단계를 건너뜁니다
+* 자동으로 다음 옵션이 비활성화됩니다: 비디오 다운로드, 오디오 보관, SRT 생성
+* 모든 전사 엔진과 함께 사용 가능하며 `--engine`으로 선택합니다
+* 임시 청크/중간 파일은 기본적으로 입력 파일 폴더 하위 `temp_audio/`에 저장됩니다
+* 경로는 환경 변수 `OPEN_SCRIBE_TEMP_PATH`로 재정의할 수 있습니다
+* 지원 포맷: mp3, wav, m4a, aac, flac, ogg, wma, aiff, au
+
 ### 파일 저장 위치
 
 기본 경로 (환경 변수로 변경 가능):
@@ -118,6 +127,7 @@ python trans.py [url] [options]
 export OPEN_SCRIBE_BASE_PATH=~/my-transcripts  # 기본 경로 변경
 export OPEN_SCRIBE_AUDIO_PATH=~/my-audio       # 오디오 경로 변경
 export OPEN_SCRIBE_TRANSCRIPT_PATH=~/my-texts  # 전사 경로 변경
+export OPEN_SCRIBE_TEMP_PATH=~/Documents/open-scribe/temp_audio   # 임시(청크) 파일 경로
 ```
 
 ### AI 요약 기능
@@ -203,6 +213,18 @@ python main.py "https://youtu.be/VIDEO_ID" --engine whisper-cpp --summary --time
 # 레거시 스크립트 (호환성 유지)
 python trans.py "https://www.youtube.com/watch?v=VIDEO_ID" --engine youtube
 python trans.py "https://youtu.be/VIDEO_ID" --engine whisper-local --summary --timestamp
+```
+
+### 로컬 오디오 파일 전사 예시
+```sh
+# 로컬 파일 직접 전사 (절대 경로 권장)
+python main.py /absolute/path/to/audio.m4a --engine gpt-4o-mini-transcribe
+
+# 타임스탬프 포함, 요약 비활성화
+python main.py /absolute/path/to/audio.wav --engine whisper-cpp --timestamp --no-summary
+
+# 임시 경로 사용자 지정
+OPEN_SCRIBE_TEMP_PATH=~/my-temp python main.py /absolute/path/to/audio.mp3 --engine whisper-api
 ```
 
 ## 환경 변수 설정
