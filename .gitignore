@@ -50,6 +50,9 @@ temp_audio/
 transcription_jobs.db
 whisper.cpp/
 
+# log
+.log
+
 # MCP
 .mcp.json
 
