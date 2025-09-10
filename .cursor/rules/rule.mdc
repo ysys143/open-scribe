@@ -1,0 +1,67 @@
+---
+description: Enforce SOLID principles in codebase - Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion
+globs: ["**/*.py", "**/*.md", "**/*.json"]
+alwaysApply: true
+---
+
+# SOLID Principles Enforcement
+
+## Single Responsibility Principle (SRP)
+- Each class should have only one reason to change
+- Separate concerns into distinct classes/modules
+- Database operations should only handle data persistence
+- Business logic should be separated from data access
+- UI/CLI operations should be separated from core functionality
+
+## Open/Closed Principle (OCP)
+- Classes should be open for extension but closed for modification
+- Use abstract base classes or protocols for extensibility
+- Prefer composition over inheritance for flexibility
+- Plugin architecture for transcription engines
+- Strategy pattern for different processing approaches
+
+## Liskov Substitution Principle (LSP)
+- Subtypes must be substitutable for their base types
+- All transcription engines must implement the same interface
+- Subclasses should not break parent class contracts
+- Ensure consistent behavior across implementations
+
+## Interface Segregation Principle (ISP)
+- Create focused interfaces for specific responsibilities
+- Separate interfaces for downloading, transcribing, summarizing
+- Avoid "fat" interfaces with unused methods
+- Use protocol classes for type safety
+
+## Dependency Inversion Principle (DIP)
+- Depend on abstractions, not concrete implementations
+- Use dependency injection for configuration and services
+- Avoid direct instantiation of dependencies in classes
+- Use factories or builders for object creation
+- Configuration should be injected, not hard-coded
+
+## Implementation Guidelines
+
+### Database Layer
+- Repository pattern for data access
+- Separate query builders from connection management
+- Use data transfer objects (DTOs) for data transfer
+
+### Transcription Engines
+- Common interface for all engines
+- Factory pattern for engine creation
+- Strategy pattern for processing workflows
+
+### Configuration Management
+- Configuration as dependency injection
+- Environment-specific configuration providers
+- Immutable configuration objects
+
+### Error Handling
+- Consistent error handling across layers
+- Custom exception types for domain-specific errors
+- Centralized error handling at boundaries
+
+### Testing
+- Interface-based testing
+- Mock implementations for dependencies
+- Test doubles following LSP

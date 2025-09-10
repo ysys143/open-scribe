@@ -77,15 +77,19 @@ def is_local_audio_file(path: str) -> bool:
     if not path or not isinstance(path, str):
         return False
     
+    # Normalize: strip quotes, expand env vars and user (~)
+    normalized = path.strip().strip('"').strip("'")
+    normalized = os.path.expandvars(os.path.expanduser(normalized))
+    
     # Check if it's a file path (not a URL)
-    if path.startswith(('http://', 'https://', 'ftp://')):
+    if normalized.startswith(('http://', 'https://', 'ftp://')):
         return False
     
-    # Check if file exists
-    file_path = Path(path)
-    if not file_path.exists() or not file_path.is_file():
-        return False
-    
-    # Check if it's an audio file by extension
+    # Determine by extension (and existence when possible)
+    file_path = Path(normalized)
     audio_extensions = {'.mp3', '.wav', '.m4a', '.aac', '.flac', '.ogg', '.wma', '.aiff', '.au'}
-    return file_path.suffix.lower() in audio_extensions
+    suffix_ok = file_path.suffix.lower() in audio_extensions
+    if file_path.exists() and file_path.is_file():
+        return suffix_ok
+    # If the path doesn't exist yet, still treat as local audio if extension matches
+    return suffix_ok
