@@ -40,7 +40,7 @@ class YouTubeDownloader:
             str: Path to downloaded audio file, or None if failed
         """
         ydl_opts = {
-            'format': 'bestaudio/best',
+            'format': 'bestaudio[ext=webm]/bestaudio[ext=m4a]/bestaudio/best[height<=480]/best',
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
@@ -51,6 +51,9 @@ class YouTubeDownloader:
             'no_warnings': False,
             'extract_flat': False,
             'keepvideo': keep_original,
+            'ignoreerrors': False,
+            'retries': 3,
+            'fragment_retries': 3,
         }
         
         print(f"Downloading audio from YouTube...")
@@ -72,7 +75,16 @@ class YouTubeDownloader:
                     return None
                     
         except Exception as e:
-            print(f"Error downloading audio: {e}")
+            error_msg = str(e)
+            if "Requested format is not available" in error_msg:
+                print(f"Error: Video format not available. This could be due to:")
+                print("  - Age-restricted content")
+                print("  - Private/unavailable video")
+                print("  - Geographic restrictions")
+                print("  - Video format changes by YouTube")
+                print(f"  Original error: {error_msg}")
+            else:
+                print(f"Error downloading audio: {error_msg}")
             return None
     
     def download_video(self, url: str) -> Optional[str]:
@@ -86,10 +98,13 @@ class YouTubeDownloader:
             str: Path to downloaded video file, or None if failed
         """
         ydl_opts = {
-            'format': 'best[ext=mp4]/best',
+            'format': 'best[ext=mp4][height<=1080]/best[height<=720]/best',
             'outtmpl': str(self.video_path / '%(title)s [%(id)s].%(ext)s'),
             'quiet': False,
             'no_warnings': False,
+            'ignoreerrors': False,
+            'retries': 3,
+            'fragment_retries': 3,
         }
         
         print(f"Downloading video from YouTube...")
@@ -115,7 +130,16 @@ class YouTubeDownloader:
                     return None
                     
         except Exception as e:
-            print(f"Error downloading video: {e}")
+            error_msg = str(e)
+            if "Requested format is not available" in error_msg:
+                print(f"Error: Video format not available. This could be due to:")
+                print("  - Age-restricted content")
+                print("  - Private/unavailable video") 
+                print("  - Geographic restrictions")
+                print("  - Video format changes by YouTube")
+                print(f"  Original error: {error_msg}")
+            else:
+                print(f"Error downloading video: {error_msg}")
             return None
     
     def get_video_info(self, url: str) -> Optional[Dict[str, Any]]:
@@ -132,6 +156,8 @@ class YouTubeDownloader:
             'quiet': True,
             'no_warnings': True,
             'extract_flat': False,
+            'ignoreerrors': False,
+            'retries': 3,
         }
         
         try:
@@ -151,7 +177,17 @@ class YouTubeDownloader:
                 }
                 
         except Exception as e:
-            print(f"Error extracting video info: {e}")
+            error_msg = str(e)
+            if "Requested format is not available" in error_msg:
+                print(f"Error: Cannot access video information. This could be due to:")
+                print("  - Age-restricted content")
+                print("  - Private/unavailable video")
+                print("  - Geographic restrictions")
+                print("  - Invalid video ID")
+                print("  - Video has been deleted")
+                print(f"  Original error: {error_msg}")
+            else:
+                print(f"Error extracting video info: {error_msg}")
             return None
     
     def get_playlist_items(self, url: str) -> List[Dict[str, str]]:
