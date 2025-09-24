@@ -1,8 +1,7 @@
 ---
-alwaysApply: true
 description: 테스트 코드 구조 유지 및 모듈 추적을 위한 규칙
+alwaysApply: false
 ---
-
 # 테스트 코드 구조 유지 원칙
 
 ## 목적
