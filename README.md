@@ -17,21 +17,49 @@ YouTube 비디오를 다양한 엔진으로 전사하고 요약하는 모듈화�
 
 ## 설치
 
-1. 필요한 패키지 설치:
+### 배포 버전 설치 (권장)
+
+모든 환경에서 자동 설치:
+
 ```sh
-pip install -r requirements.txt
+git clone https://github.com/jaesolshin/open-scribe.git
+cd open-scribe
+make install
 ```
 
-2. 환경 변수 설정:
+설치 후 환경 변수를 적용하려면:
+
 ```sh
+# Bash/Zsh
+source ~/.bashrc    # 또는 ~/.zshrc
+
+# PowerShell
+. $PROFILE
+```
+
+### 개발 환경 설치
+
+로컬 개발을 위한 설치:
+
+```sh
+git clone https://github.com/jaesolshin/open-scribe.git
+cd open-scribe
+uv venv
+uv pip install -r requirements.txt
 cp .env.example .env
 # .env 파일을 편집하여 OpenAI API 키 입력
 ```
 
-3. Scribe 명령어 등록 (선택사항):
+### 설치 제거
+
 ```sh
-# 터미널에서 바로 사용 가능하도록 설정
-source scribe.zsh
+make uninstall
+```
+
+### 업데이트
+
+```sh
+make update
 ```
 
 ## 사용법
