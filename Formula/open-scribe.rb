@@ -19,8 +19,8 @@ class OpenScribe < Formula
     system "uv", "venv", "#{prefix_dir}/.venv"
 
     # Install dependencies using uv
-    system "#{prefix_dir}/.venv/bin/pip", "install", "--upgrade", "pip", "setuptools", "wheel"
-    system "#{prefix_dir}/.venv/bin/uv", "pip", "install", "-r", "#{prefix_dir}/requirements.txt"
+    system "uv", "pip", "install", "--upgrade", "pip", "setuptools", "wheel", "-p", "#{prefix_dir}/.venv"
+    system "uv", "pip", "install", "-r", "#{prefix_dir}/requirements.txt", "-p", "#{prefix_dir}/.venv"
 
     # Create wrapper script
     bin.mkpath
