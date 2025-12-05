@@ -84,6 +84,37 @@ class OpenScribe < Formula
         echo "✅ Configuration saved to $ENV_FILE"
       }
 
+      # Helper function to check and update yt-dlp
+      function _check_and_update_ytdlp() {
+        local VENV_PATH="$1"
+        local VERSION_CHECK_FILE="${VENV_PATH}/../.ytdlp_version_check"
+        local CURRENT_DATE=$(date +%Y%m%d)
+
+        # Check if we already checked today
+        if [[ -f "$VERSION_CHECK_FILE" ]]; then
+          local LAST_CHECK=$(cat "$VERSION_CHECK_FILE" 2>/dev/null || echo "0")
+          if [[ "$LAST_CHECK" == "$CURRENT_DATE" ]]; then
+            return 0
+          fi
+        fi
+
+        echo "🔍 yt-dlp 버전 확인 중..."
+        local CURRENT_VERSION=$(uv pip list -p "$VENV_PATH" 2>/dev/null | grep yt-dlp | awk '{print $2}' || echo "not_found")
+
+        if [[ "$CURRENT_VERSION" != "not_found" ]]; then
+          echo "📦 yt-dlp 업데이트 확인 중..."
+          local UPDATE_OUTPUT=$(uv pip install --upgrade yt-dlp -p "$VENV_PATH" 2>&1)
+          if echo "$UPDATE_OUTPUT" | grep -q "Successfully installed"; then
+            echo "✅ yt-dlp가 업데이트되었습니다"
+          else
+            echo "✅ yt-dlp가 최신 버전입니다: $CURRENT_VERSION"
+          fi
+        fi
+
+        mkdir -p "$(dirname "$VERSION_CHECK_FILE")"
+        echo "$CURRENT_DATE" > "$VERSION_CHECK_FILE"
+      }
+
       # Initialize .env if not exists
       _initialize_env "$ENV_FILE"
 
@@ -95,6 +126,11 @@ class OpenScribe < Formula
       # Activate virtualenv
       if [[ -f "$VENV_ACTIVATE" ]]; then
         source "$VENV_ACTIVATE"
+      fi
+
+      # Check and update yt-dlp if URL is provided
+      if [[ $# -gt 0 && ("$1" == http://* || "$1" == https://*) ]]; then
+        _check_and_update_ytdlp "$INSTALL_DIR/.venv"
       fi
 
       # Run transcription
