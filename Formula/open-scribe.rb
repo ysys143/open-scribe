@@ -87,6 +87,7 @@ class OpenScribe < Formula
       # Helper function to check and update yt-dlp
       function _check_and_update_ytdlp() {
         local VENV_PATH="$1"
+        local PYTHON_PATH="${VENV_PATH}/bin/python"
         local VERSION_CHECK_FILE="${VENV_PATH}/../.ytdlp_version_check"
         local CURRENT_DATE=$(date +%Y%m%d)
 
@@ -99,11 +100,11 @@ class OpenScribe < Formula
         fi
 
         echo "🔍 yt-dlp 버전 확인 중..."
-        local CURRENT_VERSION=$(uv pip list -p "$VENV_PATH" 2>/dev/null | grep yt-dlp | awk '{print $2}' || echo "not_found")
+        local CURRENT_VERSION=$(uv pip list -p "$PYTHON_PATH" 2>/dev/null | grep yt-dlp | awk '{print $2}' || echo "not_found")
 
         if [[ "$CURRENT_VERSION" != "not_found" ]]; then
           echo "📦 yt-dlp 업데이트 확인 중..."
-          local UPDATE_OUTPUT=$(uv pip install --upgrade yt-dlp -p "$VENV_PATH" 2>&1)
+          local UPDATE_OUTPUT=$(uv pip install --upgrade yt-dlp -p "$PYTHON_PATH" 2>&1)
           if echo "$UPDATE_OUTPUT" | grep -q "Successfully installed"; then
             echo "✅ yt-dlp가 업데이트되었습니다"
           else
