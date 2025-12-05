@@ -59,7 +59,7 @@ Your summaries should:
 
         user_prompt = f"""Please provide {lang_instruction}a comprehensive summary of the following video transcript:
 
-{transcript[:15000]}  # Limit to ~15k chars to stay within token limits
+{transcript[:2000000]}  # Limit to ~2M chars to stay within token limits
 
 요약 형식:
 
