@@ -23,9 +23,7 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Install uv package manager
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
-ENV PATH="/root/.local/bin:/root/.cargo/bin:$PATH"
+# Note: uv is optional. Using standard Python venv for installation.
 
 # Copy project repository
 WORKDIR /app
