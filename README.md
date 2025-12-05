@@ -51,12 +51,40 @@ sudo apt-get install python3 python3-venv git build-essential
 
 ## 설치
 
-### 배포 버전 설치 (권장)
+### Homebrew (macOS/Linux - 권장)
+
+가장 간단한 설치 방법:
+
+```sh
+brew tap ysys143/homebrew-open-scribe
+brew install open-scribe
+```
+
+설치 후 바로 사용 가능:
+
+```sh
+scribe "https://www.youtube.com/watch?v=VIDEO_ID"
+```
+
+첫 실행 시 OpenAI API Key를 입력하거나 환경 변수로 설정:
+
+```sh
+export OPENAI_API_KEY='your-api-key'
+scribe "https://www.youtube.com/watch?v=VIDEO_ID"
+```
+
+업데이트:
+
+```sh
+brew upgrade open-scribe
+```
+
+### 배포 버전 설치 (git clone)
 
 모든 환경에서 자동 설치:
 
 ```sh
-git clone https://github.com/jaesolshin/open-scribe.git
+git clone https://github.com/ysys143/open-scribe.git
 cd open-scribe
 make install
 ```
@@ -76,7 +104,7 @@ source ~/.bashrc    # 또는 ~/.zshrc
 Make가 없으면 수동으로 설치:
 
 ```sh
-git clone https://github.com/jaesolshin/open-scribe.git
+git clone https://github.com/ysys143/open-scribe.git
 cd open-scribe
 
 # Python 가상환경 생성
@@ -98,7 +126,7 @@ source ~/.bashrc  # 또는 ~/.zshrc
 로컬 개발을 위한 설치:
 
 ```sh
-git clone https://github.com/jaesolshin/open-scribe.git
+git clone https://github.com/ysys143/open-scribe.git
 cd open-scribe
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
