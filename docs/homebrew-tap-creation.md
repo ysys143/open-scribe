@@ -27,7 +27,7 @@ Option B: Create on GitHub.com manually
 Then push locally:
 ```bash
 cd /tmp/homebrew-open-scribe
-git remote add origin https://github.com/jaesolshin/homebrew-open-scribe.git
+git remote add origin https://github.com/ysys143/homebrew-open-scribe.git
 git branch -M master
 git push -u origin master
 ```
@@ -84,7 +84,7 @@ shasum -a 256 /tmp/open-scribe-vX.Y.Z.tar.gz
 
 2. Update `Formula/open-scribe.rb`:
 ```ruby
-url "https://github.com/jaesolshin/open-scribe/archive/refs/tags/X.Y.Z.tar.gz"
+url "https://github.com/ysys143/open-scribe/archive/refs/tags/X.Y.Z.tar.gz"
 sha256 "NEW_SHA256_HERE"
 ```
 

@@ -81,7 +81,7 @@ brew untap jaesolshin/homebrew-open-scribe
 
 ## About
 
-This is the official Homebrew Tap for [Open-Scribe](https://github.com/jaesolshin/open-scribe).
+This is the official Homebrew Tap for [Open-Scribe](https://github.com/ysys143/open-scribe).
 ```
 
 ### 5. 버전 업데이트 프로세스
