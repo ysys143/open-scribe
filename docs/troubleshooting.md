@@ -2,13 +2,13 @@
 
 ## 목차
 1. [설치 문제](#설치-문제)
-2. [TUI 표시 문제](#tui-표시-문제)
-3. [전사 오류](#전사-오류)
-4. [데이터베이스 문제](#데이터베이스-문제)
-5. [API 관련 오류](#api-관련-오류)
-6. [성능 문제](#성능-문제)
-7. [파일 시스템 오류](#파일-시스템-오류)
-8. [네트워크 문제](#네트워크-문제)
+2. [전사 오류](#전사-오류)
+3. [데이터베이스 문제](#데이터베이스-문제)
+4. [API 관련 오류](#api-관련-오류)
+5. [성능 문제](#성능-문제)
+6. [파일 시스템 오류](#파일-시스템-오류)
+7. [네트워크 문제](#네트워크-문제)
+8. [디버깅 및 FAQ](#디버깅-팁)
 
 ---
 
@@ -52,57 +52,6 @@ sudo apt-get install ffmpeg
 
 # Windows
 # ffmpeg.org에서 다운로드 후 PATH 추가
-```
-
----
-
-## TUI 표시 문제
-
-### 문제: TUI가 깨져서 표시됨
-```
-┌─────┬──────┐
-│?????│??????│
-└─────┴──────┘
-```
-
-**해결책:**
-```bash
-# 터미널 인코딩 확인
-echo $LANG
-# UTF-8로 설정되어 있어야 함
-
-# UTF-8 설정
-export LANG=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
-
-# 터미널 설정 확인
-# iTerm2, Terminal.app, Windows Terminal 등 현대적인 터미널 사용 권장
-```
-
-### 문제: 색상이 표시되지 않음
-
-**해결책:**
-```bash
-# 터미널 색상 지원 확인
-echo $TERM
-# xterm-256color 또는 similar 이어야 함
-
-# 색상 지원 활성화
-export TERM=xterm-256color
-
-# tmux 사용 시
-tmux -2  # 256색 강제
-```
-
-### 문제: 키보드 입력이 작동하지 않음
-
-**해결책:**
-```python
-# tui_config.json 확인
-{
-  "keyboard_mode": "application",  # 또는 "normal"
-  "mouse_support": true
-}
 ```
 
 ---
@@ -354,15 +303,6 @@ export LOG_LEVEL=DEBUG
 python main.py URL --verbose
 ```
 
-### TUI 디버그 모드
-```bash
-# 개발 모드로 실행
-textual run --dev src.tui.app:YouTubeTranscriberTUI
-
-# 콘솔 로그 확인
-textual console
-```
-
 ### 데이터베이스 직접 확인
 ```bash
 # SQLite CLI
@@ -392,11 +332,6 @@ netstat -an | grep ESTABLISHED
 ---
 
 ## 자주 묻는 질문 (FAQ)
-
-### Q: TUI와 CLI 중 무엇을 사용해야 하나요?
-**A:** 
-- **TUI 사용**: 대화형 작업, 여러 작업 관리, 시각적 피드백 필요
-- **CLI 사용**: 스크립팅, 자동화, 단일 작업, 원격 서버
 
 ### Q: 가장 빠른 전사 방법은?
 **A:** 
