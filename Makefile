@@ -17,16 +17,18 @@ help:
 	@echo "  make update    - Update open-scribe and dependencies"
 	@echo "  make help      - Show this help message"
 
-install:
+install: check-python
 	@echo "Installing open-scribe..."
 	@echo "Target directory: $(INSTALL_DIR)"
 	@mkdir -p $(INSTALL_DIR)
 	@mkdir -p $(BIN_DIR)
 	@echo "Copying project files..."
 	@cp -r $(PROJECT_ROOT)/* $(INSTALL_DIR)/
-	@echo "Setting up Python environment with uv..."
-	@cd $(INSTALL_DIR) && uv venv
-	@cd $(INSTALL_DIR) && uv pip install -r requirements.txt
+	@echo "Setting up Python environment..."
+	@cd $(INSTALL_DIR) && python3 -m venv .venv
+	@echo "Installing dependencies..."
+	@cd $(INSTALL_DIR) && ./.venv/bin/pip install --upgrade pip setuptools wheel
+	@cd $(INSTALL_DIR) && ./.venv/bin/pip install -r requirements.txt
 	@echo "Running shell configuration script..."
 	@bash $(INSTALL_DIR)/scripts/install.sh $(INSTALL_DIR) $(BIN_DIR)
 	@echo ""
@@ -34,6 +36,29 @@ install:
 	@echo ""
 	@echo "Please run: source ~/.bashrc  (or ~/.zshrc / PowerShell profile)"
 	@echo "Then test with: scribe --help"
+
+check-python:
+	@command -v python3 >/dev/null 2>&1 || { \
+		echo "❌ Error: Python 3 is not installed"; \
+		echo ""; \
+		echo "Please install Python 3.8 or later:"; \
+		echo "  macOS (Homebrew):  brew install python@3.11"; \
+		echo "  Ubuntu/Debian:     sudo apt-get install python3"; \
+		echo "  Windows:           https://www.python.org/downloads/"; \
+		echo ""; \
+		exit 1; \
+	}
+
+check-make:
+	@command -v make >/dev/null 2>&1 || { \
+		echo "❌ Error: make is not installed"; \
+		echo ""; \
+		echo "Please install make:"; \
+		echo "  macOS (Homebrew):  brew install make"; \
+		echo "  Ubuntu/Debian:     sudo apt-get install build-essential"; \
+		echo ""; \
+		exit 1; \
+	}
 
 uninstall:
 	@echo "Uninstalling open-scribe..."
@@ -43,7 +68,7 @@ uninstall:
 update:
 	@echo "Updating open-scribe..."
 	@cd $(INSTALL_DIR) && git pull
-	@cd $(INSTALL_DIR) && uv pip install --upgrade -r requirements.txt
+	@cd $(INSTALL_DIR) && ./.venv/bin/pip install --upgrade -r requirements.txt
 	@echo "✅ Update complete!"
 
 .DEFAULT_GOAL := help

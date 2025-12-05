@@ -15,6 +15,40 @@ YouTube 비디오를 다양한 엔진으로 전사하고 요약하는 모듈화�
 * **AI 요약 및 번역**: GPT 모델을 활용한 지능형 요약 및 한국어 번역
 * **재생목록 병렬 처리**: 다중 워커를 통한 효율적인 일괄 처리
 
+## 사전 요구사항
+
+- **Python 3.8+**: `python3` 명령어 필요
+- **Git**: 저장소 클론 필요
+- **Make**: 설치 자동화 필요 (선택사항, 수동 설치 가능)
+
+### 설치 확인
+
+```sh
+python3 --version  # Python 3.8 이상 필요
+git --version
+make --version     # 설치에서 사용
+```
+
+필수 요소가 없으면 다음 명령어로 설치:
+
+**macOS (Homebrew)**:
+```sh
+brew install python@3.11 git make
+```
+
+**Ubuntu/Debian**:
+```sh
+sudo apt-get update
+sudo apt-get install python3 python3-venv git build-essential
+```
+
+**Windows**:
+- [Python 3.11 다운로드](https://www.python.org/downloads/)
+- Git: [git-scm.com](https://git-scm.com)
+- Make: `winget install gnuwin32.make` (또는 MinGW 사용)
+
+---
+
 ## 설치
 
 ### 배포 버전 설치 (권장)
@@ -37,6 +71,28 @@ source ~/.bashrc    # 또는 ~/.zshrc
 . $PROFILE
 ```
 
+### 수동 설치 (Make 없이)
+
+Make가 없으면 수동으로 설치:
+
+```sh
+git clone https://github.com/jaesolshin/open-scribe.git
+cd open-scribe
+
+# Python 가상환경 생성
+python3 -m venv ~/.local/share/open-scribe/.venv
+
+# 의존성 설치
+~/.local/share/open-scribe/.venv/bin/pip install --upgrade pip setuptools wheel
+~/.local/share/open-scribe/.venv/bin/pip install -r requirements.txt
+
+# 쉘 설정 (zsh/bash 선택)
+bash scripts/install.sh ~/.local/share/open-scribe ~/.local/bin
+
+# 환경 적용
+source ~/.bashrc  # 또는 ~/.zshrc
+```
+
 ### 개발 환경 설치
 
 로컬 개발을 위한 설치:
@@ -44,8 +100,8 @@ source ~/.bashrc    # 또는 ~/.zshrc
 ```sh
 git clone https://github.com/jaesolshin/open-scribe.git
 cd open-scribe
-uv venv
-uv pip install -r requirements.txt
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
 cp .env.example .env
 # .env 파일을 편집하여 OpenAI API 키 입력
 ```
