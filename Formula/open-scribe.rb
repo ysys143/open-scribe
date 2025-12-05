@@ -1,7 +1,7 @@
 class OpenScribe < Formula
   desc "YouTube video transcription tool with multiple engines"
-  homepage "https://github.com/jaesolshin/open-scribe"
-  url "https://github.com/jaesolshin/open-scribe/archive/refs/tags/0.1.0.tar.gz"
+  homepage "https://github.com/ysys143/open-scribe"
+  url "https://github.com/ysys143/open-scribe/archive/refs/tags/0.1.0.tar.gz"
   sha256 "e2fcdb8ae7dc550fbf794df2b7d085d6f99971f389b1843709a18d1372555b93"
   license "MIT"
 
