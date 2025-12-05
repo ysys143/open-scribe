@@ -10,6 +10,7 @@ function scribe() {
   local INSTALL_DIR="${OPEN_SCRIBE_HOME:-$HOME/.local/share/open-scribe}"
   local ENTRY="${INSTALL_DIR}/main.py"
   local VENV_ACTIVATE="${INSTALL_DIR}/.venv/bin/activate"
+  local ENV_FILE="$HOME/.open-scribe/.env"
 
   if [[ -z "$1" ]]; then
     echo "❌ Error: YouTube URL or local audio file path required."
@@ -22,6 +23,14 @@ function scribe() {
     echo "❌ Error: open-scribe not found at $INSTALL_DIR"
     echo "Please run: make install"
     return 1
+  fi
+
+  # Initialize .env if not exists
+  _initialize_env "$ENV_FILE"
+
+  # Load environment variables from .env
+  if [[ -f "$ENV_FILE" ]]; then
+    export $(grep -v '^#' "$ENV_FILE" | xargs)
   fi
 
   # Activate virtualenv if available
@@ -47,6 +56,66 @@ function scribe() {
 
   # Run transcription
   python "$ENTRY" "$EXPANDED_INPUT" "$@"
+}
+
+# Helper function to initialize .env file interactively
+function _initialize_env() {
+  local ENV_FILE="$1"
+
+  # If .env already exists, don't reinitialize
+  if [[ -f "$ENV_FILE" ]]; then
+    return 0
+  fi
+
+  # If OPENAI_API_KEY is already set via environment, create .env from it
+  if [[ -n "$OPENAI_API_KEY" ]]; then
+    mkdir -p "$(dirname "$ENV_FILE")"
+    cat > "$ENV_FILE" << EOF
+# Open-Scribe Configuration
+# Generated on $(date)
+
+# OpenAI API Key (required for GPT-4o and Whisper API)
+OPENAI_API_KEY=$OPENAI_API_KEY
+EOF
+    echo "✅ Created $ENV_FILE from OPENAI_API_KEY environment variable"
+    return 0
+  fi
+
+  # Interactive setup
+  echo ""
+  echo "🔧 First time setup: Open-Scribe needs configuration"
+  echo ""
+  echo "OpenAI API Key is required to use transcription features."
+  echo "Get your key at: https://platform.openai.com/api-keys"
+  echo ""
+
+  read -p "Enter your OpenAI API Key (or press Enter to skip): " API_KEY
+
+  if [[ -z "$API_KEY" ]]; then
+    echo "⚠️  Skipped API key setup. You can set it later:"
+    echo "   export OPENAI_API_KEY='your-key-here'"
+    echo "   Or edit: $ENV_FILE"
+    return 0
+  fi
+
+  # Create .env file
+  mkdir -p "$(dirname "$ENV_FILE")"
+  cat > "$ENV_FILE" << EOF
+# Open-Scribe Configuration
+# Generated on $(date)
+
+# OpenAI API Key (required for GPT-4o and Whisper API)
+OPENAI_API_KEY=$API_KEY
+
+# Optional: Configure other settings
+# OPEN_SCRIBE_ENGINE=gpt-4o-mini-transcribe
+# OPEN_SCRIBE_SUMMARY=false
+# OPEN_SCRIBE_DOWNLOADS=true
+EOF
+
+  chmod 600 "$ENV_FILE"  # Restrict permissions for security
+  echo "✅ Configuration saved to $ENV_FILE"
+  echo ""
 }
 
 # Helper function to check and update yt-dlp
