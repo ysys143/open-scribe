@@ -34,6 +34,26 @@ class OpenScribe < Formula
     (bin/"scribe").chmod 0755
   end
 
+  def post_install
+    puts <<~EOS
+      ✅ Open-Scribe installed successfully!
+
+      To get started:
+        scribe "https://www.youtube.com/watch?v=VIDEO_ID"
+
+      On first run, you'll be prompted for your OpenAI API Key.
+      Get your key at: https://platform.openai.com/api-keys
+
+      Options:
+        scribe "URL" --engine whisper-api --summary
+        scribe "URL" --timestamp --srt
+        scribe "PLAYLIST_URL" --parallel 4
+
+      For more help:
+        scribe --help
+    EOS
+  end
+
   test do
     system "#{bin}/scribe", "--help"
   end
