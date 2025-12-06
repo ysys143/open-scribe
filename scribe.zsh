@@ -1,3 +1,4 @@
+#!/bin/zsh
 # Open-Scribe zsh helper
 # - Supports both YouTube URLs and local audio file paths
 # - Expands ~ and env vars for local paths
