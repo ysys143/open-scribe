@@ -107,4 +107,7 @@ function _check_and_update_ytdlp() {
 # Optional: alias for convenience
 alias oscribe=scribe
 
+# Invoke scribe function with all arguments when file is executed directly
+scribe "$@"
+
 
