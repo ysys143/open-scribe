@@ -23,6 +23,13 @@ function scribe() {
     source "$VENV_ACTIVATE"
   fi
 
+  # Load .env file if available
+  if [[ -f "$REPO_DIR/.env" ]]; then
+    set -o allexport
+    source "$REPO_DIR/.env"
+    set +o allexport
+  fi
+
   # Check and update yt-dlp if needed (only for YouTube URLs)
   if [[ "$1" == http://* || "$1" == https://* ]]; then
     _check_and_update_ytdlp "$REPO_DIR"
