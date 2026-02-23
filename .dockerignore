@@ -1,0 +1,15 @@
+.venv/
+.git/
+.gitignore
+.env
+.env.example
+*.pyc
+__pycache__/
+docs/
+*.md
+.ytdlp_version_check
+*.db
+scribe.zsh
+main.py
+.claude/
+.omc/
