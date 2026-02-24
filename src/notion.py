@@ -35,6 +35,8 @@ def save_to_notion(
     summary: Optional[str] = None,
     srt: Optional[str] = None,
     duration: Optional[int] = None,
+    keywords: Optional[list] = None,
+    created_at: Optional[str] = None,
 ) -> Optional[str]:
     """
     Save transcription result to Notion. Returns page ID or None on failure.
@@ -64,6 +66,14 @@ def save_to_notion(
 
     if duration is not None:
         properties["Duration"] = {"number": duration}
+
+    if keywords:
+        properties["Keywords"] = {
+            "multi_select": [{"name": kw[:100]} for kw in keywords[:10]]
+        }
+
+    if created_at:
+        properties["Date"] = {"date": {"start": created_at[:10]}}
 
     children = []
 

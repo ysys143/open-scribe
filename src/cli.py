@@ -436,6 +436,13 @@ def process_single_video(input_path: str, args, config: Config) -> bool:
     # Save to Notion if configured
     if transcription and transcription.strip() and notion.is_configured():
         print("\n[NOTION] Saving to Notion...")
+        from .utils.keywords import extract_keywords
+        keyword_source = summary_text or transcription
+        print("[NOTION] Extracting keywords...")
+        keywords = extract_keywords(keyword_source)
+        if keywords:
+            print(f"[NOTION] Keywords: {', '.join(keywords)}")
+
         srt_text = None
         if srt_path and srt_path.exists():
             srt_text = srt_path.read_text(encoding='utf-8')
@@ -448,6 +455,7 @@ def process_single_video(input_path: str, args, config: Config) -> bool:
             summary=summary_text,
             srt=srt_text,
             duration=duration,
+            keywords=keywords,
         )
         if page_id:
             print(f"[NOTION] Saved: https://notion.so/{page_id.replace('-', '')}")
