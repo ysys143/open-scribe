@@ -65,7 +65,12 @@ def save_to_notion(
     }
 
     if duration is not None:
-        properties["Duration"] = {"number": duration}
+        h, rem = divmod(int(duration), 3600)
+        m, s = divmod(rem, 60)
+        dur_str = f"{h}:{m:02d}:{s:02d}"
+        properties["Duration"] = {
+            "rich_text": [{"text": {"content": dur_str}}]
+        }
 
     if keywords:
         properties["Keywords"] = {
