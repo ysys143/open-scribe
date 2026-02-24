@@ -56,6 +56,7 @@ class Config:
     ENABLE_TRANSLATE = os.getenv('OPEN_SCRIBE_TRANSLATE', 'false').lower() == 'true'
     INCLUDE_TIMESTAMP = os.getenv('OPEN_SCRIBE_TIMESTAMP', 'false').lower() == 'true'
     COOKIES_BROWSER = os.getenv('OPEN_SCRIBE_COOKIES_BROWSER', '')
+    ENABLE_NOTION = os.getenv('OPEN_SCRIBE_NOTION', 'false').lower() == 'true'
 
 
     # Debug Configuration

@@ -17,6 +17,7 @@ from .utils.file import sanitize_filename, save_text_file, copy_to_downloads
 from .utils.summary import generate_summary, format_summary_output
 from .utils.srt_converter import convert_transcript_to_srt
 from .utils.translator import SubtitleTranslator
+from . import notion
 
 def create_argument_parser():
     """Create and configure argument parser"""
@@ -432,10 +433,31 @@ def process_single_video(input_path: str, args, config: Config) -> bool:
         if download_path:
             print(f"\nTranscript copied to: {download_path}")
     
+    # Save to Notion if configured
+    if transcription and transcription.strip() and notion.is_configured():
+        print("\n[NOTION] Saving to Notion...")
+        srt_text = None
+        if srt_path and srt_path.exists():
+            srt_text = srt_path.read_text(encoding='utf-8')
+        duration = video_info.get('duration') if not is_local_file and video_info else None
+        page_id = notion.save_to_notion(
+            title=video_title,
+            url=input_path,
+            engine=args.engine,
+            transcript=transcription,
+            summary=summary_text,
+            srt=srt_text,
+            duration=duration,
+        )
+        if page_id:
+            print(f"[NOTION] Saved: https://notion.so/{page_id.replace('-', '')}")
+        else:
+            print("[NOTION] Failed to save (check NOTION_API_KEY and NOTION_DATABASE_ID)")
+
     # Update overall job status
     if transcription and transcription.strip():  # Check for non-empty transcription
         db.update_job_status(job_id, 'completed', str(transcript_path), summary_text)
-    
+
     # Clean up temp audio if not keeping
     if not args.audio and audio_file and Path(audio_file).exists():
         try:
