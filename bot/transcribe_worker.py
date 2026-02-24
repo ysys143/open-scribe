@@ -6,10 +6,13 @@ Orchestrates the existing src/ modules with cloud-adapted paths
 import logging
 import asyncio
 import os
+import random
 import shutil
 from pathlib import Path
 from typing import Optional
 from dataclasses import dataclass
+
+import httpx
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +53,29 @@ class WorkerResult:
     duration: Optional[int] = None
     error: Optional[str] = None
     audio_size_mb: Optional[float] = None
+
+
+def _refresh_proxy():
+    """Fetch a random proxy from Webshare API if configured"""
+    api_url = os.getenv("WEBSHARE_PROXY_LIST_URL")
+    if not api_url:
+        return
+    try:
+        logger.info("Fetching proxy list from: %s", api_url[:80])
+        resp = httpx.get(api_url, timeout=10, follow_redirects=True)
+        resp.raise_for_status()
+        lines = resp.text.strip().split("\n")
+        lines = [line.strip() for line in lines if line.strip()]
+        if not lines:
+            return
+        proxy_line = random.choice(lines)
+        parts = proxy_line.split(":")
+        if len(parts) == 4:
+            ip, port, user, passwd = parts
+            os.environ["PROXY_URL"] = f"http://{user}:{passwd}@{ip}:{port}"
+            logger.info("Using proxy: %s:%s", ip, port)
+    except Exception as e:
+        logger.warning("Failed to fetch proxy list: %s", e)
 
 
 def _setup_cloud_paths():
@@ -119,6 +145,9 @@ def _do_transcribe(url: str, options: WorkerOptions) -> WorkerResult:
 
     result = WorkerResult(url=url, engine=options.engine)
 
+    # Refresh proxy from Webshare if configured
+    _refresh_proxy()
+
     # Validate URL
     if not validate_youtube_url(url):
         result.error = "Invalid YouTube URL"
@@ -133,9 +162,20 @@ def _do_transcribe(url: str, options: WorkerOptions) -> WorkerResult:
 
     logger.info("Extracting video info for: %s", url)
     video_info = downloader.get_video_info(url)
+
+    # If yt-dlp fails (bot detection), fallback to youtube-transcript-api
+    fallback_to_yt_api = False
     if not video_info:
-        result.error = "Could not extract video information"
-        return result
+        logger.warning("yt-dlp failed, falling back to youtube-transcript-api")
+        fallback_to_yt_api = True
+        # Extract video ID from URL for minimal info
+        import re
+        vid_match = re.search(r"(?:v=|youtu\.be/)([a-zA-Z0-9_-]{11})", url)
+        video_info = {
+            "title": "Unknown",
+            "id": vid_match.group(1) if vid_match else "",
+            "duration": None,
+        }
 
     result.title = video_info.get("title", "Unknown")
     result.video_id = video_info.get("id", "")
@@ -145,6 +185,12 @@ def _do_transcribe(url: str, options: WorkerOptions) -> WorkerResult:
 
     # Resolve engine alias
     engine = Config.ENGINE_ALIASES.get(options.engine, options.engine)
+
+    # Force youtube-transcript-api if yt-dlp failed
+    if fallback_to_yt_api and engine != "youtube-transcript-api":
+        logger.info("Forcing engine: youtube-transcript-api (yt-dlp unavailable)")
+        engine = "youtube-transcript-api"
+
     result.engine = engine
 
     # Download audio (skip for YouTube Transcript API)
@@ -153,9 +199,12 @@ def _do_transcribe(url: str, options: WorkerOptions) -> WorkerResult:
         logger.info("Downloading audio...")
         audio_file = downloader.download_audio(url)
         if not audio_file:
-            result.error = "Failed to download audio"
-            return result
+            # Fallback to youtube-transcript-api on download failure too
+            logger.warning("Audio download failed, falling back to youtube-transcript-api")
+            engine = "youtube-transcript-api"
+            result.engine = engine
 
+    if audio_file:
         # Report audio size
         audio_size = os.path.getsize(audio_file) / (1024 * 1024)
         result.audio_size_mb = round(audio_size, 1)

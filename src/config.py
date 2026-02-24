@@ -55,7 +55,8 @@ class Config:
     GENERATE_SRT = os.getenv('OPEN_SCRIBE_SRT', 'false').lower() == 'true'
     ENABLE_TRANSLATE = os.getenv('OPEN_SCRIBE_TRANSLATE', 'false').lower() == 'true'
     INCLUDE_TIMESTAMP = os.getenv('OPEN_SCRIBE_TIMESTAMP', 'false').lower() == 'true'
-    
+    COOKIES_BROWSER = os.getenv('OPEN_SCRIBE_COOKIES_BROWSER', '')
+
 
     # Debug Configuration
     DEBUG = os.getenv('DEBUG', 'false').lower() == 'true'

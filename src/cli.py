@@ -5,7 +5,6 @@ Command-line interface for Open-Scribe
 import argparse
 import sys
 from pathlib import Path
-from typing import Optional
 
 from .config import Config
 from .database import TranscriptionDatabase
@@ -13,9 +12,8 @@ from .downloader import YouTubeDownloader
 from .transcribers.openai import WhisperAPITranscriber, GPT4OTranscriber, GPT4OMiniTranscriber
 from .transcribers.youtube import YouTubeTranscriptAPITranscriber
 from .transcribers.whisper_cpp import WhisperCppTranscriber
-from .utils.validators import validate_youtube_url, extract_video_id, is_local_audio_file
+from .utils.validators import validate_youtube_url, is_local_audio_file
 from .utils.file import sanitize_filename, save_text_file, copy_to_downloads
-from .utils.progress import ProgressBar
 from .utils.summary import generate_summary, format_summary_output
 from .utils.srt_converter import convert_transcript_to_srt
 from .utils.translator import SubtitleTranslator
@@ -232,7 +230,7 @@ def process_single_video(input_path: str, args, config: Config) -> bool:
         print(f"File: {input_path}")
     else:
         # For YouTube videos, get video info
-        downloader = YouTubeDownloader(config.AUDIO_PATH, config.VIDEO_PATH, config.TEMP_PATH)
+        downloader = YouTubeDownloader(config.AUDIO_PATH, config.VIDEO_PATH, config.TEMP_PATH, cookies_browser=config.COOKIES_BROWSER)
         print("\nExtracting video information...")
         video_info = downloader.get_video_info(input_path)
         if not video_info:
@@ -442,7 +440,7 @@ def process_single_video(input_path: str, args, config: Config) -> bool:
     if not args.audio and audio_file and Path(audio_file).exists():
         try:
             Path(audio_file).unlink()
-        except:
+        except OSError:
             pass
     
     # Only show success message if transcription actually succeeded
@@ -481,7 +479,7 @@ def main():
                 return 1
         else:
             # Check if playlist
-            downloader = YouTubeDownloader(config.AUDIO_PATH, config.VIDEO_PATH, config.TEMP_PATH)
+            downloader = YouTubeDownloader(config.AUDIO_PATH, config.VIDEO_PATH, config.TEMP_PATH, cookies_browser=config.COOKIES_BROWSER)
             
             if downloader.is_playlist(args.input):
                 print("\n[PLAYLIST] Playlist detected!")

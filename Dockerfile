@@ -10,7 +10,8 @@ WORKDIR /app
 
 # Install Python dependencies
 COPY requirements.cloud.txt .
-RUN pip install --no-cache-dir -r requirements.cloud.txt
+RUN pip install --no-cache-dir -r requirements.cloud.txt && \
+    pip install --no-cache-dir --upgrade yt-dlp
 
 # Copy application code
 COPY src/ src/
