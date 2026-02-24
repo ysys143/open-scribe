@@ -70,7 +70,12 @@ class NotionClient:
         }
 
         if result.duration is not None:
-            properties["Duration"] = {"number": result.duration}
+            h, rem = divmod(int(result.duration), 3600)
+            m, s = divmod(rem, 60)
+            dur_str = f"{h}:{m:02d}:{s:02d}"
+            properties["Duration"] = {
+                "rich_text": [{"text": {"content": dur_str}}]
+            }
 
         if result.keywords:
             properties["Keywords"] = {
