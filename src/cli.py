@@ -447,6 +447,7 @@ def process_single_video(input_path: str, args, config: Config) -> bool:
         if srt_path and srt_path.exists():
             srt_text = srt_path.read_text(encoding='utf-8')
         duration = video_info.get('duration') if not is_local_file and video_info else None
+        from datetime import datetime
         page_id = notion.save_to_notion(
             title=video_title,
             url=input_path,
@@ -456,6 +457,7 @@ def process_single_video(input_path: str, args, config: Config) -> bool:
             srt=srt_text,
             duration=duration,
             keywords=keywords,
+            created_at=datetime.now().strftime("%Y-%m-%d"),
         )
         if page_id:
             print(f"[NOTION] Saved: https://notion.so/{page_id.replace('-', '')}")
