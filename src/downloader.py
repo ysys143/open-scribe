@@ -9,6 +9,7 @@ from typing import Optional, Dict, List, Any
 from yt_dlp import YoutubeDL
 
 _AUTH_ERRORS = ('sign in', 'Sign in', 'login required', 'Login required')
+_LIVE_ENDED = 'This live event has ended'
 
 class YouTubeDownloader:
     """Handle YouTube video/audio downloading"""
@@ -90,6 +91,23 @@ class YouTubeDownloader:
 
         except Exception as e:
             error_msg = str(e)
+            if _LIVE_ENDED in error_msg:
+                print("Live stream ended, retrying with relaxed format check...")
+                ydl_opts['ignore_no_formats_error'] = True
+                try:
+                    with YoutubeDL(ydl_opts) as ydl:
+                        info = ydl.extract_info(url, download=True)
+                        if info:
+                            filename = ydl.prepare_filename(info)
+                            mp3_filename = os.path.splitext(filename)[0] + '.mp3'
+                            if os.path.exists(mp3_filename):
+                                print(f"Audio downloaded: {os.path.basename(mp3_filename)}")
+                                return mp3_filename
+                except Exception:
+                    pass
+                print("Error: This live stream replay is not downloadable yet.")
+                print("  Tip: Try again later, or use --engine youtube-transcript-api for subtitle-based transcription.")
+                return None
             if self._is_auth_error(error_msg) and self.cookies_browser:
                 print(f"Authentication required, retrying with {self.cookies_browser} cookies...")
                 return self._download_audio_with_cookies(url, ydl_opts)
@@ -157,6 +175,10 @@ class YouTubeDownloader:
 
         except Exception as e:
             error_msg = str(e)
+            if _LIVE_ENDED in error_msg:
+                print("Error: This live stream has ended and the replay may not be available yet.")
+                print("  Tip: Try again later once YouTube finishes processing the replay.")
+                return None
             if self._is_auth_error(error_msg) and self.cookies_browser:
                 print(f"Authentication required, retrying with {self.cookies_browser} cookies...")
                 return self._download_video_with_cookies(url, ydl_opts)
@@ -212,6 +234,9 @@ class YouTubeDownloader:
 
         except Exception as e:
             error_msg = str(e)
+            if _LIVE_ENDED in error_msg:
+                print("Live stream ended, retrying with relaxed format check...")
+                return self._get_video_info_no_formats(url)
             if self._is_auth_error(error_msg) and self.cookies_browser:
                 print(f"Authentication required, retrying with {self.cookies_browser} cookies...")
                 return self._get_video_info_with_cookies(url, ydl_opts)
@@ -226,6 +251,24 @@ class YouTubeDownloader:
             else:
                 print(f"Error extracting video info: {error_msg}")
             return None
+
+    def _get_video_info_no_formats(self, url: str) -> Optional[Dict[str, Any]]:
+        """Retry video info extraction ignoring missing formats (e.g. ended live streams)."""
+        ydl_opts = {
+            **self._base_opts(),
+            'quiet': True,
+            'no_warnings': True,
+            'extract_flat': False,
+            'ignore_no_formats_error': True,
+        }
+        try:
+            with YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(url, download=False)
+                if info:
+                    return self._parse_video_info(info, url)
+        except Exception as e:
+            print(f"Error extracting video info (live ended fallback): {e}")
+        return None
 
     def _get_video_info_with_cookies(self, url: str, ydl_opts: dict) -> Optional[Dict[str, Any]]:
         self._apply_cookies(ydl_opts)
