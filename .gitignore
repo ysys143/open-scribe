@@ -58,5 +58,10 @@ whisper.cpp/
 .mcp.json
 
 # Claude
-.claude/
+.claude/*
+!.claude/skills/
 CLAUDE.md
+
+# Local workflow/session state
+.omc/
+.cwf/
