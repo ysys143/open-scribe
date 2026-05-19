@@ -1,7 +1,0 @@
-{
-  "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"git pull --rebase\",\"description\":\"Pull with rebase to replay local commit on top of remote\"}",
-  "error": "Exit code 128\nerror: cannot pull with rebase: You have unstaged changes.\nerror: Please commit or stash them.",
-  "timestamp": "2026-05-19T16:22:39.465Z",
-  "retry_count": 2
-}
