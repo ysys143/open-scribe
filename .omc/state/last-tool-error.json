@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"source .venv/bin/activate && python3 -c \\\"\\nfrom yt_dlp import YoutubeDL\\nopts = {\\n    'remote_components': ['ejs:github'],\\n    'extractor_args': {'youtube': {'player_client': ['web_crea...",
+  "error": "Exit code 1\nERROR: [youtube] 5qxrY88lW_Q: The page needs to be reloaded.\nTraceback (most recent call last):\n  File \"/Users/jaesolshin/Documents/GitHub/open-scribe/.venv/lib/python3.12/site-packages/yt_dlp/YoutubeDL.py\", line 1698, in wrapper\n    return func(self, *args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/jaesolshin/Documents/GitHub/open-scribe/.venv/lib/python3.12/site-packages/yt_dlp/YoutubeDL.py\", line 1833, in __extract_info\n    ie_result = ie.extract(url)\n       ...",
+  "timestamp": "2026-03-12T08:27:48.912Z",
+  "retry_count": 1
+}
