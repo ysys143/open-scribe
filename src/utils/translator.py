@@ -263,10 +263,9 @@ Return ONLY the translations in the same numbered format, no explanations."""
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
                 ],
-                temperature=0.3,  # Lower temperature for consistent translation
-                max_tokens=4000
+                max_completion_tokens=4000
             )
-            
+
             translated_content = response.choices[0].message.content.strip()
             
             # Parse translations
@@ -332,10 +331,9 @@ Return ONLY the translation, no explanations."""
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
                 ],
-                temperature=0.3,
-                max_tokens=4000
+                max_completion_tokens=4000
             )
-            
+
             translated_text = response.choices[0].message.content.strip()
             
             if verbose:

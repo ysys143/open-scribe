@@ -26,9 +26,6 @@ class YouTubeDownloader:
 
     def _base_opts(self) -> dict:
         opts = {
-            'remote_components': ['ejs:github'],
-            'extractor_args': {'youtube': {'player_client': ['web_creator', 'android_creator', 'mweb']}},
-            'http_headers': {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'},
             'ignoreerrors': False,
             'retries': 3,
         }
@@ -38,8 +35,6 @@ class YouTubeDownloader:
         return opts
 
     def _apply_cookies(self, opts: dict) -> dict:
-        opts.pop('extractor_args', None)
-        opts.pop('http_headers', None)
         opts['cookiesfrombrowser'] = (self.cookies_browser,)
         return opts
 

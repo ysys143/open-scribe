@@ -91,7 +91,7 @@ function _check_and_update_ytdlp() {
   # Check for updates (simplified check - just try to update)
   echo "📦 yt-dlp 업데이트 확인 중..."
   cd "$REPO_DIR"
-  local UPDATE_OUTPUT=$(uv pip install --upgrade yt-dlp 2>&1)
+  local UPDATE_OUTPUT=$(uv pip install --upgrade --resolution=highest yt-dlp 2>&1)
   
   if echo "$UPDATE_OUTPUT" | grep -q "Successfully installed"; then
     local NEW_VERSION=$(echo "$UPDATE_OUTPUT" | grep -o "yt-dlp==[0-9]\+\.[0-9]\+\.[0-9]\+" | cut -d'=' -f3)

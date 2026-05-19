@@ -30,7 +30,7 @@ def _do_update() -> tuple[str, str, bool]:
 
     try:
         result = subprocess.run(
-            ["pip", "install", "--upgrade", "yt-dlp"],
+            ["uv", "pip", "install", "--upgrade", "--resolution=highest", "yt-dlp"],
             capture_output=True,
             text=True,
             timeout=120,
