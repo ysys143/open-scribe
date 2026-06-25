@@ -65,3 +65,6 @@ CLAUDE.md
 # Local workflow/session state
 .omc/
 .cwf/
+
+# yt-dlp 버전 체크 캐시 (런타임 자동 생성)
+.ytdlp_version_check
