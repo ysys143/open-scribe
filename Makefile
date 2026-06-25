@@ -1,45 +1,42 @@
-.PHONY: install uninstall update help
-
-# Installation directory
-INSTALL_DIR := $(HOME)/.local/share/open-scribe
-BIN_DIR := $(HOME)/.local/bin
-SHELL_CONFIG_DIR := $(HOME)
+.PHONY: install uninstall purge update help
 
 # Project root (where Makefile is located)
 PROJECT_ROOT := $(shell pwd)
 
+# XDG 레이아웃 (자세한 경로는 scripts/install.sh가 결정)
+#   코드   : ~/.local/lib/open-scribe        ($OPEN_SCRIBE_HOME)
+#   설정   : ~/.config/open-scribe/.env      ($XDG_CONFIG_HOME)
+#   데이터 : ~/.local/share/open-scribe      ($XDG_DATA_HOME)
+#   캐시   : ~/.cache/open-scribe            ($XDG_CACHE_HOME)
+#   명령   : ~/.local/bin/scribe
+
 help:
-	@echo "Open-Scribe Installation & Management"
-	@echo "======================================"
+	@echo "Open-Scribe Installation & Management (XDG Base Directory)"
+	@echo "=========================================================="
 	@echo "Available targets:"
-	@echo "  make install   - Install open-scribe to ~/.local/share/open-scribe"
-	@echo "  make uninstall - Remove open-scribe and shell configuration"
-	@echo "  make update    - Update open-scribe and dependencies"
-	@echo "  make help      - Show this help message"
+	@echo "  make install   - 코드를 ~/.local/lib/open-scribe 에 설치하고 명령/설정 구성"
+	@echo "  make uninstall - 코드/명령/캐시 제거 (설정/데이터는 보존)"
+	@echo "  make purge     - 설정/데이터까지 포함해 완전 삭제"
+	@echo "  make update    - 코드/의존성 갱신 (재설치)"
+	@echo "  make help      - 이 도움말 표시"
 
 install: check-python
-	@echo "Installing open-scribe..."
-	@echo "Target directory: $(INSTALL_DIR)"
-	@mkdir -p $(INSTALL_DIR)
-	@mkdir -p $(BIN_DIR)
-	@echo "Copying project files..."
-	@cp -r $(PROJECT_ROOT)/* $(INSTALL_DIR)/
-	@echo "Setting up Python environment..."
-	@cd $(INSTALL_DIR) && python3 -m venv .venv
-	@echo "Installing dependencies..."
-	@cd $(INSTALL_DIR) && ./.venv/bin/pip install --upgrade pip setuptools wheel
-	@cd $(INSTALL_DIR) && ./.venv/bin/pip install -r requirements.txt
-	@echo "Running shell configuration script..."
-	@bash $(INSTALL_DIR)/scripts/install.sh $(INSTALL_DIR) $(BIN_DIR)
-	@echo ""
-	@echo "✅ Installation complete!"
-	@echo ""
-	@echo "Please run: source ~/.bashrc  (or ~/.zshrc / PowerShell profile)"
-	@echo "Then test with: scribe --help"
+	@bash $(PROJECT_ROOT)/scripts/install.sh
+
+uninstall:
+	@bash $(PROJECT_ROOT)/scripts/uninstall.sh
+
+purge:
+	@bash $(PROJECT_ROOT)/scripts/uninstall.sh --purge
+
+update: check-python
+	@echo "Updating open-scribe (re-install)..."
+	@bash $(PROJECT_ROOT)/scripts/install.sh
+	@echo "[OK] Update complete!"
 
 check-python:
 	@command -v python3 >/dev/null 2>&1 || { \
-		echo "❌ Error: Python 3 is not installed"; \
+		echo "[X] Error: Python 3 is not installed"; \
 		echo ""; \
 		echo "Please install Python 3.8 or later:"; \
 		echo "  macOS (Homebrew):  brew install python@3.11"; \
@@ -51,7 +48,7 @@ check-python:
 
 check-make:
 	@command -v make >/dev/null 2>&1 || { \
-		echo "❌ Error: make is not installed"; \
+		echo "[X] Error: make is not installed"; \
 		echo ""; \
 		echo "Please install make:"; \
 		echo "  macOS (Homebrew):  brew install make"; \
@@ -59,16 +56,5 @@ check-make:
 		echo ""; \
 		exit 1; \
 	}
-
-uninstall:
-	@echo "Uninstalling open-scribe..."
-	@bash $(PROJECT_ROOT)/scripts/uninstall.sh $(INSTALL_DIR) $(BIN_DIR) $(SHELL_CONFIG_DIR)
-	@echo "✅ Uninstall complete!"
-
-update:
-	@echo "Updating open-scribe..."
-	@cd $(INSTALL_DIR) && git pull
-	@cd $(INSTALL_DIR) && ./.venv/bin/pip install --upgrade -r requirements.txt
-	@echo "✅ Update complete!"
 
 .DEFAULT_GOAL := help

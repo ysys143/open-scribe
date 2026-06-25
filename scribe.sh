@@ -7,10 +7,10 @@
 # - Uses OPEN_SCRIBE_HOME for installation directory
 
 function scribe() {
-  local INSTALL_DIR="${OPEN_SCRIBE_HOME:-$HOME/.local/share/open-scribe}"
+  local INSTALL_DIR="${OPEN_SCRIBE_HOME:-$HOME/.local/lib/open-scribe}"
   local ENTRY="${INSTALL_DIR}/main.py"
   local VENV_ACTIVATE="${INSTALL_DIR}/.venv/bin/activate"
-  local ENV_FILE="$HOME/.open-scribe/.env"
+  local ENV_FILE="${OPEN_SCRIBE_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/open-scribe}/.env"
 
   if [[ -z "$1" ]]; then
     echo "❌ Error: YouTube URL or local audio file path required."
@@ -122,7 +122,9 @@ EOF
 function _check_and_update_ytdlp() {
   local INSTALL_DIR="$1"
   local VENV_ACTIVATE="${INSTALL_DIR}/.venv/bin/activate"
-  local VERSION_CHECK_FILE="${INSTALL_DIR}/.ytdlp_version_check"
+  local CACHE_DIR="${OPEN_SCRIBE_CACHE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/open-scribe}"
+  local VERSION_CHECK_FILE="${CACHE_DIR}/.ytdlp_version_check"
+  mkdir -p "$CACHE_DIR"
   local CURRENT_DATE=$(date +%Y%m%d)
 
   # Check if we already checked today

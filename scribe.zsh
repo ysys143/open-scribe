@@ -23,10 +23,12 @@ function scribe() {
     source "$VENV_ACTIVATE"
   fi
 
-  # Load .env file if available
-  if [[ -f "$REPO_DIR/.env" ]]; then
+  # Load .env: XDG config(~/.config/open-scribe/.env) 우선, 없으면 repo/.env (개발 편의)
+  local ENV_FILE="${OPEN_SCRIBE_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/open-scribe}/.env"
+  [[ -f "$ENV_FILE" ]] || ENV_FILE="$REPO_DIR/.env"
+  if [[ -f "$ENV_FILE" ]]; then
     set -o allexport
-    source "$REPO_DIR/.env"
+    source "$ENV_FILE"
     set +o allexport
   fi
 
@@ -59,7 +61,9 @@ function scribe() {
 function _check_and_update_ytdlp() {
   local REPO_DIR="$1"
   local VENV_ACTIVATE="${REPO_DIR}/.venv/bin/activate"
-  local VERSION_CHECK_FILE="${REPO_DIR}/.ytdlp_version_check"
+  local CACHE_DIR="${OPEN_SCRIBE_CACHE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/open-scribe}"
+  local VERSION_CHECK_FILE="${CACHE_DIR}/.ytdlp_version_check"
+  mkdir -p "$CACHE_DIR"
   local CURRENT_DATE=$(date +%Y%m%d)
   
   # Check if we already checked today

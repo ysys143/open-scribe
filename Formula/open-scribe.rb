@@ -30,7 +30,7 @@ class OpenScribe < Formula
       INSTALL_DIR="#{prefix_dir}"
       ENTRY="${INSTALL_DIR}/main.py"
       VENV_ACTIVATE="${INSTALL_DIR}/.venv/bin/activate"
-      ENV_FILE="$HOME/.open-scribe/.env"
+      ENV_FILE="${OPEN_SCRIBE_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/open-scribe}/.env"
 
       # Helper function to initialize .env file interactively
       function _initialize_env() {
@@ -88,7 +88,9 @@ class OpenScribe < Formula
       function _check_and_update_ytdlp() {
         local VENV_PATH="$1"
         local PYTHON_PATH="${VENV_PATH}/bin/python"
-        local VERSION_CHECK_FILE="${VENV_PATH}/../.ytdlp_version_check"
+        local CACHE_DIR="${OPEN_SCRIBE_CACHE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/open-scribe}"
+        local VERSION_CHECK_FILE="${CACHE_DIR}/.ytdlp_version_check"
+        mkdir -p "$CACHE_DIR"
         local CURRENT_DATE=$(date +%Y%m%d)
 
         # Check if we already checked today

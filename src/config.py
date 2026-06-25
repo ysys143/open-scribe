@@ -7,7 +7,33 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Load environment variables
+
+def _resolve_dir(explicit_env: str, xdg_env: str, xdg_default: str) -> Path:
+    """XDG Base Directory 규칙으로 디렉토리를 해석한다.
+
+    우선순위:
+      1) 앱 전용 override 환경변수(explicit_env) — 그대로 사용
+      2) XDG base 환경변수(xdg_env) — 그 아래 'open-scribe' 하위
+      3) 기본값(xdg_default)
+    """
+    explicit = os.environ.get(explicit_env)
+    if explicit:
+        return Path(os.path.expanduser(explicit))
+    base = os.environ.get(xdg_env)
+    if base:
+        return Path(base) / "open-scribe"
+    return Path(os.path.expanduser(xdg_default))
+
+
+# XDG Base Directory 기반 경로
+CONFIG_DIR = _resolve_dir("OPEN_SCRIBE_CONFIG_DIR", "XDG_CONFIG_HOME", "~/.config/open-scribe")
+DATA_DIR = _resolve_dir("OPEN_SCRIBE_DATA_DIR", "XDG_DATA_HOME", "~/.local/share/open-scribe")
+CACHE_DIR = _resolve_dir("OPEN_SCRIBE_CACHE_DIR", "XDG_CACHE_HOME", "~/.cache/open-scribe")
+
+# 환경변수 로드: XDG config의 .env를 우선 적용하고,
+# 이어서 현재 디렉토리의 .env로 보충한다(레포에서 직접 실행하는 개발 편의).
+# load_dotenv는 기본적으로 기존 값을 덮어쓰지 않으므로 config가 우선된다.
+load_dotenv(CONFIG_DIR / ".env")
 load_dotenv()
 
 class Config:
@@ -25,9 +51,8 @@ class Config:
     MIN_WORKER = int(os.getenv('MIN_WORKER', '1'))
     MAX_WORKER = int(os.getenv('MAX_WORKER', '5'))
     
-    # Base paths
-    BASE_PATH = Path(os.getenv('OPEN_SCRIBE_BASE_PATH', 
-                               os.path.expanduser('~/Documents/open-scribe')))
+    # Base paths (XDG data dir 기준; OPEN_SCRIBE_BASE_PATH로 override 가능)
+    BASE_PATH = Path(os.getenv('OPEN_SCRIBE_BASE_PATH') or DATA_DIR)
     
     # Specific paths: compose from BASE_PATH, allow overrides if defined
     AUDIO_PATH = Path(os.getenv('OPEN_SCRIBE_AUDIO_PATH') or (BASE_PATH / 'audio'))
@@ -37,6 +62,12 @@ class Config:
     DOWNLOADS_PATH = Path(os.getenv('OPEN_SCRIBE_DOWNLOADS_PATH', 
                                    os.path.expanduser('~/Downloads')))
     DB_PATH = Path(os.getenv('OPEN_SCRIBE_DB_PATH') or (BASE_PATH / 'transcription_jobs.db'))
+
+    # XDG 디렉토리 (클래스에서도 접근 가능하게 노출)
+    CONFIG_DIR = CONFIG_DIR
+    CACHE_DIR = CACHE_DIR
+    # 런타임 캐시 파일
+    YTDLP_VERSION_CHECK = CACHE_DIR / '.ytdlp_version_check'
     
     # Whisper.cpp Configuration
     WHISPER_CPP_MODEL = os.getenv('WHISPER_CPP_MODEL', 
@@ -84,8 +115,8 @@ class Config:
     @classmethod
     def create_directories(cls):
         """Create necessary directories if they don't exist"""
-        for path in [cls.AUDIO_PATH, cls.VIDEO_PATH, cls.TRANSCRIPT_PATH, 
-                     cls.TEMP_PATH, cls.BASE_PATH]:
+        for path in [cls.AUDIO_PATH, cls.VIDEO_PATH, cls.TRANSCRIPT_PATH,
+                     cls.TEMP_PATH, cls.BASE_PATH, cls.CACHE_DIR]:
             path.mkdir(parents=True, exist_ok=True)
     
     @classmethod
