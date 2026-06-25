@@ -3,6 +3,7 @@ Command-line interface for Open-Scribe
 """
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -40,7 +41,14 @@ Environment variables for defaults:
         '''
     )
     
-    parser.add_argument('input', help='YouTube video/playlist URL or local audio file path')
+    parser.add_argument('input', nargs='?', default=None,
+                        help='YouTube video/playlist URL or local audio file path')
+
+    parser.add_argument(
+        '--update-key',
+        action='store_true',
+        help='OPENAI_API_KEY를 대화형으로 안전하게 교체하고 종료 (입력은 화면에 표시되지 않음)'
+    )
     
     parser.add_argument(
         '--engine', '-e',
@@ -163,6 +171,62 @@ Environment variables for defaults:
     )
     
     return parser
+
+
+def update_api_key() -> int:
+    """OPENAI_API_KEY를 대화형으로 안전하게 교체한다.
+
+    - getpass로 입력받아 화면/셸 히스토리에 키가 남지 않는다.
+    - XDG 설정(~/.config/open-scribe/.env)의 OPENAI_API_KEY 라인만 교체하고
+      나머지 설정은 보존한다. .env.gcloud가 있으면 함께 교체할지 묻는다.
+    """
+    import getpass
+
+    config_dir = Config.CONFIG_DIR
+    env_local = config_dir / ".env"
+    env_cloud = config_dir / ".env.gcloud"
+
+    if not env_local.exists():
+        config_dir.mkdir(parents=True, exist_ok=True)
+        env_local.write_text("")
+        os.chmod(env_local, 0o600)
+        print(f"[INFO] 설정 파일을 생성했습니다: {env_local}")
+
+    targets = [env_local]
+    if env_cloud.exists():
+        ans = input(f"클라우드 설정({env_cloud.name})도 함께 교체할까요? [y/N] ").strip().lower()
+        if ans == "y":
+            targets.append(env_cloud)
+
+    key = getpass.getpass("새 OPENAI_API_KEY 입력 (화면에 표시되지 않음): ").strip()
+    if not key:
+        print("입력이 없어 취소했습니다.")
+        return 1
+    if not key.startswith("sk-"):
+        ans = input("입력값이 'sk-'로 시작하지 않습니다. 계속할까요? [y/N] ").strip().lower()
+        if ans != "y":
+            print("취소했습니다.")
+            return 1
+
+    for path in targets:
+        lines = path.read_text().splitlines() if path.exists() else []
+        replaced = False
+        for i, line in enumerate(lines):
+            if line.strip().startswith("OPENAI_API_KEY="):
+                lines[i] = f"OPENAI_API_KEY={key}"
+                replaced = True
+        if not replaced:
+            lines.append(f"OPENAI_API_KEY={key}")
+        path.write_text("\n".join(lines) + "\n")
+        os.chmod(path, 0o600)
+        print(f"[OK] 교체 완료: {path}" + ("" if replaced else "  (키가 없어 새로 추가함)"))
+
+    print("\n완료했습니다. 키는 화면/히스토리에 남지 않았습니다.")
+    print("이전 키는 https://platform.openai.com/api-keys 에서 폐기(revoke)하세요.")
+    if env_cloud in targets:
+        print("클라우드 반영: bash deploy.sh 를 재실행하세요.")
+    return 0
+
 
 def get_transcriber(engine: str, config: Config):
     """
@@ -489,7 +553,16 @@ def main():
     # Parse arguments
     parser = create_argument_parser()
     args = parser.parse_args()
-    
+
+    # 설정 유틸리티: API 키 교체 후 종료
+    if args.update_key:
+        return update_api_key()
+
+    # 전사에는 input이 필요하다
+    if not args.input:
+        parser.error("input(YouTube URL 또는 로컬 오디오 경로)이 필요합니다. "
+                     "API 키만 교체하려면 --update-key 를 사용하세요.")
+
     # Initialize configuration
     config = Config()
     
