@@ -289,7 +289,9 @@ def process_single_video(input_path: str, args, config: Config) -> bool:
     
     # Initialize components
     db = TranscriptionDatabase(config.DB_PATH)
-    
+    downloader = None
+    video_info = None
+
     if is_local_file:
         # For local files, create basic info
         file_path = Path(input_path)
@@ -339,7 +341,10 @@ def process_single_video(input_path: str, args, config: Config) -> bool:
         # Update download status
         db.update_download_status(job_id, True, audio_file)
     else:
-        # For YouTube videos, download if needed
+        # For YouTube videos, download if needed.
+        # downloader is always set in the non-local branch above; local files
+        # never reach here (this narrows Optional for static analysis).
+        assert downloader is not None
         if args.video:
             print("\nDownloading video...")
             video_file = downloader.download_video(input_path)
