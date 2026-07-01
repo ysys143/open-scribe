@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1779206234383,
+  "lastScanned": 1782869264939,
   "projectRoot": "/Users/jaesolshin/Documents/GitHub/open-scribe",
   "techStack": {
     "languages": [
@@ -58,7 +58,7 @@
       "path": "Formula",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1779206234371,
+      "lastAccessed": 1782869264919,
       "keyFiles": [
         "open-scribe.rb"
       ]
@@ -67,7 +67,7 @@
       "path": "bot",
       "purpose": null,
       "fileCount": 6,
-      "lastAccessed": 1779206234372,
+      "lastAccessed": 1782869264929,
       "keyFiles": [
         "__init__.py",
         "main.py",
@@ -80,7 +80,7 @@
       "path": "docs",
       "purpose": "Documentation",
       "fileCount": 11,
-      "lastAccessed": 1779206234374,
+      "lastAccessed": 1782869264930,
       "keyFiles": [
         "README.md",
         "api-reference.md",
@@ -93,7 +93,7 @@
       "path": "legacy",
       "purpose": null,
       "fileCount": 4,
-      "lastAccessed": 1779206234374,
+      "lastAccessed": 1782869264931,
       "keyFiles": [
         "gpt4o_timestamp_analysis.md",
         "plan.md",
@@ -105,7 +105,7 @@
       "path": "logs",
       "purpose": null,
       "fileCount": 25,
-      "lastAccessed": 1779206234375,
+      "lastAccessed": 1782869264932,
       "keyFiles": [
         "tui-run-20250905-183246.log",
         "tui-run-20250905-183337.log",
@@ -118,7 +118,7 @@
       "path": "scripts",
       "purpose": "Build/utility scripts",
       "fileCount": 2,
-      "lastAccessed": 1779206234376,
+      "lastAccessed": 1782869264933,
       "keyFiles": [
         "install.sh",
         "uninstall.sh"
@@ -128,7 +128,7 @@
       "path": "src",
       "purpose": "Source code",
       "fileCount": 7,
-      "lastAccessed": 1779206234379,
+      "lastAccessed": 1782869264933,
       "keyFiles": [
         "__init__.py",
         "cli.py",
@@ -141,7 +141,7 @@
       "path": "temp_audio",
       "purpose": null,
       "fileCount": 337,
-      "lastAccessed": 1779206234381,
+      "lastAccessed": 1782869264935,
       "keyFiles": [
         "chunk_000.mp3",
         "chunk_001.mp3",
@@ -154,10 +154,23 @@
       "path": "test",
       "purpose": "Test files",
       "fileCount": 0,
-      "lastAccessed": 1779206234381,
+      "lastAccessed": 1782869264935,
       "keyFiles": []
     }
   },
-  "hotPaths": [],
+  "hotPaths": [
+    {
+      "path": "src/cli.py",
+      "accessCount": 10,
+      "lastAccessed": 1782873251686,
+      "type": "file"
+    },
+    {
+      "path": "scribe.zsh",
+      "accessCount": 1,
+      "lastAccessed": 1782871659326,
+      "type": "file"
+    }
+  ],
   "userDirectives": []
 }
