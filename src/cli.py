@@ -221,6 +221,10 @@ def update_api_key() -> int:
         os.chmod(path, 0o600)
         print(f"[OK] 교체 완료: {path}" + ("" if replaced else "  (키가 없어 새로 추가함)"))
 
+    # 현재 프로세스에도 즉시 반영 (재실행 없이 이어지는 작업이 새 키를 인식하도록)
+    os.environ["OPENAI_API_KEY"] = key
+    Config.OPENAI_API_KEY = key
+
     print("\n완료했습니다. 키는 화면/히스토리에 남지 않았습니다.")
     print("이전 키는 https://platform.openai.com/api-keys 에서 폐기(revoke)하세요.")
     if env_cloud in targets:
@@ -565,7 +569,17 @@ def main():
 
     # Initialize configuration
     config = Config()
-    
+
+    # 첫 실행: API 엔진인데 키가 없고 대화형 터미널이면 대화형으로 키를 설정한다.
+    # (비대화형 환경(CI/파이프)에서는 아래 validate()가 기존처럼 명확한 에러를 낸다)
+    needs_api_key = args.engine in ('gpt-4o-transcribe', 'gpt-4o-mini-transcribe', 'whisper-api')
+    if needs_api_key and not Config.OPENAI_API_KEY and sys.stdin.isatty():
+        print("\n[SETUP] OPENAI_API_KEY가 설정되어 있지 않습니다. 지금 설정합니다.")
+        print("발급: https://platform.openai.com/api-keys\n")
+        rc = update_api_key()
+        if rc != 0:
+            return rc
+
     try:
         # Create necessary directories
         config.create_directories()
