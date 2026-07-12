@@ -2,8 +2,10 @@
 Enhanced Whisper.cpp processor with progress tracking for parallel processing
 """
 
+import os
 import subprocess
 import re
+import tempfile
 import time
 import threading
 from typing import Callable, Optional
@@ -36,8 +38,10 @@ class WhisperCppProgressProcessor:
         Returns:
             Transcribed text
         """
-        # Build command
-        output_file = f"/tmp/whisper_chunk_{chunk_index}"
+        # Build command — 동시 whisper.cpp 실행(및 프로세스 간 동일 chunk_index)이
+        # 충돌하지 않도록 호출별 유일 temp 디렉토리를 만든다.
+        tmp_dir = tempfile.mkdtemp(prefix="whisper_chunk_")
+        output_file = os.path.join(tmp_dir, f"chunk_{chunk_index}")
         cmd = [
             self.executable_path,
             '-m', self.model_path,
@@ -112,10 +116,10 @@ class WhisperCppProgressProcessor:
         except Exception as e:
             raise Exception(f"Failed to read output: {e}")
         finally:
-            # Clean up
+            # Clean up: 출력 파일과 유일 temp 디렉토리를 함께 제거.
             try:
-                import os
                 if os.path.exists(actual_output_file):
                     os.unlink(actual_output_file)
-            except:
+                os.rmdir(tmp_dir)
+            except Exception:
                 pass

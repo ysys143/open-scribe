@@ -225,11 +225,12 @@ def split_audio_into_chunks(audio_path: str, chunk_duration_seconds: int = 600, 
     
     # Use project temp_audio directory for easier debugging
     if use_project_temp:
-        from pathlib import Path
         project_root = Path(audio_path).parent
-        temp_dir = project_root / "temp_audio"
-        temp_dir.mkdir(exist_ok=True)
-        temp_dir = str(temp_dir)
+        base_temp = project_root / "temp_audio"
+        base_temp.mkdir(exist_ok=True)
+        # 동시 실행 프로세스가 chunk_000.mp3 이름을 공유하지 않도록 실행별 유일 하위 디렉토리.
+        # mkdtemp는 원자적(O_EXCL)이고 "audio_chunks_" 접두어로 cleanup_temp_chunks 호환 유지.
+        temp_dir = tempfile.mkdtemp(prefix="audio_chunks_", dir=str(base_temp))
         print(f"[Audio] Using project temp directory: {temp_dir}")
     else:
         temp_dir = tempfile.mkdtemp(prefix="audio_chunks_")
@@ -282,6 +283,11 @@ def split_audio_into_chunks(audio_path: str, chunk_duration_seconds: int = 600, 
     
     if not chunk_paths:
         print(f"[Audio] Failed to create chunks, returning original file")
+        # 방금 만든 빈 유일 디렉토리 정리(반환값이 [audio_path]라 cleanup이 못 지움).
+        try:
+            os.rmdir(temp_dir)
+        except OSError:
+            pass
         return [audio_path]
     
     return chunk_paths
