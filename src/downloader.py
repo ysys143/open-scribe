@@ -29,6 +29,14 @@ class YouTubeDownloader:
             'ignoreerrors': False,
             'retries': 3,
         }
+        # YouTube의 기본 플레이어 클라이언트(android_vr 등)는 특정 영상에서
+        # 미디어 URL이 403 Forbidden을 반환한다. 쿠키/PO Token 없이도 동작하는
+        # 클라이언트(tv_embedded)를 우선 사용하고 default를 폴백으로 둔다.
+        # OPEN_SCRIBE_YTDLP_PLAYER_CLIENT(쉼표 구분)로 재정의 가능.
+        clients = os.getenv('OPEN_SCRIBE_YTDLP_PLAYER_CLIENT', 'tv_embedded,web_safari,default')
+        player_clients = [c.strip() for c in clients.split(',') if c.strip()]
+        if player_clients:
+            opts['extractor_args'] = {'youtube': {'player_client': player_clients}}
         proxy = os.getenv('PROXY_URL')
         if proxy:
             opts['proxy'] = proxy
