@@ -4,6 +4,7 @@ Handles video/audio downloading and metadata extraction
 """
 
 import os
+import shutil
 from pathlib import Path
 from typing import Optional, Dict, List, Any
 from yt_dlp import YoutubeDL
@@ -29,14 +30,29 @@ class YouTubeDownloader:
             'ignoreerrors': False,
             'retries': 3,
         }
-        # YouTube의 기본 플레이어 클라이언트(android_vr 등)는 특정 영상에서
-        # 미디어 URL이 403 Forbidden을 반환한다. 쿠키/PO Token 없이도 동작하는
-        # 클라이언트(tv_embedded)를 우선 사용하고 default를 폴백으로 둔다.
-        # OPEN_SCRIBE_YTDLP_PLAYER_CLIENT(쉼표 구분)로 재정의 가능.
-        clients = os.getenv('OPEN_SCRIBE_YTDLP_PLAYER_CLIENT', 'tv_embedded,web_safari,default')
+        # YouTube 안티봇 강화로 스트림 다운로드에 (1) 로그인 세션과 (2) nsig JS
+        # 챌린지 해결이 모두 필요하다. 쿠키를 초기 시도부터 적용하고, JS 런타임
+        # (deno/node)이 있으면 yt-dlp가 EJS 챌린지 솔버를 내려받도록 허용한다.
+        # 둘 중 하나라도 빠지면 "Only images are available"/403이 발생한다.
+        if self.cookies_browser:
+            opts['cookiesfrombrowser'] = (self.cookies_browser,)
+
+        # nsig 챌린지 솔버 원격 컴포넌트. 기본은 런타임이 있으면 자동 활성화.
+        # OPEN_SCRIBE_YTDLP_REMOTE_COMPONENTS(쉼표 구분, 빈 값으로 비활성) 재정의.
+        rc = os.getenv('OPEN_SCRIBE_YTDLP_REMOTE_COMPONENTS')
+        if rc is None:
+            rc = 'ejs:github' if (shutil.which('deno') or shutil.which('node')) else ''
+        components = [c.strip() for c in rc.split(',') if c.strip()]
+        if components:
+            opts['remote_components'] = components
+
+        # 플레이어 클라이언트 오버라이드(기본 없음). 쿠키+EJS가 있으면 yt-dlp의
+        # 기본 클라이언트 선택이 동작하므로 강제하지 않는다. 필요 시 재정의.
+        clients = os.getenv('OPEN_SCRIBE_YTDLP_PLAYER_CLIENT', '')
         player_clients = [c.strip() for c in clients.split(',') if c.strip()]
         if player_clients:
             opts['extractor_args'] = {'youtube': {'player_client': player_clients}}
+
         proxy = os.getenv('PROXY_URL')
         if proxy:
             opts['proxy'] = proxy
