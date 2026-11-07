@@ -16,6 +16,8 @@ from fastapi import FastAPI, Request, Response
 from telegram import Update
 
 from bot.telegram_bot import create_bot_application
+from src.core.config.document import load_settings
+from src.core.providers.models import credential
 
 # Configure logging
 logging.basicConfig(
@@ -33,7 +35,7 @@ async def lifespan(app: FastAPI):
     """Application lifespan: initialize and cleanup bot"""
     global _bot_app
 
-    token = os.getenv("TELEGRAM_BOT_TOKEN")
+    token = credential('telegram')
     if not token:
         logger.error("TELEGRAM_BOT_TOKEN is not set!")
         yield
@@ -84,7 +86,7 @@ async def telegram_webhook(request: Request):
 
 
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", "8080"))
+    port = load_settings()['bot']['port']
     uvicorn.run(
         "bot.main:app",
         host="0.0.0.0",

@@ -1,465 +1,111 @@
-# Open-Scribe v2.0
+# Open-Scribe 0.3.0
 
-YouTube 비디오를 다양한 엔진으로 전사하고 요약하는 모듈화된 오픈소스 도구입니다.
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![Code style: modular](https://img.shields.io/badge/code%20style-modular-green.svg)](https://github.com/open-scribe/open-scribe)
-
-## 주요 기능
-
-* **CLI 인터페이스**: 강력한 명령행 도구로 모든 기능 지원
-* **다양한 전사 엔진**: GPT-4o, Whisper API, whisper.cpp, YouTube 자막 API
-* **실시간 작업 모니터링**: 백그라운드 작업 추적 및 진행률 표시
-* **데이터베이스 관리**: SQLite 기반 전사 히스토리 및 검색
-* **AI 요약 및 번역**: GPT 모델을 활용한 지능형 요약 및 한국어 번역
-* **재생목록 병렬 처리**: 다중 워커를 통한 효율적인 일괄 처리
-
-## 사전 요구사항
-
-- **Python 3.8+**: `python3` 명령어 필요
-- **Git**: 저장소 클론 필요
-- **Make**: 설치 자동화 필요 (선택사항, 수동 설치 가능)
-
-### 설치 확인
+Homebrew 0.2.4의 CLI·출력·파일 처리에 최신 모델 연결을 적용한 소스 버전입니다.
 
 ```sh
-python3 --version  # Python 3.8 이상 필요
-git --version
-make --version     # 설치에서 사용
+openscribe ls       # 최근 10건
+scr ls 20           # 최근 20건
+scr "https://youtu.be/VIDEO_ID"
+scr "/path/to/audio.wav" --no-summary
+scr "URL" --engine elevenlabs/scribe-v2 --timestamp --srt
 ```
 
-필수 요소가 없으면 다음 명령어로 설치:
+기존과 같이 영상 제목을 표시하고 전사 본문을 출력하며 제목 기반 TXT·요약 파일을 만듭니다.
+`--downloads`는 설정된 Downloads 경로에 제목 파일명을 그대로 복사합니다.
+`--no-stream`은 전사 본문 출력을 끕니다. 요약은 기본 활성화이며 `--no-summary`로 끕니다.
 
-**macOS (Homebrew)**:
-```sh
-brew install python@3.11 git make
-```
+- ASR 기본: `elevenlabs/scribe-v2`, OpenRouter 음성 API
+- 텍스트 기본: `openai/gpt-6-luna`, 같은 모델의 native 키가 있으면 직접 연결
+- 다른 ASR 모델과 기존 엔진: `scribe --help`
+- 모델 설정: `${OPEN_SCRIBE_SETTINGS:-~/.config/open-scribe/settings.json}`의 stages 모델·options
+- 일반 옵션·경로·연동: 모두 `settings.json`에서 설정하며 `.env`를 자동 로드하지 않음
+- 공급자 키 파일: settings.json의 `providers.<provider>.api_key_file`과 `api_key_env`로 명시
 
-**Ubuntu/Debian**:
-```sh
-sudo apt-get update
-sudo apt-get install python3 python3-venv git build-essential
-```
-
-**Windows**:
-- [Python 3.11 다운로드](https://www.python.org/downloads/)
-- Git: [git-scm.com](https://git-scm.com)
-- Make: `winget install gnuwin32.make` (또는 MinGW 사용)
-
----
+키 파일은 현재 사용자 소유·권한 600이어야 하며 지정한 키만 읽습니다. 키를 전역 export하거나
+Keychain에서 자동 조회하지 않습니다. 파일을 지정하면 환경변수로 대체하지 않습니다.
+요청 실패를 다른 모델·자막으로 대체하거나 자동 재시도하지 않습니다.
 
 ## 설치
 
-### Homebrew (macOS/Linux - 권장)
-
-가장 간단한 설치 방법:
-
 ```sh
-brew tap ysys143/homebrew-open-scribe
+brew tap ysys143/open-scribe
 brew install open-scribe
 ```
 
-설치 후 바로 사용 가능:
+소스 설치:
 
 ```sh
-scribe "https://www.youtube.com/watch?v=VIDEO_ID"
+bash scripts/install.sh --python python3.11
+# 준비된 Python 환경을 재사용할 때
+bash scripts/install.sh --venv /path/to/venv
 ```
 
-첫 실행 시 OpenAI API Key를 입력하거나 환경 변수로 설정:
+설치기는 설정·키·DB를 수정하지 않습니다. 기존 대상 교체에는 `--upgrade`가 필요합니다.
+기본 설치 대상은 `~/.local/lib/open-scribe`, 명령은 `~/.local/bin/scribe`, `scr`, `openscribe`입니다.
+`OPEN_SCRIBE_HOME`, `OPEN_SCRIBE_BIN_DIR`로 다른 경로를 선택할 수 있습니다.
+
+## 내부 구조
+
+```text
+src/core/config/         기존 설정과 경로
+src/core/providers/      업데이트 모델과 인증·API 연결
+src/core/speech/         오디오 처리와 전사 엔진
+src/core/postprocess/    요약·번역·교정·자막
+src/core/presentation/   CLI·진행 출력·파일 출력
+src/core/runtime/        기존 DB·큐·워커
+src/integrations/        YouTube 다운로드·Notion
+```
+
+`src/cli.py`, `src/config.py`는 기존 호출자의 호환 진입점입니다.
+조사 리포트는 [docs/research](docs/research/2026-11/deliverables/00-synthesis.md),
+이전 설계·구현 문서는 [docs/archive](docs/README.md)에 보존했습니다.
+
+## 요약 모델의 화자 이름 적용
+
+화자 분리 모델이 실제 화자 레이블을 반환하고 요약이 활성화된 경우, 같은 요약 요청에서
+문맥상 화자 이름과 근거를 함께 받습니다. 명시적인 자기소개가 자신의 발화에 있고 인용문에
+이름이 실제 포함된 후보만 적용합니다. 그 외에는 원래 레이블을 유지합니다. 이는 텍스트 기반
+추정이며 사용자 확인을 뜻하지 않습니다. 화자 분리를 쓰지 않거나 `--no-summary`이면 실행하지 않습니다.
+
+청크별 화자 번호는 별개로 취급합니다. 이름은 레이블 위치만 치환하고 발화 본문은 바꾸지 않습니다.
+최종 전사·요약·번역·Notion·Downloads 사본에는 적용된 이름을 사용합니다.
+원본은 `<제목>_raw_<hash>.txt`, ASR 레이블 근거는 `<제목>_diarization.json`,
+이름 추정 근거와 미확정 후보는 `<제목>_speaker_names.json`에 보존합니다.
+API 응답에 실제 화자 정보가 없으면 일반 요약만 수행합니다. 모델 호출을 추가하지 않습니다.
+
+## 설정 파일 하나로 관리
 
 ```sh
-export OPENAI_API_KEY='your-api-key'
-scribe "https://www.youtube.com/watch?v=VIDEO_ID"
+openscribe config show
+scr config validate
 ```
 
-업데이트:
+기본 경로는 `~/.config/open-scribe/settings.json`입니다. `OPEN_SCRIBE_SETTINGS`로 다른 JSON을
+선택할 수 있습니다. 일반 설정의 우선순위는 **CLI 옵션 → JSON → 내장 기본값**입니다.
+기존 `.env`나 `OPEN_SCRIBE_STREAM` 등 일반 환경변수는 읽지 않습니다. 설정은 프로세스 시작 시
+선택한 파일을 기준으로 고정되며 편집 내용은 다음 CLI 실행 또는 서비스 재시작 때 반영됩니다.
 
-```sh
-brew upgrade open-scribe
+```json
+{
+  "version": 1,
+  "copy_to_path": "/absolute/path/to/copies",
+  "paths": {"data": "~/.local/share/open-scribe"},
+  "output": {"stream": true, "downloads": true, "timestamp": true, "keep_audio": true},
+  "stages": {"summary": {"enabled": true}, "translate": {"enabled": false}},
+  "providers": {"openrouter": {"api_key_env": "OPENROUTER_API_KEY", "api_key_file": "/absolute/path/to/keys.env"}}
+}
 ```
 
-### 배포 버전 설치 (git clone)
-
-모든 환경에서 자동 설치:
-
-```sh
-git clone https://github.com/ysys143/open-scribe.git
-cd open-scribe
-make install
-```
-
-설치 후 환경 변수를 적용하려면:
-
-```sh
-# Bash/Zsh
-source ~/.bashrc    # 또는 ~/.zshrc
-
-# PowerShell
-. $PROFILE
-```
-
-### 수동 설치 (Make 없이)
-
-Make가 없으면 수동으로 설치:
-
-```sh
-git clone https://github.com/ysys143/open-scribe.git
-cd open-scribe
-
-# Python 가상환경 생성
-python3 -m venv ~/.local/share/open-scribe/.venv
-
-# 의존성 설치
-~/.local/share/open-scribe/.venv/bin/pip install --upgrade pip setuptools wheel
-~/.local/share/open-scribe/.venv/bin/pip install -r requirements.txt
-
-# 쉘 설정 (zsh/bash 선택)
-bash scripts/install.sh ~/.local/share/open-scribe ~/.local/bin
-
-# 환경 적용
-source ~/.bashrc  # 또는 ~/.zshrc
-```
-
-### 개발 환경 설치
-
-로컬 개발을 위한 설치:
-
-```sh
-git clone https://github.com/ysys143/open-scribe.git
-cd open-scribe
-python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
-cp .env.example .env
-# .env 파일을 편집하여 OpenAI API 키 입력
-```
-
-### 설치 제거
-
-```sh
-make uninstall
-```
-
-### 업데이트
-
-```sh
-make update
-```
-
-## 사용법
-
-### CLI 명령어
-```sh
-# 모듈화된 구조 (권장)
-python main.py [url] [options]
-
-# Scribe 명령어 (zsh 통합)
-scribe [url] [options]
-
-# 레거시 스크립트 (호환성)
-python trans.py [url] [options]
-```
-
-> **참고**: `scribe` 명령어는 Oh My Zsh에 자동 등록되어 있어 터미널에서 바로 사용할 수 있습니다.
-
-### 전사 엔진 옵션
-
-`--engine` 또는 `-e` 옵션으로 선택 (기본값: gpt-4o-mini-transcribe)
-
-* `gpt-4o-transcribe` (별칭: `high`) - OpenAI GPT-4o 고품질
-* `gpt-4o-mini-transcribe` (별칭: `medium`) - OpenAI GPT-4o-mini 중간품질 (기본값)
-* `whisper-api` (별칭: `whisper-cloud`) - OpenAI Whisper API
-* `whisper-cpp` (별칭: `whisper-local`) - whisper.cpp 로컬 실행
-* `youtube-transcript-api` (별칭: `youtube`) - YouTube 자막 API
-
-### 주요 옵션
-
-* `--stream` / `--no-stream` - 실시간 출력 여부 (기본: True)
-* `--downloads` / `--no-downloads` - Downloads 폴더 저장 여부 (기본: True)
-* `--summary` - AI 요약 생성 (GPT-4o-mini 사용)
-* `--verbose` - 상세 요약 출력
-* `--audio` - 오디오 파일 보관
-* `--video` - 비디오 다운로드
-* `--srt` - SRT 자막 파일 생성
-* `--translate` - 한국어로 번역
-* `--force` / `-f` - 기존 파일 덮어쓰기, 재전사 강제 실행
-* `--help` - 도움말 표시
-* `--progress` - 전사 진행상황 표시 (퍼센트 및 ETA)
-* `--timestamp` - 전사 결과에 타임코드 포함
-* `--filename NAME` - 저장 파일명 지정 (기본: 영상 제목 기반 자동 생성)
-* `--parallel N` / `-p N` - 재생목록 병렬 처리 (N개 워커 사용)
-
-## 동작 방식
-
-### YouTube Transcript API 엔진 선택 시
-
-* YouTube 자막 데이터를 직접 가져옴
-* 오디오 다운로드 불필요
-* 가장 빠른 처리 속도
-
-### 다른 엔진 선택 시
-
-* `yt-dlp` Python 라이브러리로 오디오 자동 다운로드 (subprocess 대신 직접 API 사용)
-* 선택한 엔진으로 오디오 파일 전사
-* 25MB 초과 파일 자동 압축 (OpenAI API 제한 대응)
-* 실시간 다운로드 및 전사 진행률 표시 (`--progress` 옵션)
-* 워커 수 동적 계산으로 시스템 리소스 최적 활용
-
-### 로컬 오디오 파일 입력 시
-
-* 로컬 오디오 파일 경로를 그대로 입력하면 다운로드 단계를 건너뜁니다
-* 자동으로 다음 옵션이 비활성화됩니다: 비디오 다운로드, 오디오 보관, SRT 생성
-* 모든 전사 엔진과 함께 사용 가능하며 `--engine`으로 선택합니다
-* 임시 청크/중간 파일은 기본적으로 입력 파일 폴더 하위 `temp_audio/`에 저장됩니다
-* 경로는 환경 변수 `OPEN_SCRIBE_TEMP_PATH`로 재정의할 수 있습니다
-* 지원 포맷: mp3, wav, m4a, aac, flac, ogg, wma, aiff, au
-
-### 파일 저장 위치
-
-기본 경로 (환경 변수로 변경 가능):
-* 전사 결과: `~/Documents/open-scribe/transcript/`
-* 오디오 파일: `~/Documents/open-scribe/audio/`
-* 비디오 파일: `~/Documents/open-scribe/video/`
-* Downloads 폴더 복사본: `~/Downloads/` (옵션)
-* 데이터베이스: `~/Documents/open-scribe/transcription_jobs.db`
-
-환경 변수로 경로 설정:
-```bash
-export OPEN_SCRIBE_BASE_PATH=~/my-transcripts  # 기본 경로 변경
-export OPEN_SCRIBE_AUDIO_PATH=~/my-audio       # 오디오 경로 변경
-export OPEN_SCRIBE_TRANSCRIPT_PATH=~/my-texts  # 전사 경로 변경
-export OPEN_SCRIBE_TEMP_PATH=~/Documents/open-scribe/temp_audio   # 임시(청크) 파일 경로
-```
-
-### AI 요약 기능
-
-* GPT-4o-mini를 사용한 한국어 요약
-* 간단 요약 (기본): 3줄 이내 핵심 요약
-* 상세 요약 (`--verbose`):
-
-  1. 3줄 이내 핵심 요약
-  2. 시간대별 내용 정리 (타임코드 포함)
-  3. 상세 분석 및 비판적 의견
-
-## 고급 기능
-
-### 비디오 및 자막 처리
-
-* `--video`: 비디오 파일 다운로드
-* `--srt`: SRT 자막 파일 생성 (타임코드 포함)
-* `--translate`: 한국어로 번역 (영어 콘텐츠의 경우)
-
-### 데이터베이스 작업 추적
-
-* SQLite 데이터베이스로 모든 전사 작업 자동 추적
-* 중복 작업 방지 (이미 전사된 경우 확인 프롬프트)
-* 저장 필드: ID, URL, 제목, 엔진, 상태, 요약, 타임스탬프
-
-### 재생목록 처리
-
-* YouTube 재생목록 자동 감지
-* 전체 재생목록 일괄 처리 옵션
-* 병렬 처리 지원 (`--parallel N` 옵션)
-* 처리 전 사용자 확인 (20초 타임아웃)
-* 성공/실패 통계 표시
-
-### 파일 덮어쓰기 보호
-
-* 기존 파일 존재 시 덮어쓰기 확인 프롬프트
-* 20초 타임아웃 후 기본 동작 수행
-* `--force` 옵션으로 프롬프트 생략
-
-## 사용 예시
-```sh
-# 기본 전사 (YouTube 자막 API)
-scribe "https://www.youtube.com/watch?v=VIDEO_ID" --engine youtube
-
-# whisper.cpp로 로컬 전사 + 요약 + 타임코드
-scribe "https://youtu.be/VIDEO_ID" --engine whisper-local --summary --timestamp
-
-# 비디오 다운로드 + SRT 자막 생성 + 진행상황 표시
-scribe "URL" --video --srt --progress
-
-# 재생목록 전체 처리
-scribe "https://www.youtube.com/playlist?list=PLAYLIST_ID"
-
-# 재생목록 병렬 처리 (4개 워커)
-scribe "https://www.youtube.com/playlist?list=PLAYLIST_ID" --parallel 4
-
-# 강제 재전사 + 파일명 지정
-scribe "URL" --force --engine whisper-api --filename my_video
-```
-
-### Python 스크립트 직접 실행
-```sh
-# 모듈화된 v2.0 구조 사용 (권장)
-python main.py "https://www.youtube.com/watch?v=VIDEO_ID" --engine youtube-transcript-api
-python main.py "https://youtu.be/VIDEO_ID" --engine whisper-cpp --summary --timestamp
-
-# 레거시 스크립트 (호환성 유지)
-python trans.py "https://www.youtube.com/watch?v=VIDEO_ID" --engine youtube
-python trans.py "https://youtu.be/VIDEO_ID" --engine whisper-local --summary --timestamp
-```
-
-### 로컬 오디오 파일 전사 예시
-```sh
-# 로컬 파일 직접 전사 (절대 경로 권장)
-python main.py /absolute/path/to/audio.m4a --engine gpt-4o-mini-transcribe
-
-# 타임스탬프 포함, 요약 비활성화
-python main.py /absolute/path/to/audio.wav --engine whisper-cpp --timestamp --no-summary
-
-# 임시 경로 사용자 지정
-OPEN_SCRIBE_TEMP_PATH=~/my-temp python main.py /absolute/path/to/audio.mp3 --engine whisper-api
-```
-
-## 환경 변수 설정
-
-### 필수 설정
-```bash
-OPENAI_API_KEY=your_api_key_here  # OpenAI API 키 (GPT-4o, Whisper API 사용 시)
-```
-
-### OpenAI 모델 설정 (선택사항)
-```bash
-# 최신 모델 사용 (2025년 기준)
-OPENAI_SUMMARY_MODEL=gpt-5-mini      # 요약 생성 모델
-OPENAI_CORRECT_MODEL=gpt-5-mini      # 자막 교정 모델  
-OPENAI_TRANSLATE_MODEL=gpt-5-mini    # 번역 모델
-OPENAI_SUMMARY_LANGUAGE=auto         # 요약 언어 자동 감지
-OPENAI_TRANSLATE_LANGUAGE=Korean     # 번역 대상 언어
-```
-
-### 경로 설정 (선택사항)
-```bash
-# 기본 경로 설정
-OPEN_SCRIBE_BASE_PATH=~/Documents/open-scribe
-
-# 개별 경로 설정
-OPEN_SCRIBE_AUDIO_PATH=~/Documents/open-scribe/audio
-OPEN_SCRIBE_VIDEO_PATH=~/Documents/open-scribe/video
-OPEN_SCRIBE_TRANSCRIPT_PATH=~/Documents/open-scribe/transcript
-OPEN_SCRIBE_DOWNLOADS_PATH=~/Downloads
-OPEN_SCRIBE_DB_PATH=~/Documents/open-scribe/transcription_jobs.db
-
-# Whisper.cpp 설정 (로컬 전사 시)
-WHISPER_CPP_MODEL=~/whisper.cpp/models/ggml-base.bin
-WHISPER_CPP_EXECUTABLE=~/whisper.cpp/build/bin/whisper-cli
-```
-
-### 기본 옵션 설정 (선택사항)
-```bash
-# 전사 엔진 및 동작 설정
-OPEN_SCRIBE_ENGINE=youtube-transcript-api   # 기본 전사 엔진
-OPEN_SCRIBE_STREAM=true                     # 스트리밍 출력
-OPEN_SCRIBE_DOWNLOADS=true                  # Downloads 폴더 저장
-OPEN_SCRIBE_SUMMARY=true                    # AI 요약 생성
-OPEN_SCRIBE_VERBOSE=true                    # 상세 요약
-OPEN_SCRIBE_TIMESTAMP=false                 # 타임스탬프 포함
-
-# 병렬 처리 설정
-MIN_WORKER=1                               # 최소 워커 수
-MAX_WORKER=5                               # 최대 워커 수 (시스템 리소스 기반 자동 계산)
-```
-
-## 필수 요구사항
-
-* Python 3.8+
-* OpenAI API 키 (`.env` 파일에 설정)
-* whisper.cpp (로컬 전사 시)
-* ffmpeg (미디어 처리용)
-
-### Scribe 명령어 설치 (선택사항)
-```bash
-# Oh My Zsh에 자동 등록 (권장)
-source scribe.zsh
-
-# 또는 수동으로 등록
-cp scribe.zsh ~/.oh-my-zsh/custom/
-echo 'source ~/.oh-my-zsh/custom/scribe.zsh' >> ~/.zshrc
-```
-
-### 플랫폼 호환성
-
-* **macOS/Linux**: 완전 지원
-* **Windows**: 지원 (타임아웃 기능이 다르게 동작할 수 있음)
-
-## 프로젝트 구조
-
-### 모듈화된 아키텍처 (v2.0)
-```
-open-scribe/
-├── main.py                 # CLI 메인 진입점
-├── src/                    # 핵심 모듈
-│   ├── cli.py             # CLI 인터페이스
-│   ├── config.py          # 설정 관리
-│   ├── database.py        # SQLite 데이터베이스
-│   ├── downloader.py      # YouTube 다운로드
-│   ├── transcribers/      # 전사 엔진 모듈
-│   │   ├── base.py       # 추상 기본 클래스
-│   │   ├── openai.py     # OpenAI/Whisper API
-│   │   ├── whisper_cpp.py # whisper.cpp 로컬
-│   │   └── youtube_api.py # YouTube 자막 API
-│   ├── processors/        # 후처리 모듈
-│   │   ├── summary.py    # AI 요약 생성
-│   │   └── subtitle.py   # SRT 자막 생성
-│   └── utils/             # 유틸리티 함수
-│       ├── audio.py      # 오디오 처리/압축
-│       ├── file.py       # 파일 작업
-│       ├── progress.py   # 진행률 표시
-│       └── validators.py # URL 검증
-├── trans.py               # 레거시 스크립트 (호환성)
-└── docs/                  # 문서
-    ├── architecture.md    # 시스템 아키텍처
-    ├── api-reference.md   # API 레퍼런스
-    └── troubleshooting.md # 문제 해결 가이드
-```
-
-### 핵심 적용 기술 및 기법
-
-#### 🏗️ 아키텍처 패턴
-- **추상 팩토리 패턴**: `BaseTranscriber` 추상 클래스로 전사 엔진 통합 인터페이스 제공
-- **전략 패턴**: 런타임에 전사 엔진 동적 선택 (`openai.py`, `youtube.py`, `whisper_cpp.py`)
-- **모듈화 설계**: 단일 책임 원칙에 따른 계층별 분리 (`src/` 디렉토리 구조)
-
-#### 🚀 성능 최적화
-- **동적 워커 계산**: `WorkerCalculator`가 시스템 리소스 기반으로 최적 병렬 워커 수 자동 계산
-- **청크 기반 병렬 처리**: `worker_pool.py`로 대용량 오디오 파일 분할 처리
-- **스마트 오디오 압축**: `audio.py`에서 25MB 초과 시 점진적 비트레이트 감소 (64k→24k)
-- **메모리 효율 스트리밍**: 실시간 전사 결과 출력으로 메모리 사용량 최소화
-
-#### 🛡️ 안정성 및 복원력
-- **자동 폴백 시스템**: `fallback.py`로 엔진 실패 시 다른 엔진으로 자동 전환
-- **재시도 로직**: 네트워크 오류 시 지수 백오프 재시도 패턴
-- **상태 추적**: SQLite 기반 작업 상태 영속화 (`database.py`)
-- **파일 검증**: 다운로드 후 파일 무결성 및 크기 검증
-
-#### 📊 모니터링 및 진단
-- **실시간 진행률**: `progress.py`에서 퍼센트, ETA, 처리 속도 표시
-- **시스템 리소스 모니터링**: `psutil` 기반 CPU/메모리 사용량 추적
-- **처리 시간 메트릭**: 각 단계별 소요 시간 측정 및 최적화 가이드
-- **에러 분류**: 네트워크/API/파일 오류별 세분화된 예외 처리
-
-#### 🔧 환경 적응성
-- **환경 변수 기반 설정**: `config.py`에서 12가지 환경 변수 지원
-- **다중 플랫폼 호환**: macOS/Linux/Windows 크로스 플랫폼 지원
-- **동적 경로 관리**: 사용자 환경에 따른 자동 경로 설정
-- **API 모델 동적 선택**: GPT-5, GPT-5-mini 등 최신 모델 지원
-
-#### 🌐 국제화 및 번역
-- **언어 자동 감지**: 콘텐츠 언어 자동 판별 후 번역 여부 결정
-- **다단계 번역 파이프라인**: `translator.py`에서 원문→한국어 고품질 번역
-- **자막 형식 변환**: `srt_converter.py`로 다양한 자막 형식 지원
-- **타임코드 동기화**: 번역 시 원본 타임스탬프 유지
-
-## 라이선스
-
-이 프로젝트는 MIT 라이선스 하에 배포됩니다. 자세한 내용은 [LICENSE](LICENSE) 파일을 참조하세요.
-
-## 기여
-
-Open-Scribe는 오픈소스 프로젝트입니다. 기여를 환영합니다!
-
-## 문의
-
-프로젝트 관련 문의사항은 이슈 트래커를 이용해 주세요.
+`copy_to_path` 아래에 제목 파일명으로 복사합니다. `null`이면 복사를 끄며 내장 Downloads 경로는
+없습니다. `--no-downloads`로 이번 실행만 복사를 끌 수 있습니다. 상대 경로는 JSON 파일이 있는
+디렉터리를 기준으로 해석합니다. `paths`의 개별 경로를 생략하면 data 아래에서 파생합니다.
+요약·번역 on/off는 `stages.<stage>.enabled`, 언어는 `options.language`에서 설정합니다.
+
+키 값은 JSON에 넣지 않습니다. `providers`와 `integrations`의 `api_key_file`에 기존 키 파일을,
+`api_key_env`에 읽을 변수명을 지정합니다. 지정한 변수의 리터럴 값만 읽으며 다른 변수는
+프로세스에 주입하지 않습니다. 파일을 지정한 경우 환경변수로 대체하지 않습니다. 파일을
+지정하지 않았을 때만 해당 프로세스의 명시적 인증 환경변수를 사용합니다. Keychain은 조회하지 않습니다.
+Notion의 enabled·database_id, 다운로드 설정, 워커 수, Whisper 경로, bot 옵션도 JSON에 있습니다.
+`--update-key`는 키 파일 관리 안내만 출력하며 파일을 쓰거나 키를 복사하지 않습니다.
+
+업그레이드 시 설정 이전 내용은 [CHANGELOG.md](CHANGELOG.md)를 확인하세요.

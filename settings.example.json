@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "copy_to_path": null,
+  "paths": {
+    "data": "~/.local/share/open-scribe"
+  },
+  "output": {
+    "stream": true,
+    "downloads": true,
+    "keep_audio": false,
+    "timestamp": true
+  },
+  "stages": {
+    "asr": {
+      "model": "elevenlabs/scribe-v2"
+    },
+    "summary": {
+      "model": "openai/gpt-6-luna",
+      "enabled": true
+    }
+  },
+  "providers": {
+    "openrouter": {
+      "api_key_env": "OPENROUTER_API_KEY",
+      "api_key_file": null
+    }
+  }
+}

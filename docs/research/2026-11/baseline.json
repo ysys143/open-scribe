@@ -1,0 +1,139 @@
+{
+  "scope": "SQLite read-only aggregates and source files; no transcription/API execution",
+  "head": "3880fcfe007965711cb89a2f4778db09d2918bfd",
+  "jobs": [
+    73,
+    "2025-12-05 16:10:05.467130",
+    "2026-11-01 14:59:35.917275"
+  ],
+  "engines": [
+    [
+      "gpt-4o-mini-transcribe",
+      65
+    ],
+    [
+      "gpt-4o-transcribe",
+      8
+    ]
+  ],
+  "monthly": [
+    [
+      "2025-12",
+      3
+    ],
+    [
+      "2026-06",
+      3
+    ],
+    [
+      "2026-07",
+      8
+    ],
+    [
+      "2026-08",
+      17
+    ],
+    [
+      "2026-09",
+      20
+    ],
+    [
+      "2026-10",
+      21
+    ],
+    [
+      "2026-11",
+      1
+    ]
+  ],
+  "transcripts": {
+    "count": 64,
+    "min": 1564,
+    "median": 16679,
+    "p90_nearest_rank": 96884,
+    "max": 212142
+  },
+  "files": {
+    "src/config.py": {
+      "sha256": "56627a4df8d6b4ec3cf805670b995ecb0a1e67b3f540d3fabdc095f5adfc237b",
+      "lines": 129
+    },
+    "src/cli.py": {
+      "sha256": "a61264450f057d856b44239e0c59e712bf0980d6c3fc722ccad6b20df295e108",
+      "lines": 653
+    },
+    "src/database.py": {
+      "sha256": "1a2d49d0b69df2bdb64e1cc8815b3c4efb5489269f99387221295d4241bf9d77",
+      "lines": 443
+    },
+    "src/transcribers/base.py": {
+      "sha256": "f04754ced2adc168d9678087c9e105cfe316bc634397796f37ba19b102685ae5",
+      "lines": 160
+    },
+    "src/transcribers/openai.py": {
+      "sha256": "f2290a527e30e953f13d86758b9cf1ae87aeab233aecc811130a1475b146e920",
+      "lines": 409
+    },
+    "src/transcribers/whisper_cpp.py": {
+      "sha256": "70f39a15993d36e5000ea736a3b739d76b10901e43f1793bbe45ac973d991026",
+      "lines": 406
+    },
+    "src/utils/summary.py": {
+      "sha256": "314796dc4da9d866077589b46dccc92ee76f1dccac1b602cb0602de25ca1da5b",
+      "lines": 155
+    },
+    "src/utils/srt_converter.py": {
+      "sha256": "dd8963b3825fc11041951e00993c1b7a1d2eb477c9cb91439f734bd16cc63da8",
+      "lines": 299
+    },
+    "src/utils/keywords.py": {
+      "sha256": "644073e8135f2729e8e3e24e425d1c02cc6f4d9ef904192eb6d0e9aed1bf121f",
+      "lines": 48
+    },
+    "docs/architecture.md": {
+      "sha256": "a8f4032c54af20d877321fe1660348467d9c3abed4eb6683b5bcceb8fb512484",
+      "lines": 218
+    },
+    "deploy.sh": {
+      "sha256": "b37c24e18e58acd471336f535dabccd3514e785303a9ac0bfb764c77a5432450",
+      "lines": 89
+    }
+  },
+  "findings": [
+    {
+      "file": "src/transcribers/base.py",
+      "line": 23,
+      "fact": "returns Optional[str] without common word/segment/speaker structure"
+    },
+    {
+      "file": "src/transcribers/openai.py",
+      "line": 143,
+      "fact": "GPT4o branch formats chunk start time rather than actual word timestamps"
+    },
+    {
+      "file": "src/utils/srt_converter.py",
+      "line": 34,
+      "fact": "subtitle end is next start or estimated duration"
+    },
+    {
+      "file": "src/cli.py",
+      "line": 318,
+      "fact": "cache key is video_id and engine; prompt/model versions absent"
+    },
+    {
+      "file": "src/cli.py",
+      "line": 278,
+      "fact": "local inputs force args.audio False and args.srt False"
+    },
+    {
+      "file": "src/cli.py",
+      "line": 545,
+      "fact": "cleanup unlinks audio_file if args.audio False; this path was inspected, not executed"
+    },
+    {
+      "file": "bot/transcribe_worker.py",
+      "line": 95,
+      "fact": "cloud DB path is under ephemeral /tmp; local engine absent from cloud factory"
+    }
+  ]
+}

@@ -13,11 +13,13 @@ from typing import Optional
 from dataclasses import dataclass
 
 import httpx
+from src.core.config.document import load_settings
+from src.core.providers.models import credential,model
 
 logger = logging.getLogger(__name__)
 
 # Cloud Run temp paths
-CLOUD_TEMP_BASE = Path("/tmp/open-scribe")
+CLOUD_TEMP_BASE = Path(load_settings()['bot']['temp_path'])
 CLOUD_AUDIO_PATH = CLOUD_TEMP_BASE / "audio"
 CLOUD_VIDEO_PATH = CLOUD_TEMP_BASE / "video"
 CLOUD_TRANSCRIPT_PATH = CLOUD_TEMP_BASE / "transcript"
@@ -28,7 +30,7 @@ CLOUD_TEMP_PATH = CLOUD_TEMP_BASE / "temp_audio"
 class WorkerOptions:
     """Options for transcription processing"""
 
-    engine: str = "gpt-4o-mini-transcribe"
+    engine: str = model('asr')
     summary: bool = False
     translate: bool = False
     srt: bool = False
@@ -57,11 +59,11 @@ class WorkerResult:
 
 def _refresh_proxy():
     """Fetch a random proxy from Webshare API if configured"""
-    api_url = os.getenv("WEBSHARE_PROXY_LIST_URL")
+    api_url = credential('proxy_list')
     if not api_url:
         return
     try:
-        logger.info("Fetching proxy list from: %s", api_url[:80])
+        logger.info("Fetching configured proxy list")
         resp = httpx.get(api_url, timeout=10, follow_redirects=True)
         resp.raise_for_status()
         lines = resp.text.strip().split("\n")
@@ -72,10 +74,11 @@ def _refresh_proxy():
         parts = proxy_line.split(":")
         if len(parts) == 4:
             ip, port, user, passwd = parts
-            os.environ["PROXY_URL"] = f"http://{user}:{passwd}@{ip}:{port}"
+            from src.integrations.downloader import YouTubeDownloader
+            YouTubeDownloader.runtime_proxy=f"http://{user}:{passwd}@{ip}:{port}"
             logger.info("Using proxy: %s:%s", ip, port)
     except Exception as e:
-        logger.warning("Failed to fetch proxy list: %s", e)
+        logger.warning("Failed to fetch configured proxy list")
 
 
 def _setup_cloud_paths():
@@ -91,7 +94,7 @@ def _setup_cloud_paths():
 
 def _configure_for_cloud():
     """Override Config paths for Cloud Run environment"""
-    from src.config import Config
+    from src.core.config.settings import Config
 
     Config.BASE_PATH = CLOUD_TEMP_BASE
     Config.AUDIO_PATH = CLOUD_AUDIO_PATH
@@ -105,17 +108,13 @@ def _configure_for_cloud():
 
 def _get_transcriber(engine: str):
     """Get the appropriate transcriber for the engine"""
-    from src.config import Config
+    from src.core.config.settings import Config
 
     # Resolve aliases
     engine = Config.ENGINE_ALIASES.get(engine, engine)
 
-    from src.transcribers.openai import (
-        WhisperAPITranscriber,
-        GPT4OTranscriber,
-        GPT4OMiniTranscriber,
-    )
-    from src.transcribers.youtube import YouTubeTranscriptAPITranscriber
+    from src.core.speech.transcribers.openai import WhisperAPITranscriber, GPT4OTranscriber, GPT4OMiniTranscriber
+    from src.core.speech.transcribers.youtube import YouTubeTranscriptAPITranscriber
 
     transcribers = {
         "whisper-api": WhisperAPITranscriber,
@@ -138,10 +137,10 @@ def _do_transcribe(url: str, options: WorkerOptions) -> WorkerResult:
     Synchronous transcription pipeline.
     Runs in a thread via asyncio.to_thread.
     """
-    from src.config import Config
-    from src.downloader import YouTubeDownloader
-    from src.utils.validators import validate_youtube_url
-    from src.utils.file import sanitize_filename
+    from src.core.config.settings import Config
+    from src.integrations.downloader import YouTubeDownloader
+    from src.core.speech.validators import validate_youtube_url
+    from src.core.presentation.files import sanitize_filename
 
     result = WorkerResult(url=url, engine=options.engine)
 
@@ -237,7 +236,7 @@ def _do_transcribe(url: str, options: WorkerOptions) -> WorkerResult:
     # Optional: Generate summary
     if options.summary:
         try:
-            from src.utils.summary import generate_summary
+            from src.core.postprocess.summary import generate_summary
 
             logger.info("Generating summary...")
             summary = generate_summary(transcript, verbose=options.verbose)
@@ -254,7 +253,7 @@ def _do_transcribe(url: str, options: WorkerOptions) -> WorkerResult:
             transcript_path = CLOUD_TRANSCRIPT_PATH / f"{safe_title}.txt"
             transcript_path.write_text(transcript, encoding="utf-8")
 
-            from src.utils.srt_converter import convert_transcript_to_srt
+            from src.core.postprocess.subtitles import convert_transcript_to_srt
 
             srt_path = convert_transcript_to_srt(transcript_path)
             if srt_path and srt_path.exists():
@@ -266,7 +265,7 @@ def _do_transcribe(url: str, options: WorkerOptions) -> WorkerResult:
     # Optional: Translation
     if options.translate:
         try:
-            from src.utils.translator import SubtitleTranslator
+            from src.core.postprocess.translator import SubtitleTranslator
 
             translator = SubtitleTranslator(Config())
             translated, ok = translator.translate_text(

@@ -1,0 +1,3 @@
+# Keep historical and research documents byte-for-byte.
+docs/archive/** -whitespace
+docs/research/** -whitespace

@@ -1,5 +1,4 @@
 openai==1.107.0
-python-dotenv==1.1.1
 youtube-transcript-api==1.2.2
 yt-dlp>=2026.6.9
 psutil==7.0.0

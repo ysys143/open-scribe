@@ -1,9 +1,4 @@
-# Core dependencies (from requirements.txt)
-openai==1.107.0
-python-dotenv==1.1.1
-youtube-transcript-api==1.2.2
-yt-dlp==2025.9.23
-psutil==7.0.0
+-r requirements.txt
 
 # Cloud-specific dependencies
 fastapi==0.115.6

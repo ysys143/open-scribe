@@ -3,7 +3,8 @@ Telegram Bot handler for Open-Scribe Cloud
 Provides mobile interface for transcription via Telegram
 """
 
-import os
+from src.core.config.document import load_settings
+from src.core.providers.models import credential,model
 import re
 import logging
 from typing import Optional
@@ -47,9 +48,10 @@ _ICON_UNKNOWN = "\u2753"  # question mark
 
 def _get_notion_client() -> Optional[NotionClient]:
     """Create Notion client if configured"""
-    api_key = os.getenv("NOTION_API_KEY")
-    db_id = os.getenv("NOTION_DATABASE_ID")
-    if api_key and db_id:
+    if not load_settings()['integrations']['notion']['enabled']:return None
+    api_key = credential('notion')
+    db_id = load_settings()['integrations']['notion']['database_id']
+    if load_settings()['integrations']['notion']['enabled'] and api_key and db_id:
         return NotionClient(api_key, db_id)
     return None
 
@@ -106,7 +108,7 @@ async def cmd_engine(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.args:
         user_id = update.effective_user.id
         current = _user_engines.get(
-            user_id, os.getenv("OPEN_SCRIBE_ENGINE", "gpt-4o-mini-transcribe")
+            user_id, model('asr')
         )
         await update.message.reply_text(
             f"\ud604\uc7ac \uc5d4\uc9c4: {current}\n\n"
@@ -325,7 +327,7 @@ async def handle_url_message(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
     user_id = update.effective_user.id
     engine = _user_engines.get(
-        user_id, os.getenv("OPEN_SCRIBE_ENGINE", "gpt-4o-mini-transcribe")
+        user_id, model('asr')
     )
 
     status_msg = await update.message.reply_text(
@@ -355,7 +357,7 @@ async def cmd_summary(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     user_id = update.effective_user.id
     engine = _user_engines.get(
-        user_id, os.getenv("OPEN_SCRIBE_ENGINE", "gpt-4o-mini-transcribe")
+        user_id, model('asr')
     )
 
     status_msg = await update.message.reply_text(
@@ -384,7 +386,7 @@ async def cmd_translate(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     user_id = update.effective_user.id
     engine = _user_engines.get(
-        user_id, os.getenv("OPEN_SCRIBE_ENGINE", "gpt-4o-mini-transcribe")
+        user_id, model('asr')
     )
 
     status_msg = await update.message.reply_text(
@@ -413,7 +415,7 @@ async def cmd_srt(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     user_id = update.effective_user.id
     engine = _user_engines.get(
-        user_id, os.getenv("OPEN_SCRIBE_ENGINE", "gpt-4o-mini-transcribe")
+        user_id, model('asr')
     )
 
     status_msg = await update.message.reply_text(
