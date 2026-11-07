@@ -18,18 +18,32 @@ class ModernTranscriber(BaseTranscriber):
     def name(self):return self.selected
     @property
     def requires_api_key(self):return True
-    def is_available(self):return bool(credential(route(self.selected)[0]))
+    def is_available(self):
+        from src.core.speech.adapters import policy
+        spec,provider,_=policy(self.selected,stage('asr').get('options',{}),stage('asr').get('provider','auto'))
+        return bool(credential(route(self.selected)[0] if provider=='auto' else provider))
     def transcribe(self,audio_path,stream=False,return_timestamps=False,**kwargs):
         if not self.validate_audio_file(audio_path):raise ValueError('audio file is missing')
         duration=get_audio_duration(audio_path)
         if not math.isfinite(duration) or duration<=0:raise ValueError('audio duration is unavailable')
+        from src.core.speech.adapters import policy,single_request,OpenRouterSTTAdapter
+        settings=stage('asr');opts=settings.get('options',{})
+        spec,chosen,enabled=policy(self.selected,opts,settings.get('provider','auto'))
+        if spec.diarization=='supported':
+            return single_request(self.config,Path(audio_path),self.selected,opts,chosen,enabled,return_timestamps,kwargs.get('refresh',False))
         provider,selected=route(self.selected)
+        if chosen!='auto':
+            provider=chosen
+            selected=self.selected if chosen=='openrouter' else self.selected.split('/',1)[-1]
         options=stage('asr').get('options',{}).get('provider_options')
         from src.core.speech.labels import DiarizedText,digest,label_units
-        parts=[];turns=[];spans=[];position=0
-        diarization_model=self.selected=='elevenlabs/scribe-v2' or bool(options and any(
-            v.get('diarize') is True or isinstance(v.get('diarization'),dict) and v['diarization'].get('enabled') is True
-            for v in options.values()))
+        from src.core.speech.checkpoint import Checkpoint,ASRResult,ASRResponseError,response_text,write_json
+        checkpoint=Checkpoint(self.config.TRANSCRIPT_PATH,audio_path,
+            {'version':1,'provider':provider,'model':selected,'options':stage('asr').get('options',{}),
+             'chunk_seconds':30,'encoding':'pcm16-16000-mono'})
+        print(f'ASR progress: {checkpoint.root}',flush=True)
+        parts=[];turns=[];spans=[];position=0;issues=[];usable=0
+        diarization_model=enabled
         with tempfile.TemporaryDirectory(prefix='scribe-audio-') as temporary:
             count=math.ceil(duration/30)
             for index in range(count):
@@ -44,17 +58,36 @@ class ModernTranscriber(BaseTranscriber):
                 if language:form['languages[]' if provider=='openai' and selected=='gpt-transcribe' else 'language']=language.lower()
                 if self.selected=='elevenlabs/scribe-v2':
                     form.update(response_format='verbose_json',timestamp_granularities=['word'])
-                if provider=='openrouter' and options:
-                    form['provider']={'options':options,'allow_fallbacks':False}
-                    data=post(provider,'audio/transcriptions',json_body={**form,'input_audio':{
-                        'data':base64.b64encode(path.read_bytes()).decode('ascii'),'format':'wav'}})
-                else:
-                    if 'timestamp_granularities' in form:
-                        form['timestamp_granularities[]']=form.pop('timestamp_granularities')[0]
-                    with path.open('rb') as audio:
-                        data=post(provider,'audio/transcriptions',data=form,files={'file':(path.name,audio,'audio/wav')})
-                text=data.get('text')
-                if not isinstance(text,str) or not text.strip():raise ValueError('empty ASR response; not retried')
+                cached=not kwargs.get('refresh') and checkpoint.has(index)
+                data=checkpoint.read(index) if cached else None
+                if not cached:
+                    if provider=='openrouter' and options:
+                        form['provider']={'options':options,'allow_fallbacks':False}
+                        data=post(provider,'audio/transcriptions',json_body={**form,'input_audio':{
+                            'data':base64.b64encode(path.read_bytes()).decode('ascii'),'format':'wav'}})
+                    else:
+                        if 'timestamp_granularities' in form:
+                            form['timestamp_granularities[]']=form.pop('timestamp_granularities')[0]
+                        with path.open('rb') as audio:
+                            data=post(provider,'audio/transcriptions',data=form,files={'file':(path.name,audio,'audio/wav')})
+                    checkpoint.write(index,data)
+                else:print(f'[{self.name}] Cached chunk {index+1}/{count}',flush=True)
+                try:
+                    data=OpenRouterSTTAdapter().normalize(data)
+                    text=response_text(data)
+                except ASRResponseError as error:
+                    raise ASRResponseError(f'{error}; response saved at {checkpoint.root}/{index}.json; not retried') from None
+                if not text.strip():
+                    issue={'chunk':index,'start':offset,'end':min(duration,offset+30),'code':'empty_asr_response'}
+                    issues.append(issue)
+                    rendered=f'[{format_timestamp(offset)}] [미전사 구간: {format_timestamp(offset)}–{format_timestamp(min(duration,offset+30))}; 무음 여부·인식 실패 확인 필요]'
+                    parts.append(rendered);position+=len(rendered)+1
+                    turns.append({'id':f'chunk{index}:untranscribed','speaker':None,'text':rendered})
+                    print(rendered,flush=True)
+                    write_json(checkpoint.root/'status.json',{'processed_chunks':index+1,'total_chunks':count,'issues':issues})
+                    continue
+                usable+=1
+                data=OpenRouterSTTAdapter().normalize({**data,'text':text})
                 rendered=text.strip()
                 labelled=label_units(data,index,offset,return_timestamps,format_timestamp) if diarization_model else None
                 if labelled:
@@ -76,7 +109,10 @@ class ModernTranscriber(BaseTranscriber):
                 position+=len(rendered)+1
                 if stream:print(rendered,flush=True)
         text='\n'.join(parts)
-        if spans:
-            return DiarizedText(text,{'version':1,'engine':self.selected,'text_sha256':digest(text),
-                                      'turns':turns,'spans':spans})
-        return text
+        write_json(checkpoint.root/'status.json',{'processed_chunks':count,'total_chunks':count,'issues':issues,'usable_chunks':usable})
+        if not usable:
+            raise ASRResponseError(f'No speech text returned for any chunk; responses saved at {checkpoint.root}; not retried')
+        result=(DiarizedText(text,{'version':1,'engine':self.selected,'text_sha256':digest(text),
+                                 'turns':turns,'spans':spans}) if spans else ASRResult(text))
+        result.asr_issues=issues;result.asr_cache=str(checkpoint.root)
+        return result

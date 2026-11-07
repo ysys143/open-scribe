@@ -109,7 +109,15 @@ class TextClient:
             body.update(max_tokens=limit,reasoning={'effort':effort},provider={'allow_fallbacks':False})
             data=post(provider,'chat/completions',json_body=body)
             text=data['choices'][0]['message'].get('content')
-        if not isinstance(text,str) or not text.strip():raise ValueError('empty model response')
+        from src.core.config.document import load_settings
+        from src.core.speech.checkpoint import write_json
+        import time
+        from pathlib import Path
+        destination=Path(load_settings()['paths']['data'])/'model-responses'/f'{self.task}-{time.time_ns()}.json'
+        write_json(destination,{'provider':provider,'model':selected,'limit':limit,'response':data})
+        if not isinstance(text,str) or not text.strip():
+            reason=(data.get('choices') or [{}])[0].get('finish_reason',data.get('stop_reason'))
+            raise ValueError(f'empty model response; finish_reason={reason}; diagnostic={destination}; not retried')
         return SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(content=text))])
 
 

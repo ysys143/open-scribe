@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 from src.core.config.settings import Config
+from src.core.speech.checkpoint import ASRResponseError,write_json
 from src.core.runtime.database import TranscriptionDatabase
 from src.integrations.downloader import YouTubeDownloader
 from src.core.speech.transcribers.openai import WhisperAPITranscriber, GPT4OTranscriber, GPT4OMiniTranscriber
@@ -284,255 +285,321 @@ def process_single_video(input_path: str, args, config: Config) -> bool:
             # If fully completed, just return
             if existing_job['status'] == 'completed' and existing_job['transcription_completed']:
                 print(f"[OK] Transcription already completed: {existing_job['transcript_path']}")
-                if not args.summary or existing_job['summary_completed']:
+                if ((not args.summary or existing_job['summary_completed'])
+                        and (not args.srt or existing_job.get('srt_completed'))
+                        and (not args.translate or existing_job.get('translation_path'))):
                     print("[OK] All requested tasks already completed")
                     return True
     else:
         # Create new job
         job_id = db.create_job(video_id, input_path, video_title, args.engine)
 
-    # Handle audio file
-    audio_file = None
-    if is_local_file:
-        # For local files, use the file directly
-        audio_file = input_path
-        print(f"\n[OK] Using local audio file: {audio_file}")
-        # Update download status
-        db.update_download_status(job_id, True, audio_file)
-    else:
-        # For YouTube videos, download if needed.
-        # downloader is always set in the non-local branch above; local files
-        # never reach here (this narrows Optional for static analysis).
-        assert downloader is not None
-        if args.video:
-            print("\nDownloading video...")
-            video_file = downloader.download_video(input_path)
-            if video_file:
-                print(f"Video saved: {video_file}")
+    try:
+        transcription = None
+        transcript_path = None
+        failed_stages = []
+        # Handle audio file
+        audio_file = None
+        if is_local_file:
+            # For local files, use the file directly
+            audio_file = input_path
+            print(f"\n[OK] Using local audio file: {audio_file}")
+            # Update download status
+            db.update_download_status(job_id, True, audio_file)
+        else:
+            # For YouTube videos, download if needed.
+            # downloader is always set in the non-local branch above; local files
+            # never reach here (this narrows Optional for static analysis).
+            assert downloader is not None
+            if args.video:
+                print("\nDownloading video...")
+                video_file = downloader.download_video(input_path)
+                if video_file:
+                    print(f"Video saved: {video_file}")
 
-        # Download audio (skip for YouTube Transcript API)
-        if args.engine != 'youtube-transcript-api':
-            if existing_job and existing_job.get('download_completed') and not args.force:
-                if existing_job.get('download_path') and Path(existing_job['download_path']).exists():
-                    print("\n[OK] Download already completed (using cached file)")
-                    audio_file = existing_job['download_path']
-                else:
-                    print("\n[WARNING] Previous download missing, re-downloading...")
+            # Download audio (skip for YouTube Transcript API)
+            if args.engine != 'youtube-transcript-api':
+                if existing_job and existing_job.get('download_completed') and not args.force:
+                    if existing_job.get('download_path') and Path(existing_job['download_path']).exists():
+                        print("\n[OK] Download already completed (using cached file)")
+                        audio_file = existing_job['download_path']
+                    else:
+                        print("\n[WARNING] Previous download missing, re-downloading...")
 
-            if not audio_file:
-                print("\nDownloading audio...")
-                audio_file = downloader.download_audio(input_path, keep_original=args.audio)
                 if not audio_file:
-                    print("Error: Failed to download audio")
-                    db.update_job_status(job_id, 'failed')
-                    return False
-                # Update download status
-                db.update_download_status(job_id, True, audio_file)
-        else:
-            print("\n[OK] Skipping audio download (using YouTube Transcript API)")
+                    print("\nDownloading audio...")
+                    audio_file = downloader.download_audio(input_path, keep_original=args.audio)
+                    if not audio_file:
+                        print("Error: Failed to download audio")
+                        db.update_job_status(job_id, 'failed')
+                        return False
+                    # Update download status
+                    db.update_download_status(job_id, True, audio_file)
+            else:
+                print("\n[OK] Skipping audio download (using YouTube Transcript API)")
 
-    # Transcribe (check if already transcribed)
-    transcription = None
-    transcript_path = None
-    safe_title = sanitize_filename(video_title)
-    speaker_path=config.TRANSCRIPT_PATH/f'{safe_title}_diarization.json'
-    from src.core.speech.labels import save_context,restore_context,replace_names,digest
+        # Transcribe (check if already transcribed)
+        transcription = None
+        transcript_path = None
+        asr_issues=[];asr_cache=None
+        safe_title = sanitize_filename(video_title)
+        speaker_path=config.TRANSCRIPT_PATH/f'{safe_title}_diarization.json'
+        asr_status_path=config.TRANSCRIPT_PATH/f'{safe_title}_asr_status.json'
+        from src.core.speech.labels import save_context,restore_context,replace_names,digest
 
-    if existing_job and existing_job.get('transcription_completed') and not args.force:
-        if existing_job.get('transcript_path') and Path(existing_job['transcript_path']).exists():
-            print("\n[OK] Transcription already completed (using cached result)")
-            transcript_path = Path(existing_job['transcript_path'])
-            transcription = transcript_path.read_text(encoding='utf-8')
-            transcription=restore_context(speaker_path,transcription,args.engine)
-        else:
-            print("\n[WARNING] Previous transcription missing, re-transcribing...")
+        if existing_job and existing_job.get('transcription_completed') and not args.force:
+            if existing_job.get('transcript_path') and Path(existing_job['transcript_path']).exists():
+                print("\n[CACHE] 저장된 전사 결과 사용")
+                transcript_path = Path(existing_job['transcript_path'])
+                speaker_path=transcript_path.with_name(transcript_path.stem+'_diarization.json')
+                asr_status_path=transcript_path.with_name(transcript_path.stem+'_asr_status.json')
+                transcription = transcript_path.read_text(encoding='utf-8')
+                transcription=restore_context(speaker_path,transcription,args.engine)
+                if asr_status_path.exists():
+                    import json
+                    status_record=json.loads(asr_status_path.read_text())
+                    if status_record.get('text_sha256')==digest(transcription):
+                        asr_issues=status_record.get('issues',[]);asr_cache=status_record.get('cache_path')
+                        if asr_issues:
+                            from src.core.speech.checkpoint import ASRResult
+                            if type(transcription) is str:transcription=ASRResult(transcription)
+                            transcription.asr_issues=asr_issues
+                    elif existing_job['status']=='partial':
+                        raise ASRResponseError('Partial transcript metadata changed; review it before retrying')
+                elif existing_job['status']=='partial':
+                    raise ASRResponseError('Partial transcript metadata missing; review it before retrying')
+            else:
+                print("\n[WARNING] Previous transcription missing, re-transcribing...")
 
-    if not transcription:
-        print(f"\nTranscribing with {args.engine}...")
-        transcriber = get_transcriber(args.engine, config)
+        if not transcription:
+            print(f"\nTranscribing with {args.engine}...")
+            transcriber = get_transcriber(args.engine, config)
 
-        if not transcriber.is_available():
-            print(f"Error: {args.engine} is not available. Check configuration.")
-            db.update_job_status(job_id, 'failed')
-            return False
-
-        # YouTube Transcript API uses URL directly, not audio file
-        if args.engine == 'youtube-transcript-api':
-            if is_local_file:
-                print("Error: YouTube Transcript API cannot be used with local files")
+            if not transcriber.is_available():
+                print(f"Error: {args.engine} is not available. Check configuration.")
                 db.update_job_status(job_id, 'failed')
                 return False
-            transcription = transcriber.transcribe(
-                input_path,  # Pass URL directly for YouTube API
-                stream=args.stream,
-                return_timestamps=args.timestamp
-            )
-        else:
-            transcription = transcriber.transcribe(
-                audio_file,
-                stream=args.stream,
-                return_timestamps=args.timestamp
-            )
 
-        if not transcription or not transcription.strip():  # Check for empty transcription
-            print("Error: Transcription failed")
-            db.update_job_status(job_id, 'failed')
+            from src.core.speech.transcribers.modern import ModernTranscriber
+            refresh_kwargs={'refresh':args.force} if isinstance(transcriber,ModernTranscriber) else {}
+            try:
+                # YouTube Transcript API uses URL directly, not audio file
+                if args.engine == 'youtube-transcript-api':
+                    if is_local_file:
+                        print("Error: YouTube Transcript API cannot be used with local files")
+                        db.update_job_status(job_id, 'failed')
+                        return False
+                    transcription = transcriber.transcribe(
+                        input_path,  # Pass URL directly for YouTube API
+                        stream=args.stream,
+                        return_timestamps=args.timestamp,
+                        **refresh_kwargs
+                    )
+                else:
+                    transcription = transcriber.transcribe(
+                        audio_file,
+                        stream=args.stream,
+                        return_timestamps=args.timestamp,
+                        **refresh_kwargs
+                    )
+            except Exception:
+                db.update_job_status(job_id,'failed')
+                raise
+            asr_issues=getattr(transcription,'asr_issues',[])
+            asr_cache=getattr(transcription,'asr_cache',None)
+
+            if not transcription or not transcription.strip():  # Check for empty transcription
+                print("Error: Transcription failed")
+                db.update_job_status(job_id, 'failed')
+                return False
+
+            # Save transcription
+            transcript_path = config.TRANSCRIPT_PATH / f"{safe_title}.txt"
+            save_text_file(transcription, transcript_path)
+            save_context(speaker_path,transcription)
+            print(f"\nTranscript saved: {transcript_path}")
+
+            write_json(asr_status_path, {'text_sha256': digest(transcription),
+                                         'issues': asr_issues, 'cache_path': asr_cache})
+            # Update transcription status
+            db.update_transcription_status(job_id, True, str(transcript_path))
+
+        # A saved transcript remains usable if any later stage fails.
+        db.update_job_status(job_id, 'partial')
+
+        # Generate summary if requested
+        summary_text = None
+        if args.summary:
+            if existing_job and existing_job.get('summary_completed') and not args.force:
+                print("\n[OK] Summary already generated")
+                summary_text = existing_job.get('summary')
+            else:
+                print("\n[SUMMARY] Generating summary...")
+                summary_text = generate_summary(transcription, verbose=args.verbose)
+                if summary_text:
+                    mapping=getattr(summary_text,'speaker_mapping',{})
+                    if getattr(summary_text,'speaker_proposals',None):
+                        import json
+                        report={'source_sha256':digest(transcription),'mapping':mapping,
+                                'proposals':summary_text.speaker_proposals,'human_confirmed':False}
+                        report_path=config.TRANSCRIPT_PATH/f'{safe_title}_speaker_names.json'
+                        save_text_file(json.dumps(report,ensure_ascii=False,indent=2),report_path)
+                        print(f'{report_path}에 있는 화자 메모리를 갱신했습니다.')
+                    if mapping:
+                        named=replace_names(transcription,mapping)
+                        raw_path=config.TRANSCRIPT_PATH/f'{safe_title}_raw_{digest(transcription)[:12]}.txt'
+                        if not raw_path.exists():save_text_file(transcription,raw_path)
+                        save_text_file(named,transcript_path)
+                        transcription=named
+                        write_json(asr_status_path, {'text_sha256': digest(transcription),
+                                                     'issues': asr_issues, 'cache_path': asr_cache})
+                        print(f'Speaker labels updated: {transcript_path} (inferred; original: {raw_path})')
+                    if asr_issues:
+                        summary_text=f'[확인 필요 전사 기반 요약: ASR 확인 필요 항목 {len(asr_issues)}개가 있습니다.]\n\n'+str(summary_text)
+                    # Save summary to file
+                    summary_path = config.TRANSCRIPT_PATH / f"{safe_title}_summary.txt"
+                    formatted_summary = format_summary_output(summary_text, video_title)
+                    save_text_file(formatted_summary, summary_path)
+                    print(f"Summary saved: {summary_path}")
+
+                    # Copy to downloads if requested
+                    if args.downloads:
+                        summary_download = copy_to_downloads(summary_path, config.DOWNLOADS_PATH)
+                        if summary_download:
+                            print(f"Summary copied to: {summary_download}")
+
+                    db.update_summary_status(job_id, True, summary_text)
+                else:
+                    failed_stages.append("summary")
+                    print("Warning: Summary generation failed")
+                    db.update_summary_status(job_id, False, None)
+
+        # Generate SRT if requested
+        srt_path = None
+        if args.srt and transcript_path:
+            try:
+                print("\n[SRT] Generating SRT subtitles...")
+                srt_path = convert_transcript_to_srt(transcript_path)
+                if not srt_path or not Path(srt_path).is_file():
+                    raise ValueError("SRT output missing")
+                print(f"SRT saved: {srt_path}")
+                db.update_srt_status(job_id, True, str(srt_path))
+                if args.downloads:
+                    srt_download = copy_to_downloads(srt_path, config.DOWNLOADS_PATH)
+                    if srt_download:
+                        print(f"SRT copied to: {srt_download}")
+            except Exception as e:
+                failed_stages.append("srt")
+                srt_path = None
+                print(f"Warning: Failed to generate SRT: {e}")
+
+        # Translate if requested (transcript and/or SRT)
+        if args.translate:
+            try:
+                translator = SubtitleTranslator(config)
+                # Prefer SRT translation when available
+                if srt_path and srt_path.exists():
+                    print("\n[TRANSLATE] Translating SRT...")
+                    translated_srt, ok = translator.translate_srt(srt_path.read_text(encoding='utf-8'), verbose=args.verbose)
+                    if ok:
+                        srt_ko_path = srt_path.with_name(f"{srt_path.stem}.ko.srt")
+                        save_text_file(translated_srt, srt_ko_path)
+                        db.update_job_field(job_id, "translation_path", str(srt_ko_path))
+                        print(f"Translated SRT saved: {srt_ko_path}")
+                        if args.downloads:
+                            srt_ko_download = copy_to_downloads(srt_ko_path, config.DOWNLOADS_PATH)
+                            if srt_ko_download:
+                                print(f"Translated SRT copied to: {srt_ko_download}")
+                else:
+                    print("\n[TRANSLATE] Translating transcript...")
+                    translated_text, ok = translator.translate_text(transcription, preserve_timestamps=True, verbose=args.verbose)
+                    if ok:
+                        ko_path = config.TRANSCRIPT_PATH / f"{safe_title}.ko.txt"
+                        save_text_file(translated_text, ko_path)
+                        db.update_job_field(job_id, "translation_path", str(ko_path))
+                        print(f"Translated transcript saved: {ko_path}")
+                        if args.downloads:
+                            ko_download = copy_to_downloads(ko_path, config.DOWNLOADS_PATH)
+                            if ko_download:
+                                print(f"Translated transcript copied to: {ko_download}")
+                if not ok:
+                    failed_stages.append("translation")
+            except Exception as e:
+                failed_stages.append("translation")
+                print(f"Warning: Translation failed: {e}")
+
+        # Copy transcript to downloads if requested (after summary/SRT so files are together)
+        if args.downloads and transcript_path:
+            download_path = copy_to_downloads(transcript_path, config.DOWNLOADS_PATH)
+            if download_path:
+                print(f"\nTranscript copied to: {download_path}")
+
+        # Save to Notion if configured
+        if transcription and transcription.strip() and notion.is_configured():
+            print("\n[NOTION] Saving to Notion...")
+            from src.core.postprocess.keywords import extract_keywords
+            keyword_source = summary_text or transcription
+            print("[NOTION] Extracting keywords...")
+            keywords = extract_keywords(keyword_source)
+            if keywords:
+                print(f"[NOTION] Keywords: {', '.join(keywords)}")
+
+            srt_text = None
+            if srt_path and srt_path.exists():
+                srt_text = srt_path.read_text(encoding='utf-8')
+            duration = video_info.get('duration') if not is_local_file and video_info else None
+            from datetime import datetime
+            page_id = notion.save_to_notion(
+                title=video_title,
+                url=None if is_local_file else input_path,
+                engine=args.engine,
+                status='partial' if asr_issues or failed_stages else 'completed',
+                state_path=config.TRANSCRIPT_PATH / f'.notion_job_{job_id}.json',
+                transcript=transcription,
+                summary=summary_text,
+                srt=srt_text,
+                duration=duration,
+                keywords=keywords,
+                created_at=datetime.now().strftime("%Y-%m-%d"),
+            )
+            if page_id:
+                print(f"[NOTION] Saved: https://notion.so/{page_id.replace('-', '')}")
+            else:
+                failed_stages.append("notion")
+                print("[NOTION] Failed to save (check NOTION_API_KEY and NOTION_DATABASE_ID)")
+
+        # Update overall job status
+        if transcription and transcription.strip():  # Check for non-empty transcription
+            write_json(asr_status_path,{'text_sha256':digest(transcription),'issues':asr_issues,'cache_path':asr_cache})
+            db.update_job_status(job_id, 'partial' if asr_issues or failed_stages else 'completed', str(transcript_path), summary_text)
+
+        # Clean up temp audio if not keeping
+        if not is_local_file and not asr_issues and not failed_stages and not args.audio and audio_file and Path(audio_file).exists():
+            try:
+                Path(audio_file).unlink()
+            except OSError:
+                pass
+
+        if asr_issues:
+            print(f'\n[PARTIAL] ASR 확인 필요 항목 {len(asr_issues)}개가 있습니다. 결과: {transcript_path} / 상태: {asr_status_path}')
             return False
 
-        # Save transcription
-        transcript_path = config.TRANSCRIPT_PATH / f"{safe_title}.txt"
-        save_text_file(transcription, transcript_path)
-        save_context(speaker_path,transcription)
-        print(f"\nTranscript saved: {transcript_path}")
+        if failed_stages:
+            print(f"[PARTIAL] Failed stages: {', '.join(failed_stages)}")
+            return False
 
-        # Update transcription status
-        db.update_transcription_status(job_id, True, str(transcript_path))
-
-    # Generate summary if requested
-    summary_text = None
-    if args.summary:
-        if existing_job and existing_job.get('summary_completed') and not args.force:
-            print("\n[OK] Summary already generated")
-            summary_text = existing_job.get('summary')
+        # Only show success message if transcription actually succeeded
+        if transcription and transcription.strip():  # Check for non-empty transcription
+            print("\n[SUCCESS] Transcription completed successfully!")
+            return True
         else:
-            print("\n[SUMMARY] Generating summary...")
-            summary_text = generate_summary(transcription, verbose=args.verbose)
-            if summary_text:
-                mapping=getattr(summary_text,'speaker_mapping',{})
-                if getattr(summary_text,'speaker_proposals',None):
-                    import json
-                    report={'source_sha256':digest(transcription),'mapping':mapping,
-                            'proposals':summary_text.speaker_proposals,'human_confirmed':False}
-                    report_path=config.TRANSCRIPT_PATH/f'{safe_title}_speaker_names.json'
-                    save_text_file(json.dumps(report,ensure_ascii=False,indent=2),report_path)
-                    print(f'{report_path}에 있는 화자 메모리를 갱신했습니다.')
-                if mapping:
-                    named=replace_names(transcription,mapping)
-                    raw_path=config.TRANSCRIPT_PATH/f'{safe_title}_raw_{digest(transcription)[:12]}.txt'
-                    if not raw_path.exists():save_text_file(transcription,raw_path)
-                    save_text_file(named,transcript_path)
-                    transcription=named
-                    print(f'Speaker labels updated: {transcript_path} (inferred; original: {raw_path})')
-                # Save summary to file
-                summary_path = config.TRANSCRIPT_PATH / f"{safe_title}_summary.txt"
-                formatted_summary = format_summary_output(summary_text, video_title)
-                save_text_file(formatted_summary, summary_path)
-                print(f"Summary saved: {summary_path}")
+            print("\n[ERROR] Transcription failed!")
+            return False
+    except BaseException:
+        saved_job = db.get_job_by_id(job_id)
+        db.update_job_status(job_id, 'partial' if saved_job and saved_job.get('transcription_completed') else 'failed')
+        raise
 
-                # Copy to downloads if requested
-                if args.downloads:
-                    summary_download = copy_to_downloads(summary_path, config.DOWNLOADS_PATH)
-                    if summary_download:
-                        print(f"Summary copied to: {summary_download}")
-
-                db.update_summary_status(job_id, True, summary_text)
-            else:
-                print("Warning: Summary generation failed")
-                db.update_summary_status(job_id, False, None)
-
-    # Generate SRT if requested
-    srt_path = None
-    if args.srt and transcript_path:
-        try:
-            print("\n[SRT] Generating SRT subtitles...")
-            srt_path = convert_transcript_to_srt(transcript_path)
-            print(f"SRT saved: {srt_path}")
-            try:
-                db.update_srt_status(job_id, True, str(srt_path))
-            except Exception:
-                pass
-            if args.downloads:
-                srt_download = copy_to_downloads(srt_path, config.DOWNLOADS_PATH)
-                if srt_download:
-                    print(f"SRT copied to: {srt_download}")
-        except Exception as e:
-            print(f"Warning: Failed to generate SRT: {e}")
-
-    # Translate if requested (transcript and/or SRT)
-    if args.translate:
-        try:
-            translator = SubtitleTranslator(config)
-            # Prefer SRT translation when available
-            if srt_path and srt_path.exists():
-                print("\n[TRANSLATE] Translating SRT...")
-                translated_srt, ok = translator.translate_srt(srt_path.read_text(encoding='utf-8'), verbose=args.verbose)
-                if ok:
-                    srt_ko_path = srt_path.with_name(f"{srt_path.stem}.ko.srt")
-                    save_text_file(translated_srt, srt_ko_path)
-                    print(f"Translated SRT saved: {srt_ko_path}")
-                    if args.downloads:
-                        srt_ko_download = copy_to_downloads(srt_ko_path, config.DOWNLOADS_PATH)
-                        if srt_ko_download:
-                            print(f"Translated SRT copied to: {srt_ko_download}")
-            else:
-                print("\n[TRANSLATE] Translating transcript...")
-                translated_text, ok = translator.translate_text(transcription, preserve_timestamps=True, verbose=args.verbose)
-                if ok:
-                    ko_path = config.TRANSCRIPT_PATH / f"{safe_title}.ko.txt"
-                    save_text_file(translated_text, ko_path)
-                    print(f"Translated transcript saved: {ko_path}")
-                    if args.downloads:
-                        ko_download = copy_to_downloads(ko_path, config.DOWNLOADS_PATH)
-                        if ko_download:
-                            print(f"Translated transcript copied to: {ko_download}")
-        except Exception as e:
-            print(f"Warning: Translation failed: {e}")
-
-    # Copy transcript to downloads if requested (after summary/SRT so files are together)
-    if args.downloads and transcript_path:
-        download_path = copy_to_downloads(transcript_path, config.DOWNLOADS_PATH)
-        if download_path:
-            print(f"\nTranscript copied to: {download_path}")
-
-    # Save to Notion if configured
-    if transcription and transcription.strip() and notion.is_configured():
-        print("\n[NOTION] Saving to Notion...")
-        from src.core.postprocess.keywords import extract_keywords
-        keyword_source = summary_text or transcription
-        print("[NOTION] Extracting keywords...")
-        keywords = extract_keywords(keyword_source)
-        if keywords:
-            print(f"[NOTION] Keywords: {', '.join(keywords)}")
-
-        srt_text = None
-        if srt_path and srt_path.exists():
-            srt_text = srt_path.read_text(encoding='utf-8')
-        duration = video_info.get('duration') if not is_local_file and video_info else None
-        from datetime import datetime
-        page_id = notion.save_to_notion(
-            title=video_title,
-            url=input_path,
-            engine=args.engine,
-            transcript=transcription,
-            summary=summary_text,
-            srt=srt_text,
-            duration=duration,
-            keywords=keywords,
-            created_at=datetime.now().strftime("%Y-%m-%d"),
-        )
-        if page_id:
-            print(f"[NOTION] Saved: https://notion.so/{page_id.replace('-', '')}")
-        else:
-            print("[NOTION] Failed to save (check NOTION_API_KEY and NOTION_DATABASE_ID)")
-
-    # Update overall job status
-    if transcription and transcription.strip():  # Check for non-empty transcription
-        db.update_job_status(job_id, 'completed', str(transcript_path), summary_text)
-
-    # Clean up temp audio if not keeping
-    if not is_local_file and not args.audio and audio_file and Path(audio_file).exists():
-        try:
-            Path(audio_file).unlink()
-        except OSError:
-            pass
-
-    # Only show success message if transcription actually succeeded
-    if transcription and transcription.strip():  # Check for non-empty transcription
-        print("\n[SUCCESS] Transcription completed successfully!")
-        return True
-    else:
-        print("\n[ERROR] Transcription failed!")
-        return False
 
 def main():
     """Main entry point"""
@@ -543,6 +610,13 @@ def main():
     if len(sys.argv)>1 and sys.argv[1]=='ls':
         from src.core.presentation.list_jobs import main as list_main
         return list_main(sys.argv[2:],Config.DB_PATH)
+
+    if len(sys.argv) > 1 and sys.argv[1] == 'models':
+        from src.core.speech.catalog import main as catalog_main
+        return catalog_main()
+    if len(sys.argv) > 1 and sys.argv[1] == 'repair':
+        from src.core.speech.repair import main as repair_main
+        return repair_main(sys.argv[2:])
 
     # Parse arguments
     parser = create_argument_parser()
@@ -614,6 +688,9 @@ def main():
 
         return 0
 
+    except ASRResponseError as e:
+        print(f'Transcription error: {e}')
+        return 1
     except ValueError as e:
         print(f"Configuration error: {e}")
         return 1

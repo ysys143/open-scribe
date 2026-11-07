@@ -15,9 +15,9 @@ from src.core.presentation.cli import create_argument_parser, process_single_vid
 
 class LegacyModelTests(unittest.TestCase):
     def configuration(self):
-        return {'stages':{'asr':{'model':'elevenlabs/scribe-v2','options':{'provider_options':{'elevenlabs':{'diarize':True,'tag_audio_events':False,'no_verbatim':False}}}},'summary':{'model':'openai/gpt-6-luna','options':{'effort':'medium'}}}}
+        return {'stages':{'asr':{'provider':'openrouter','model':'elevenlabs/scribe-v2','options':{'provider_options':{'elevenlabs':{'diarize':True,'tag_audio_events':False,'no_verbatim':False}}}},'summary':{'model':'openai/gpt-6-luna','options':{'effort':'medium'}}}}
 
-    def pipeline(self,stream=True,identify=False,diarized=True,summary_enabled=True):
+    def pipeline(self,stream=True,identify=False,diarized=True,summary_enabled=True,partial=False):
         utterance="저는 김민수입니다." if identify else "첫 발화입니다."
         with tempfile.TemporaryDirectory() as temporary:
             folder=Path(temporary)
@@ -29,6 +29,7 @@ class LegacyModelTests(unittest.TestCase):
                 requests.append(request)
                 body=json.loads(request.content)
                 if request.url.path.endswith('audio/transcriptions'):
+                    if partial and len(requests)==1:return httpx.Response(200,json={'text':'','words':[]})
                     self.assertEqual(body['model'],'elevenlabs/scribe-v2')
                     self.assertTrue(body['provider']['options']['elevenlabs']['diarize'])
                     self.assertEqual(body['input_audio']['format'],'wav')
@@ -51,17 +52,27 @@ class LegacyModelTests(unittest.TestCase):
             args.stream=stream
             config=type('TestConfig',(Config,),{'DB_PATH':folder/'test.db','AUDIO_PATH':folder/'audio','VIDEO_PATH':folder/'video','TEMP_PATH':folder/'tmp','TRANSCRIPT_PATH':folder/'transcripts','DOWNLOADS_PATH':folder/'downloads'})()
             config.TRANSCRIPT_PATH.mkdir()
-            with patch.dict(os.environ,{'OPENAI_API_KEY':'test-openai','OPENROUTER_API_KEY':'test-openrouter'}),patch.object(models,'settings',return_value=self.configuration()),patch.object(httpx,'Client',side_effect=client_factory),patch('src.core.presentation.cli.YouTubeDownloader') as downloader,patch('src.core.presentation.cli.notion.is_configured',return_value=False),contextlib.redirect_stdout(output):
+            from src.core.speech.adapters import REGISTRY,ModelSpec
+            with patch('src.core.config.document.load_settings',return_value={'paths':{'data':str(folder/'diagnostics')}}),patch.dict(REGISTRY,{'elevenlabs/scribe-v2':ModelSpec('elevenlabs/scribe-v2','unsupported')}),patch('src.core.speech.adapters.policy',return_value=(ModelSpec('elevenlabs/scribe-v2','unsupported'),'auto',True)),patch.dict(os.environ,{'OPENAI_API_KEY':'test-openai','OPENROUTER_API_KEY':'test-openrouter'}),patch.object(models,'settings',return_value=self.configuration()),patch.object(httpx,'Client',side_effect=client_factory),patch('src.core.presentation.cli.YouTubeDownloader') as downloader,patch('src.core.presentation.cli.notion.is_configured',return_value=False),contextlib.redirect_stdout(output):
                 downloader.return_value.get_video_info.return_value={'id':'oQypVVv1u1o','title':'복원 회의','duration':1,'uploader':'fixture'}
                 downloader.return_value.download_audio.return_value=str(audio)
-                self.assertTrue(process_single_video(args.input,args,config))
+                if partial:
+                    with patch('src.core.speech.transcribers.modern.get_audio_duration',return_value=60):
+                        self.assertFalse(process_single_video(args.input,args,config))
+                    self.assertFalse(process_single_video(args.input,args,config))
+                else:self.assertTrue(process_single_video(args.input,args,config))
             files={p.name:p.read_text() for p in config.DOWNLOADS_PATH.iterdir()}
             self.assertIn('복원_회의.txt',files)
             self.assertIn(utterance,files['복원_회의.txt'])
             if summary_enabled:
                 self.assertIn('회의 요약입니다.',files['복원_회의_summary.txt'])
             else:self.assertNotIn('복원_회의_summary.txt',files)
-            self.assertEqual(len(requests),2 if summary_enabled else 1)
+            self.assertEqual(len(requests),(3 if summary_enabled else 2) if partial else (2 if summary_enabled else 1))
+            if partial:
+                self.assertIn('미전사 구간',files['복원_회의.txt'])
+                self.assertIn('확인 필요',files['복원_회의_summary.txt'])
+                import sqlite3
+                with sqlite3.connect(config.DB_PATH) as connection:self.assertEqual(connection.execute('SELECT status FROM transcription_jobs').fetchone()[0],'partial')
             if identify and summary_enabled:
                 self.assertTrue(files['복원_회의.txt'].startswith('[00:00] 김민수:'))
                 raw=list(config.TRANSCRIPT_PATH.glob('*_raw_*.txt'))
@@ -79,6 +90,8 @@ class LegacyModelTests(unittest.TestCase):
     def test_speaker_names_reach_transcript_copy_and_preserve_raw(self):self.pipeline(identify=True)
     def test_model_without_actual_diarization_keeps_normal_summary(self):self.pipeline(diarized=False)
     def test_no_summary_does_not_call_identity_model(self):self.pipeline(identify=True,summary_enabled=False)
+
+    def test_empty_chunk_persists_partial_state_and_cannot_become_completed_on_cached_run(self):self.pipeline(partial=True)
 
     def test_http_error_is_not_retried_or_fallback(self):
         calls=[]

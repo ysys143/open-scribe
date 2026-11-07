@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.3.1 — 2026-11-07
+
+- Explicit ASR capability registry and ElevenLabs/OpenRouter response adapters.
+- Scribe v2 defaults to ElevenLabs direct API, whole-file requests and disabled intermediate transcript streaming.
+- Upload/wait feedback and readable speaker labels, preserving original identities for later name attribution.
+- `models` capability listing and offline `repair JOB_ID [--cache PATH]` for existing responses.
+- Summary output budget is configurable (default 8192); preserve raw responses and termination/usage diagnostics.
+- Fix Notion status argument, local source handling, publication checkpoints and duplicate-post protection.
+- Persist usable ASR results before downstream stages; failures remain partial rather than stale processing.
+
+Upgrade: configure `providers.elevenlabs.api_key_file` and `api_key_env` for a key with Speech to Text permission.
+The default Scribe route no longer uses an OpenRouter key. Summary/Notion preferences in existing JSON are preserved.
+
+
+- Preserve ASR responses per chunk and resume completed work without automatic provider retries.
+- Mark empty-text intervals and incomplete transcripts explicitly instead of aborting the whole file.
+- Recover text from provider word/segment data when full text is omitted; reject malformed envelopes.
+- Keep partial results partial on cached runs and retain original responses on an explicit force run.
+
 ## 0.3.0 — 2026-11-07
 
 ### Added

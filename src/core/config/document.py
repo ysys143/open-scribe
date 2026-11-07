@@ -15,7 +15,7 @@ def defaults():
     home=Path.home();root=Path(__file__).resolve().parents[3]
     def key(name):return {'api_key_env':name,'api_key_file':None}
     def text(language=None,enabled=None):
-        result={'model':'openai/gpt-6-luna','options':{'effort':'medium'}}
+        result={'model':'openai/gpt-6-luna','options':{'effort':'medium','max_output_tokens':8192}}
         if language is not None:result['options']['language']=language
         if enabled is not None:result['enabled']=enabled
         return result
@@ -23,11 +23,11 @@ def defaults():
         'paths':{'data':str(home/'.local/share/open-scribe'),'cache':str(home/'.cache/open-scribe'),
                  'audio':None,'video':None,'transcript':None,'temp':None,'database':None},
         'workers':{'min':1,'max':5},
-        'output':{'stream':True,'downloads':True,'keep_audio':False,'video':False,'srt':False,'timestamp':False,'verbose':True,'debug':False},
+        'output':{'stream':False,'downloads':True,'keep_audio':False,'video':False,'srt':False,'timestamp':True,'verbose':True,'debug':False},
         'whisper_cpp':{'model_path':str(root/'whisper.cpp/models/ggml-large-v3.bin'),'executable':str(root/'whisper.cpp/build/bin/whisper-cli')},
-        'stages':{'asr':{'model':'elevenlabs/scribe-v2','options':{'provider_options':None,'language':None}},
+        'stages':{'asr':{'provider':'auto','model':'elevenlabs/scribe-v2','options':{'provider_options':None,'language':None,'diarize':None,'request_timeout_seconds':1800}},
                   'summary':text('auto',True),'translate':text('Korean',False),'correct':text(),'keywords':text()},
-        'providers':{p:key(p.upper()+'_API_KEY') for p in ('openrouter','openai','anthropic')},
+        'providers':{p:key(p.upper()+'_API_KEY') for p in ('openrouter','openai','anthropic','elevenlabs')},
         'integrations':{'notion':{**key('NOTION_API_KEY'),'enabled':False,'database_id':''},
                         'telegram':key('TELEGRAM_BOT_TOKEN'),'proxy':key('PROXY_URL'),'proxy_list':key('WEBSHARE_PROXY_LIST_URL')},
         'download':{'cookies_browser':'','remote_components':None,'player_clients':[]},
@@ -67,6 +67,11 @@ def validate(data,path):
     check(result['stages']['asr']['options']['language'] is None or isinstance(result['stages']['asr']['options']['language'],str) and re.fullmatch('[A-Za-z]{2}',result['stages']['asr']['options']['language']),'stages.asr.options.language')
     options=result['stages']['asr']['options']['provider_options']
     check(options is None or isinstance(options,dict) and all(isinstance(v,dict) for v in options.values()),'stages.asr.options.provider_options')
+    check(result['stages']['asr']['provider'] in ('auto','openrouter','openai','elevenlabs'),'stages.asr.provider')
+    check(result['stages']['asr']['options']['diarize'] is None or type(result['stages']['asr']['options']['diarize']) is bool,'stages.asr.options.diarize')
+    check(type(result['stages']['asr']['options']['request_timeout_seconds']) is int and result['stages']['asr']['options']['request_timeout_seconds']>0,'stages.asr.options.request_timeout_seconds')
+    for name in ('summary','translate','correct','keywords'):
+        limit=result['stages'][name]['options']['max_output_tokens'];check(type(limit) is int and limit>0,'stages.'+name+'.options.max_output_tokens')
     notion=result['integrations']['notion'];check(type(notion['enabled']) is bool and isinstance(notion['database_id'],str),'integrations.notion')
     for name in ('cookies_browser',):check(isinstance(result['download'][name],str),'download.'+name)
     for name in ('remote_components','player_clients'):

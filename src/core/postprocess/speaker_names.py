@@ -55,5 +55,5 @@ def parse_summary(content,context):
         if len(names)>1:mapping.pop(label,None)
     for proposal in audit:
         if proposal.get('label') not in mapping:proposal['status']='needs_confirmation'
-    summary=re.sub(r'\[\[speaker:([^\]\n]+)\]\]',lambda m:mapping.get(m[1],m[1]),data['summary'])
+    summary=re.sub(r'\[\[speaker:([^\]\n]+)\]\]',lambda m:mapping.get(m[1],context.get('display_labels',{}).get(m[1],m[1])),data['summary'])
     return SpeakerSummary(summary,mapping,audit)

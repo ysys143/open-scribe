@@ -5,14 +5,19 @@
     "data": "~/.local/share/open-scribe"
   },
   "output": {
-    "stream": true,
+    "stream": false,
     "downloads": true,
     "keep_audio": false,
     "timestamp": true
   },
   "stages": {
     "asr": {
-      "model": "elevenlabs/scribe-v2"
+      "model": "elevenlabs/scribe-v2",
+      "provider": "elevenlabs",
+      "options": {
+        "diarize": true,
+        "request_timeout_seconds": 1800
+      }
     },
     "summary": {
       "model": "openai/gpt-6-luna",
@@ -22,6 +27,10 @@
   "providers": {
     "openrouter": {
       "api_key_env": "OPENROUTER_API_KEY",
+      "api_key_file": null
+    },
+    "elevenlabs": {
+      "api_key_env": "ELEVENLABS_API_KEY",
       "api_key_file": null
     }
   }

@@ -71,5 +71,29 @@ def replace_names(text,mapping):
     for span in sorted(context['spans'],key=lambda s:s['start'],reverse=True):
         start,end,label=span['start'],span['end'],span['label']
         if result[start:end]!=label:raise ValueError('speaker label span changed')
-        if label in mapping:result=result[:start]+mapping[label]+result[end:]
+        identity=span.get('speaker',label)
+        if identity in mapping:result=result[:start]+mapping[identity]+result[end:]
+    return result
+
+
+def friendly_speakers(value):
+    """Readable labels for one request, retaining stable IDs for name attribution."""
+    import copy
+    context=getattr(value,'speaker_context',None)
+    if not context:return value
+    context=copy.deepcopy(context)
+    identities=list(dict.fromkeys(t['speaker'] for t in context['turns'] if t.get('speaker')))
+    names={identity:f'화자 {i+1}' for i,identity in enumerate(identities)}
+    parts=[];cursor=0;length=0;spans=[]
+    for span in context['spans']:
+        start,end,label=span['start'],span['end'],span['label']
+        if value[start:end]!=label:raise ValueError('speaker label span changed')
+        prefix=value[cursor:start];parts.append(prefix);length+=len(prefix)
+        identity=span.get('speaker',label);display=names[identity]
+        spans.append({'start':length,'end':length+len(display),'label':display,'speaker':identity})
+        parts.append(display);length+=len(display);cursor=end
+    parts.append(value[cursor:]);text=''.join(parts)
+    context.update(version=3,spans=spans,display_labels=names,text_sha256=digest(text))
+    result=DiarizedText(text,context)
+    result.asr_issues=getattr(value,'asr_issues',[])
     return result

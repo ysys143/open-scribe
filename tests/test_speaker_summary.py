@@ -69,8 +69,10 @@ class SpeakerSummaryTests(unittest.TestCase):
             replies=[{'text':'저는 김민수입니다.','words':[{'text':'저는 김민수입니다.','start':0,'speaker_id':'0'}]},
                      {'text':'화자 레이블이 없는 중요한 후반부'}]
             def ffmpeg(args,**kwargs):Path(args[-1]).write_bytes(b'fixture')
-            with patch('src.core.speech.transcribers.modern.get_audio_duration',return_value=60),patch('src.core.speech.transcribers.modern.subprocess.run',side_effect=ffmpeg),patch('src.core.speech.transcribers.modern.stage',return_value={'options':{'provider_options':{'elevenlabs':{'diarize':True}}}}),patch('src.core.speech.transcribers.modern.route',return_value=('openrouter','elevenlabs/scribe-v2')),patch('src.core.speech.transcribers.modern.post',side_effect=replies):
-                result=ModernTranscriber(Config,'elevenlabs/scribe-v2').transcribe(str(source))
+            from src.core.speech.adapters import ModelSpec
+            with patch('src.core.speech.adapters.policy',return_value=(ModelSpec('elevenlabs/scribe-v2','unsupported'),'auto',True)),patch('src.core.speech.transcribers.modern.get_audio_duration',return_value=60),patch('src.core.speech.transcribers.modern.subprocess.run',side_effect=ffmpeg),patch('src.core.speech.transcribers.modern.stage',return_value={'options':{'provider_options':{'elevenlabs':{'diarize':True}}}}),patch('src.core.speech.transcribers.modern.route',return_value=('openrouter','elevenlabs/scribe-v2')),patch('src.core.speech.transcribers.modern.post',side_effect=replies):
+                config=type('TempConfig',(Config,),{'TRANSCRIPT_PATH':Path(d)/'transcripts'})
+                result=ModernTranscriber(config,'elevenlabs/scribe-v2').transcribe(str(source))
             self.assertEqual(result.speaker_context['turns'][-1]['text'],'화자 레이블이 없는 중요한 후반부')
             self.assertIsNone(result.speaker_context['turns'][-1]['speaker'])
 

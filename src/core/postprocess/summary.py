@@ -52,6 +52,9 @@ Your summaries should:
 4. Be written in clear, professional language
 5. Use bullet points for lists when appropriate"""
 
+        if getattr(transcript,'asr_issues',None):
+            system_prompt+='\nThis is a PARTIAL transcript. Marked untranscribed intervals contain no recognized speech text; do not treat the markers as utterances or invent missing content. State that the summary is incomplete.'
+
         # Add language instruction based on preference
         if summary_lang.lower() == 'auto':
             # auto - use source language
@@ -116,15 +119,8 @@ Your summaries should:
             ],
         }
 
-        # Use appropriate parameter based on model
-        if model.startswith('gpt-5'):
-            # gpt-5 models only support default temperature
-            pass
-        else:
-            completion_params["max_tokens"] = 1000
-            completion_params["temperature"] = 0.3  # Lower temperature for more focused summaries
-
-        if context:completion_params['max_tokens']=8192
+        from src.core.providers.models import stage
+        completion_params['max_tokens']=stage('summary').get('options',{}).get('max_output_tokens',8192)
         response = client.chat.completions.create(**completion_params)
 
         summary = response.choices[0].message.content

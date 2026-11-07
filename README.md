@@ -1,4 +1,4 @@
-# Open-Scribe 0.3.0
+# Open-Scribe 0.3.1
 
 Homebrew 0.2.4의 CLI·출력·파일 처리에 최신 모델 연결을 적용한 소스 버전입니다.
 
@@ -109,3 +109,37 @@ Notion의 enabled·database_id, 다운로드 설정, 워커 수, Whisper 경로,
 `--update-key`는 키 파일 관리 안내만 출력하며 파일을 쓰거나 키를 복사하지 않습니다.
 
 업그레이드 시 설정 이전 내용은 [CHANGELOG.md](CHANGELOG.md)를 확인하세요.
+
+## 빈 전사 응답과 중단 후 재실행
+
+정상 응답의 text가 비어 있으면 해당 구간을 `[미전사 구간]`으로 표시하고 다음 청크를 처리합니다.
+이는 무음이라는 판정이 아닙니다. 누락이 있는 결과와 요약은 부분 결과로 표시하며 작업 상태도
+partial로 남습니다. 모든 청크가 비거나 응답 형식이 잘못됐으면 성공으로 처리하지 않습니다.
+
+완료된 응답은 transcript 경로의 `.asr-cache/<내용·모델·옵션 해시>/`에 보존합니다.
+중간 실패 후 같은 명령을 다시 실행하면 저장된 청크는 재호출하지 않습니다. 이전 버전에서
+저장하지 않았던 응답은 복구할 수 없습니다. `--force`는 새 ASR 호출을 요청하므로 비용이 다시
+발생할 수 있으며 이전 원본 응답은 캐시의 previous 디렉터리에 남습니다. 미전사 구간·캐시 경로는
+`<제목>_asr_status.json`에서도 확인할 수 있습니다. 부분 결과는 확인 전 완성된 녹취로 간주하지 마세요.
+
+## ASR 어댑터와 화자 분리 정책
+
+`scr models`는 화자 분리 지원·미지원·미확인을 구분합니다. Scribe v2는 기본적으로 ElevenLabs
+직접 API에 전체 파일을 한 번 전송하며 중간 본문 스트리밍을 강제로 끕니다. 업로드 전송량과
+응답 대기 시간만 표시합니다. 서버 전사 진행률은 추정하지 않습니다.
+`stages.asr.provider`로 auto/elevenlabs/openrouter/openai를 고릅니다. ElevenLabs 인증은
+`providers.elevenlabs.api_key_file`과 `ELEVENLABS_API_KEY` 변수 참조를 사용합니다.
+`options.diarize`는 true/false/null, `request_timeout_seconds`는 기본 1800초입니다.
+기존 ElevenLabs provider_options는 읽기 호환되며 상충하는 diarize 설정은 오류로 처리합니다.
+지원하지 않거나 미확인 모델에 화자 분리를 강제하면 호출 전에 중단합니다.
+
+`scr repair JOB_ID [--cache PATH]`는 원본 해시와 모델이 일치하는 캐시를 오프라인으로 재해석합니다.
+파생 파일을 만들고 해당 작업의 경로를 바꾸되 이전 파일을 보존합니다. 요약·Notion·ASR을 호출하지
+않으며, 청크별 화자 번호를 회의 전체의 동일인으로 합치지 않습니다.
+
+요약의 출력 상한은 `stages.summary.options.max_output_tokens`(기본 8192)입니다.
+빈 응답의 원문·종료 사유·사용량은 data/model-responses에 남기며 자동 재호출하지 않습니다.
+Notion은 status와 로컬 파일 출처를 올바르게 전달하고 게시 상태를 기록해 결과 불명 요청의 중복
+게시를 막습니다. 후처리 실패는 완료로 기록하지 않습니다.
+
+단일 요청의 기본 화자 표시는 첫 등장 순서의 `화자 1`, `화자 2`입니다. 원본 화자 ID는 근거 JSON에 보존하고, 이름 확인 후 치환도 같은 ID를 기준으로 수행합니다.
