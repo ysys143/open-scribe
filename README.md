@@ -1,4 +1,4 @@
-# Open-Scribe 0.3.1
+# Open-Scribe 0.3.2
 
 Homebrew 0.2.4의 CLI·출력·파일 처리에 최신 모델 연결을 적용한 소스 버전입니다.
 
@@ -14,7 +14,7 @@ scr "URL" --engine elevenlabs/scribe-v2 --timestamp --srt
 `--downloads`는 설정된 Downloads 경로에 제목 파일명을 그대로 복사합니다.
 `--no-stream`은 전사 본문 출력을 끕니다. 요약은 기본 활성화이며 `--no-summary`로 끕니다.
 
-- ASR 기본: `elevenlabs/scribe-v2`, OpenRouter 음성 API
+- ASR 기본: `openai/gpt-transcribe`, OpenAI native 키가 있으면 직접 연결(화자 분리 없음). 화자 분리가 필요하면 `--engine elevenlabs/scribe-v2`
 - 텍스트 기본: `openai/gpt-6-luna`, 같은 모델의 native 키가 있으면 직접 연결
 - 다른 ASR 모델과 기존 엔진: `scribe --help`
 - 모델 설정: `${OPEN_SCRIBE_SETTINGS:-~/.config/open-scribe/settings.json}`의 stages 모델·options
@@ -23,7 +23,13 @@ scr "URL" --engine elevenlabs/scribe-v2 --timestamp --srt
 
 키 파일은 현재 사용자 소유·권한 600이어야 하며 지정한 키만 읽습니다. 키를 전역 export하거나
 Keychain에서 자동 조회하지 않습니다. 파일을 지정하면 환경변수로 대체하지 않습니다.
-요청 실패를 다른 모델·자막으로 대체하거나 자동 재시도하지 않습니다.
+요청 실패를 다른 모델·자막으로 대체하지 않습니다.
+
+재시도 정책: OpenAI·OpenRouter·Anthropic 호출은 일시적 전송 오류(타임아웃·연결 끊김), HTTP 429·500·502·503·504,
+깨진 응답 본문에 한해 최대 3회 시도합니다(대기 2초·5초, `Retry-After`가 있으면 최대 30초까지 따름).
+400·401·403·404 같은 요청·인증 오류는 재시도하지 않습니다. 재시도는 `[retry]` 줄로 표시하고, 소진되면
+원인(예외 종류 또는 HTTP 상태)과 시도 횟수를 밝히며 실패합니다. ElevenLabs 전체 파일 요청은 재시도하지 않습니다.
+구간별 체크포인트는 그대로여서, 실패 뒤 같은 입력으로 다시 실행하면 완료한 구간은 재사용합니다.
 
 ## 설치
 

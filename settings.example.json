@@ -12,10 +12,10 @@
   },
   "stages": {
     "asr": {
-      "model": "elevenlabs/scribe-v2",
-      "provider": "elevenlabs",
+      "model": "openai/gpt-transcribe",
+      "provider": "auto",
       "options": {
-        "diarize": true,
+        "diarize": false,
         "request_timeout_seconds": 1800
       }
     },

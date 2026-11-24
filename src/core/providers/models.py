@@ -6,6 +6,7 @@ from pathlib import Path
 import re
 import shlex
 import stat
+import time
 from types import SimpleNamespace
 import httpx
 
@@ -24,7 +25,7 @@ def stage(name):
 
 
 def model(name):
-    return stage(name).get('model') or ('elevenlabs/scribe-v2' if name=='asr' else TEXT_MODELS[0])
+    return stage(name).get('model') or ('openai/gpt-transcribe' if name=='asr' else TEXT_MODELS[0])
 
 
 def credential(provider):
@@ -67,18 +68,44 @@ def route(selected):
     return 'openrouter',selected
 
 
+POST_ATTEMPTS=3
+RETRY_STATUS=(429,500,502,503,504)
+RETRY_BACKOFF=(2,5)
+RETRY_AFTER_MAX=30
+
+
+def _retry_after(response):
+    try:value=float(response.headers.get('retry-after',''))
+    except ValueError:return None
+    return min(max(value,0),RETRY_AFTER_MAX)
+
+
 def post(provider,endpoint,*,json_body=None,data=None,files=None):
     key=credential(provider)
     if not key:raise ValueError(provider+' credential missing; configure providers.'+provider+'.api_key_file')
     base={'openai':'https://api.openai.com/v1','anthropic':'https://api.anthropic.com/v1','openrouter':'https://openrouter.ai/api/v1'}[provider]
     headers=({'x-api-key':key,'anthropic-version':'2023-06-01'} if provider=='anthropic' else {'Authorization':'Bearer '+key})
-    try:
-        with httpx.Client(timeout=httpx.Timeout(180,connect=10)) as client:
-            response=client.post(base+'/'+endpoint,headers=headers,json=json_body,data=data,files=files)
-        if response.status_code>=400:raise ValueError(provider+' HTTP '+str(response.status_code)+'; not retried')
-        return response.json()
-    except (httpx.HTTPError,json.JSONDecodeError):
-        raise ValueError(provider+' request failed; outcome uncertain, not retried') from None
+    reason=None;status=None
+    with httpx.Client(timeout=httpx.Timeout(180,connect=10)) as client:
+        for attempt in range(1,POST_ATTEMPTS+1):
+            wait=None;status=None
+            try:
+                response=client.post(base+'/'+endpoint,headers=headers,json=json_body,data=data,files=files)
+                if response.status_code in RETRY_STATUS:
+                    status=response.status_code;reason='HTTP '+str(status);wait=_retry_after(response)
+                elif response.status_code>=400:
+                    raise ValueError(provider+' HTTP '+str(response.status_code)+'; not retried')
+                else:
+                    return response.json()
+            except (httpx.HTTPError,json.JSONDecodeError) as error:
+                reason=type(error).__name__
+            if attempt==POST_ATTEMPTS:break
+            wait=RETRY_BACKOFF[attempt-1] if wait is None else wait
+            print(f'[retry] {provider} request failed ({reason}); retry {attempt}/{POST_ATTEMPTS-1} in {wait:g}s',flush=True)
+            time.sleep(wait)
+    if status is not None:
+        raise ValueError(f'{provider} HTTP {status} after {POST_ATTEMPTS} attempts; not retried further')
+    raise ValueError(f'{provider} request failed ({reason}) after {POST_ATTEMPTS} attempts; outcome uncertain')
 
 
 class TextClient:

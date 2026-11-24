@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.2 — 2026-11-24
+
+- Default ASR is now `openai/gpt-transcribe` (provider `auto`, direct OpenAI key when configured). It returns no speaker labels, so diarization stays off for it (an explicit `stages.asr.options.diarize: true` is rejected); select `--engine elevenlabs/scribe-v2` for diarization.
+- Bounded retry for OpenAI, OpenRouter and Anthropic requests: up to 3 attempts on transport errors, HTTP 429/500/502/503/504 and malformed response bodies, with 2s/5s backoff (or `Retry-After`, capped at 30s). 400/401/403/404 are not retried. Each retry prints a `[retry]` line.
+- Failures now name the cause and attempt count (for example `openai request failed (ReadTimeout) after 3 attempts; outcome uncertain`) instead of hiding the exception type.
+- ElevenLabs whole-file requests are still not retried. Per-chunk checkpoints are unchanged, so a rerun reuses completed chunks.
+- Supersedes the 0.3.1 note "without automatic provider retries" for the providers above.
+
+Upgrade: existing `settings.json` keeps its ASR model. To adopt the new default set `stages.asr.model` to `openai/gpt-transcribe`, `stages.asr.provider` to `auto` and `stages.asr.options.diarize` to `false`.
+
 ## 0.3.1 — 2026-11-07
 
 - Explicit ASR capability registry and ElevenLabs/OpenRouter response adapters.

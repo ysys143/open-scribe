@@ -1,9 +1,9 @@
 class OpenScribe < Formula
   desc "Transcribe and summarize audio or YouTube with explicit JSON settings"
   homepage "https://github.com/ysys143/open-scribe"
-  url "https://github.com/ysys143/open-scribe/releases/download/0.3.1/open-scribe-0.3.1.tar.gz"
-  version "0.3.1"
-  sha256 "4ccdd10f7d1a2bd4d62765d0a7f2b4149d401810135f6e59c20ce608eb0d9859"
+  url "https://github.com/ysys143/open-scribe/releases/download/0.3.2/open-scribe-0.3.2.tar.gz"
+  version "0.3.2"
+  sha256 "09accc431ac87c2b6d079b0523a4847e351c22cf4a249dfadf808b390a26e9b0"
   license "MIT"
 
   depends_on "python@3.11"
@@ -39,7 +39,7 @@ class OpenScribe < Formula
   test do
     ENV["OPEN_SCRIBE_SETTINGS"] = (testpath/"settings.json").to_s
     (testpath/"settings.json").write '{"copy_to_path":null}'
-    assert_match "0.3.1", shell_output("#{bin}/scribe --version")
+    assert_match "0.3.2", shell_output("#{bin}/scribe --version")
     system bin/"openscribe", "config", "validate"
     assert_match "저장된 녹취가 없습니다", shell_output("#{bin}/scr ls")
   end

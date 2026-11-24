@@ -25,7 +25,7 @@ def defaults():
         'workers':{'min':1,'max':5},
         'output':{'stream':False,'downloads':True,'keep_audio':False,'video':False,'srt':False,'timestamp':True,'verbose':True,'debug':False},
         'whisper_cpp':{'model_path':str(root/'whisper.cpp/models/ggml-large-v3.bin'),'executable':str(root/'whisper.cpp/build/bin/whisper-cli')},
-        'stages':{'asr':{'provider':'auto','model':'elevenlabs/scribe-v2','options':{'provider_options':None,'language':None,'diarize':None,'request_timeout_seconds':1800}},
+        'stages':{'asr':{'provider':'auto','model':'openai/gpt-transcribe','options':{'provider_options':None,'language':None,'diarize':None,'request_timeout_seconds':1800}},
                   'summary':text('auto',True),'translate':text('Korean',False),'correct':text(),'keywords':text()},
         'providers':{p:key(p.upper()+'_API_KEY') for p in ('openrouter','openai','anthropic','elevenlabs')},
         'integrations':{'notion':{**key('NOTION_API_KEY'),'enabled':False,'database_id':''},
